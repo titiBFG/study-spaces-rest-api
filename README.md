@@ -161,7 +161,7 @@ El proyecto implementa una arquitectura en capas desacopladas aplicando el **Pat
 ### 1. Clonar el repositorio y crear entorno virtual
 ```bash
 git clone <URL_DEL_REPOSITORIO>
-cd "Programacion 2"
+cd study-spaces-rest-api
 
 # Crear entorno virtual
 python -m venv venv
