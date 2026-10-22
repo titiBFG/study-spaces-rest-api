@@ -10,7 +10,7 @@
 - [x] **Fase 1: Análisis y Definición del MVP** (6 requerimientos clave seleccionados).
 - [x] **Fase 2: Modelado UML y Arquitectura** (Diagrama de clases Mermaid en `README.md`).
 - [x] **Fase 3: Repositorio e Inicialización Base** (Estructura modular, `.gitignore`, `requirements.txt`).
-- [ ] **Fase 4: Entorno Virtual y Dependencias** (Creación de `venv` e instalación).
+- [x] **Fase 4: Entorno Virtual y Dependencias** (Creación de `venv` e instalación).
 - [ ] **Fase 5: Base de Datos y Modelos SQLAlchemy** (Configuración de sesión y ORM).
 - [ ] **Fase 6: Autenticación JWT y Roles** (Bcrypt + Tokens Bearer + RBAC).
 - [ ] **Fase 7: Repositorios, Servicios y Endpoints REST** (CRUDs, filtros y promedios).
@@ -22,3 +22,4 @@
 ---
 
 *Este archivo se actualizará a medida que completemos cada fase.*
+
