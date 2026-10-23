@@ -11,7 +11,7 @@
 - [x] **Fase 2: Modelado UML y Arquitectura** (Diagrama de clases Mermaid en `README.md`).
 - [x] **Fase 3: Repositorio e Inicialización Base** (Estructura modular, `.gitignore`, `requirements.txt`).
 - [x] **Fase 4: Entorno Virtual y Dependencias** (Creación de `venv` e instalación).
-- [ ] **Fase 5: Base de Datos y Modelos SQLAlchemy** (Configuración de sesión y ORM).
+- [x] **Fase 5: Base de Datos y Modelos SQLAlchemy** (Configuración de sesión y ORM).
 - [ ] **Fase 6: Autenticación JWT y Roles** (Bcrypt + Tokens Bearer + RBAC).
 - [ ] **Fase 7: Repositorios, Servicios y Endpoints REST** (CRUDs, filtros y promedios).
 - [ ] **Fase 8: Manejo Centralizado de Excepciones** (Middleware / exception handlers).
@@ -22,4 +22,3 @@
 ---
 
 *Este archivo se actualizará a medida que completemos cada fase.*
-

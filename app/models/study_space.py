@@ -47,3 +47,20 @@ class StudySpace(Base):
     favorites: Mapped[list["Favorite"]] = relationship(
         back_populates="space", cascade="all, delete-orphan"
     )
+
+    def calculate_average_rating(self) -> float:
+        """Calculate average rating based on visible reviews."""
+        visible_ratings = [
+            review.rating
+            for review in self.reviews
+            if getattr(review, "is_visible", True)
+        ]
+        if not visible_ratings:
+            return 0.0
+        return round(sum(visible_ratings) / len(visible_ratings), 2)
+
+    def count_reviews(self) -> int:
+        """Count total visible reviews."""
+        return sum(
+            1 for review in self.reviews if getattr(review, "is_visible", True)
+        )

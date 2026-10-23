@@ -42,3 +42,11 @@ class ReviewReport(Base):
 
     review: Mapped["Review"] = relationship(back_populates="reports")
     reporter: Mapped["User"] = relationship(back_populates="reports")
+
+    def resolve(self) -> None:
+        """Mark report as resolved (action taken on review)."""
+        self.status = ReportStatus.RESOLVED
+
+    def dismiss(self) -> None:
+        """Dismiss report without taking action."""
+        self.status = ReportStatus.DISMISSED
