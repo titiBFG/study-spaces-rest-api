@@ -4,13 +4,13 @@ Trabajo Práctico para la materia **Programación 2** (UNSAM).
 
 ---
 
-## 📌 Descripción del Proyecto
+## Descripción del Proyecto
 
 API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (cafeterías, bibliotecas, espacios de coworking), permitiéndoles buscar y filtrar lugares según sus preferencias (WiFi, enchufes, nivel de ruido), calificar y reseñar espacios, y guardar lugares en favoritos. Los establecimientos pueden vincularse para gestionar sus datos y los administradores moderan la plataforma.
 
 ---
 
-## 🎯 Requerimientos de Alto Nivel (MVP)
+## Requerimientos de Alto Nivel (MVP)
 
 1. **RQ1 - Gestión de Usuarios y Autenticación Segura (JWT + Roles):**
    * Registro y autenticación de usuarios con roles diferenciados: `Estudiante`, `Negocio` y `Administrador`.
@@ -34,7 +34,7 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 
 ---
 
-## 📐 Diagrama de Clases UML
+## Diagrama de Clases UML
 
 ```mermaid
 classDiagram
@@ -142,7 +142,7 @@ classDiagram
 
 ---
 
-## 🏗️ Arquitectura y Patrones de Diseño
+## Arquitectura y Patrones de Diseño
 
 El proyecto implementa una arquitectura en capas desacopladas aplicando el **Patrón Repositorio (Repository Pattern)** junto con una **Capa de Servicios (Service Layer)**:
 
@@ -152,7 +152,7 @@ El proyecto implementa una arquitectura en capas desacopladas aplicando el **Pat
 
 ---
 
-## 🚀 Instalación y Puesta en Marcha
+## Instalación y Puesta en Marcha
 
 ### Prerrequisitos
 * Python 3.11+
@@ -189,7 +189,7 @@ La documentación interactiva OpenAPI (Swagger) estará disponible en:
 
 ---
 
-## 🧪 Ejecución de Pruebas (Testing)
+## Ejecución de Pruebas (Testing)
 
 ```bash
 pytest -v
@@ -197,5 +197,5 @@ pytest -v
 
 ---
 
-## 👥 Integrantes y Docentes
+## Integrantes y Docentes
 * **Docentes evaluadores:** `matuk`, `santiagoblaslaguzza`
