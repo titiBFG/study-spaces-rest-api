@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+import bcrypt
 from sqlalchemy import Boolean, DateTime, Enum, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -42,3 +43,21 @@ class User(Base):
     reports: Mapped[list["ReviewReport"]] = relationship(
         back_populates="reporter", cascade="all, delete-orphan"
     )
+
+    def verify_password(self, plain_password: str) -> bool:
+        """Verify a plain text password against the stored bcrypt hash."""
+        if not self.hashed_password:
+            return False
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            self.hashed_password.encode("utf-8"),
+        )
+
+    def is_admin(self) -> bool:
+        return self.role == UserRole.ADMIN
+
+    def is_student(self) -> bool:
+        return self.role == UserRole.STUDENT
+
+    def is_business(self) -> bool:
+        return self.role == UserRole.BUSINESS

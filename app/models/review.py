@@ -39,3 +39,11 @@ class Review(Base):
     reports: Mapped[list["ReviewReport"]] = relationship(
         back_populates="review", cascade="all, delete-orphan"
     )
+
+    def hide(self) -> None:
+        """Hide review from public view upon moderation."""
+        self.is_visible = False
+
+    def restore(self) -> None:
+        """Restore review visibility."""
+        self.is_visible = True
