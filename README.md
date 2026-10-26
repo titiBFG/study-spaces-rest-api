@@ -61,7 +61,7 @@ classDiagram
         CANCELADA
     }
 
-    class PymentStatus {
+    class PaymentStatus {
         PENDIENTE
         APROBADO
         RECHAZADO
@@ -224,7 +224,7 @@ classDiagram
         +send() Void
     }
 
-    class AdertisingPlan {
+    class AdvertisingPlan {
         +id : Integer
         +name : String
         +description : String
