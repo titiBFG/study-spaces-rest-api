@@ -192,10 +192,12 @@ classDiagram
     StudentUser "1" --> "0..*" StudySpacesList : guarda
 
     BusinessUser "1" --> "0..*" StudySpace : gestiona
+    BusinessYser "1" --> "0..*" Post : publica
 
     AdminUser "1" --> "0..*" ReviewReport : gestiona
 
     StudySpace "1" --> "0..*" Review : recibe
+    StudySpace "1" --> "0..*" Post : recibe
     StudySpace "1" --> "0..*" StudySpacesList : es guardado en
 
     StudySpacesList <|-- FavoritesList
