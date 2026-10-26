@@ -54,6 +54,20 @@ classDiagram
         DESCARTADO
     }
 
+    class CampaignStatus {
+        PENDIENTE
+        ACTIVA
+        FINALIZADA
+        CANCELADA
+    }
+
+    class PymentStatus {
+        PENDIENTE
+        APROBADO
+        RECHAZADO
+        CANCELADO
+    }
+
     class User {
         <<abstract>>
         +id : Integer
@@ -62,16 +76,19 @@ classDiagram
         +full_name : String
         +is_active : Bool
         +created_at : Datetime
+        +notification_preferences : List~NotificationPreference~
         +verify_password(plain_password : String) Bool
+        +verify_email(email : String) Bool
         +receive_notification() Void
+        +change_notification_preference(notification : NotificationPreference, change : Bool) Void
     }
 
     class StudentUser {
         +lists : List~StudySpacesList~
         +write_review(space : StudySpace, comment : String) Review
-        +create_list() List
+        +create_list() StudySpacesList
         +add_to_list(space : StudySpace, list : List) Void
-        +add_to_favorite(space : StudySapace) Void
+        +add_to_favorite(space : StudySpace) Void
         +notify_promotion() Void
     }
 
@@ -80,13 +97,13 @@ classDiagram
         +plan : String
         +has_plan() Bool
         +write_post(space : StudySpace) Post
-        +delete_post(post : Post)
-        +edit_post(post : Post, new_title : String, new_content : String)
+        +delete_post(post : Post) Void
+        +edit_post(post : Post, new_title : String, new_content : String) Void
     }
 
     class AdminUser {
-        +resolveReport() Void
-        +dismissReport() Void
+        +resolve_report() Void
+        +dismiss_report() Void
     }
 
     class StudySpace {
@@ -102,14 +119,14 @@ classDiagram
         +noise_level : NoiseLevel
         +opening_hours : String
         +is_approved : Bool
-        +owner_id : Integer
         +created_at : Datetime
         +observers : List~User~
-        +calculate_average_rating() float
+        +calculate_average_rating() Float
         +count_reviews() Integer
+        +count_favorites() Integer
         +has_owner() Bool
         +register_observer(student : StudentUser) Void
-        +revome_observer(student : StudentUser) Void
+        +remove_observer(student : StudentUser) Void
         +notify_observers() Void
     }
 
@@ -117,6 +134,7 @@ classDiagram
         +id : Integer
         +rating : Integer
         +comment : String
+        +images : List~String~
         +is_visible : Bool
         +created_at : Datetime
         +updated_at : Datetime
@@ -124,13 +142,20 @@ classDiagram
         +restore() Void
     }
 
+    class ReviewVote {
+        +id : Integer
+        +is_useful : Bool
+        +created_at : Datetime
+    }
+
     class Post {
         +id : Integer
         +title : String
         +content : String
+        +images : List~String~
         +is_active : Bool
         +hide() Void
-        +restore Void
+        +restore() Void
     }
 
     class StudySpacesList {
@@ -155,6 +180,22 @@ classDiagram
         +resolve() Void
         +dismiss() Void
         -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class OwnershipRequest {
+        +id : Integer
+        +status : ReportStatus
+        +created_at : Datetime
+        +Resolved_at : Datetime
+        +resolve() Void
+        +dismiss() Void
+        -notify_user() Void
+    }
+
+    class NotificationPreference {
+        +event_type : String
+        +channel : String
+        +is_enabled : Bool
     }
 
     class NotificationService {
@@ -183,26 +224,69 @@ classDiagram
         +send() Void
     }
 
+    class AdertisingPlan {
+        +id : Integer
+        +name : String
+        +description : String
+        +price : Decima
+        +duration_days : Integer
+        +is_active : Bool
+    }
+
+    class Campaign {
+        +id : Integer
+        +status : CampaignStatus
+        +start_date : Date
+        +end_date : Date
+        +created_at : Datetime
+        +activate() Void
+        +cancel() Void
+    }
+
+    class Payment {
+        +id : Integer
+        +amount : Decimal
+        +status : PaymentStatus
+        +created_at : Datetime
+        +external_payment_id : Integer
+        +approve() Void
+        +reject() Void
+    }
+
+    class MercadoPagoService {
+        +create_checkout(campaign : Campaign) String
+        +verify_payment(external_id : String) PaymentStatus
+        +process_notification(payload : String) Void
+    }
+
     User <|-- StudentUser
     User <|-- BusinessUser
     User <|-- AdminUser
     User "1" --> "0..*" ReviewReport : emite
+    User "1" --> "0..*" NotificationPreference : gestiona
 
     StudentUser "1" --> "0..*" Review : publica
     StudentUser "1" --> "0..*" StudySpacesList : guarda
+    StudentUser "1" --> "0..*" ReviewVote: emite
 
     BusinessUser "1" --> "0..*" StudySpace : gestiona
     BusinessUser "1" --> "0..*" Post : publica
+    BusinessUser "1" --> "o..*" OwnershipRequest : emite
+    BusinessUser "1" --> "0..*" Campaign : contrata
 
     AdminUser "1" --> "0..*" ReviewReport : gestiona
+    AdminUser "1" --> "0..*" OwnershipRequest : gestiona
 
     StudySpace "1" --> "0..*" Review : recibe
     StudySpace "1" --> "0..*" Post : recibe
     StudySpace "1" --> "0..*" StudySpacesList : es guardado en
+    StudySpace "1" --> "0..*" OwnershipRequest : recibe
+    StudySpace "1" --> "0..*" Campaign : es promocionado por
 
     StudySpacesList <|-- FavoritesList
 
     Review "1" --> "0..*" ReviewReport : recibe
+    Review "1" --> "0..*" ReviewVote : recibe
 
     NotificationService <|-- ModerationNotificationService
     NotificationService <|-- PromotionNotificationService
@@ -215,12 +299,22 @@ classDiagram
     PromotionNotificationService ..> EmailNotification : instancia
     PromotionNotificationService ..> InAppNotification : instancia
 
+    AdvertisingPlan "1" --> "0..*" Campaign : corresponde a
+
+    Campaign "1" --> "0..*" Payment : registra
+
     StudySpace ..> PromotionNotificationService : usa
     ReviewReport ..> ModerationNotificationService : usa
     NotificationService ..> Notification : usa
 
+    MercadoPagoService ..> Payment
+    MercadoPagoService ..> Campaign
+
     StudySpace ..> NoiseLevel : usa
     ReviewReport ..> ReportStatus : usa
+    OwnershipRequest ..> ReportStatus : usa
+    Campaign ..> CampaignStatus : usa
+    Payment ..> PaymentStatus : usa
 ```
 
 ---
