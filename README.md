@@ -192,7 +192,7 @@ classDiagram
     StudentUser "1" --> "0..*" StudySpacesList : guarda
 
     BusinessUser "1" --> "0..*" StudySpace : gestiona
-    BusinessYser "1" --> "0..*" Post : publica
+    BusinessUser "1" --> "0..*" Post : publica
 
     AdminUser "1" --> "0..*" ReviewReport : gestiona
 
