@@ -40,13 +40,6 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 classDiagram
     direction TB
 
-    class UserRole {
-        <<enumeration>>
-        ESTUDIANTE
-        NEGOCIO
-        ADMINISTRADOR
-    }
-
     class NoiseLevel {
         <<enumeration>>
         BAJO
@@ -62,80 +55,168 @@ classDiagram
     }
 
     class User {
-        +int id
-        +string email
-        +string hashed_password
-        +string full_name
-        +UserRole role
-        +bool is_active
-        +datetime created_at
-        +verify_password(plain_password: str) bool
-        +is_admin() bool
-        +is_student() bool
-        +is_business() bool
+        <<abstract>>
+        +id : Integer
+        +email : String
+        +hashed_password : String
+        +full_name : String
+        +is_active : Bool
+        +created_at : Datetime
+        +verify_password(plain_password : String) Bool
+        +receive_notification() Void
+    }
+
+    class StudentUser {
+        +lists : List~StudySpacesList~
+        +write_review(space : StudySpace, comment : String) Review
+        +create_list() List
+        +add_to_list(space : StudySpace, list : List) Void
+        +add_to_favorite(space : StudySapace) Void
+        +notify_promotion() Void
+    }
+
+    class BusinessUser {
+        +list_owned_spaces : List~StudySpaces~
+        +plan : String
+        +has_plan() Bool
+        +write_post(space : StudySpace) Post
+        +delete_post(post : Post)
+        +edit_post(post : Post, new_title : String, new_content : String)
+    }
+
+    class AdminUser {
+        +resolveReport() Void
+        +dismissReport() Void
     }
 
     class StudySpace {
-        +int id
-        +string name
-        +string description
-        +string address
-        +string city
-        +float latitude
-        +float longitude
-        +bool has_wifi
-        +bool has_outlets
-        +NoiseLevel noise_level
-        +string opening_hours
-        +bool is_approved
-        +int owner_id
-        +datetime created_at
+        +id : Integer
+        +name : String
+        +description : String
+        +address : String
+        +city : String
+        +latitude : Float
+        +longitude : Float
+        +has_wifi : Bool
+        +has_outlets : Bool
+        +noise_level : NoiseLevel
+        +opening_hours : String
+        +is_approved : Bool
+        +owner_id : Integer
+        +created_at : Datetime
+        +observers : List~User~
         +calculate_average_rating() float
-        +count_reviews() int
+        +count_reviews() Integer
+        +has_owner() Bool
+        +register_observer(student : StudentUser) Void
+        +revome_observer(student : StudentUser) Void
+        +notify_observers() Void
     }
 
     class Review {
-        +int id
-        +int rating
-        +string comment
-        +bool is_visible
-        +int user_id
-        +int space_id
-        +datetime created_at
-        +datetime updated_at
-        +hide() void
-        +restore() void
+        +id : Integer
+        +rating : Integer
+        +comment : String
+        +is_visible : Bool
+        +created_at : Datetime
+        +updated_at : Datetime
+        +hide() Void
+        +restore() Void
     }
 
-    class Favorite {
-        +int id
-        +int user_id
-        +int space_id
-        +datetime created_at
+    class Post {
+        +id : Integer
+        +title : String
+        +content : String
+        +is_active : Bool
+        +hide() Void
+        +restore Void
+    }
+
+    class StudySpacesList {
+        +id : Integer
+        +name : String
+        +created_at : Datetime
+        +list_spaces : List~StudySpace~
+        +save_space(space : StudySpace) Void
+        +remove_space(space : StudySpace) Void
+    }
+
+    class FavoritesList {
+        +save_space(space : StudySpace) Void
+        +remove_space(space : StudySpace) Void
     }
 
     class ReviewReport {
-        +int id
-        +int review_id
-        +int reporter_id
-        +string reason
-        +ReportStatus status
-        +datetime created_at
-        +resolve() void
-        +dismiss() void
+        +id : Integer
+        +reason : String
+        +status : ReportStatus
+        +created_at : Datetime
+        +resolve() Void
+        +dismiss() Void
+        -notify_observers(new_status : ReportStatus) Void
     }
 
-    User "1" --> "0..*" StudySpace : gestiona
-    User "1" --> "0..*" Review : publica
-    User "1" --> "0..*" Favorite : guarda
+    class NotificationService {
+        <<abstract>>
+        +create_notification(user : User, message : String) Notification
+    }
+
+    class ModerationNotificationService {
+        +create_notification(user : User, message : String) Notification
+    }
+
+    class PromotionNotificationService {
+        +create_notification(user : User, message : String) Notification
+    }
+
+    class Notification {
+        <<abstract>>
+        +send() Void
+    }
+
+    class EmailNotification {
+        +send() Void
+    }
+
+    class InAppNotification {
+        +send() Void
+    }
+
+    User <|-- StudentUser
+    User <|-- BusinessUser
+    User <|-- AdminUser
     User "1" --> "0..*" ReviewReport : emite
 
+    StudentUser "1" --> "0..*" Review : publica
+    StudentUser "1" --> "0..*" StudySpacesList : guarda
+
+    BusinessUser "1" --> "0..*" StudySpace : gestiona
+
+    AdminUser "1" --> "0..*" ReviewReport : gestiona
+
     StudySpace "1" --> "0..*" Review : recibe
-    StudySpace "1" --> "0..*" Favorite : es guardado en
+    StudySpace "1" --> "0..*" StudySpacesList : es guardado en
+
+    StudySpacesList <|-- FavoritesList
 
     Review "1" --> "0..*" ReviewReport : recibe
 
-    User ..> UserRole : usa
+    NotificationService <|-- ModerationNotificationService
+    NotificationService <|-- PromotionNotificationService
+
+    Notification <|-- EmailNotification
+    Notification <|-- InAppNotification
+
+    ModerationNotificationService ..> EmailNotification : instancia
+    ModerationNotificationService ..> InAppNotification : instancia
+    PromotionNotificationService ..> EmailNotification : instancia
+    PromotionNotificationService ..> InAppNotification : instancia
+
+    StudySpace ..> PromotionNotificationService : usa
+    ReviewReport ..> ModerationNotificationService : usa
+    NotificationService ..> Notification : usa
+
     StudySpace ..> NoiseLevel : usa
     ReviewReport ..> ReportStatus : usa
 ```
