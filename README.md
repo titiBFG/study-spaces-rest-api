@@ -54,7 +54,15 @@ classDiagram
         DESCARTADO
     }
 
+    class OwnershipRequestStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADA
+        RECHAZADA
+    }
+
     class CampaignStatus {
+        <<enumeration>>
         PENDIENTE
         ACTIVA
         FINALIZADA
@@ -62,6 +70,7 @@ classDiagram
     }
 
     class PaymentStatus {
+        <<enumeration>>
         PENDIENTE
         APROBADO
         RECHAZADO
@@ -78,7 +87,7 @@ classDiagram
         +created_at : Datetime
         +notification_preferences : List~NotificationPreference~
         +verify_password(plain_password : String) Bool
-        +verify_email(email : String) Bool
+        +verify_email() Bool
         +receive_notification() Void
         +change_notification_preference(notification : NotificationPreference, change : Bool) Void
     }
@@ -87,15 +96,15 @@ classDiagram
         +lists : List~StudySpacesList~
         +write_review(space : StudySpace, comment : String) Review
         +create_list() StudySpacesList
-        +add_to_list(space : StudySpace, list : List) Void
+        +add_to_list(space : StudySpace, list : StudySpacesList) Void
         +add_to_favorite(space : StudySpace) Void
         +notify_promotion() Void
     }
 
     class BusinessUser {
-        +list_owned_spaces : List~StudySpaces~
-        +plan : String
-        +has_plan() Bool
+        +list_owned_spaces : List~StudySpace~
+        +campaigns : List~Campaign~
+        +has_active_campaign() Bool
         +write_post(space : StudySpace) Post
         +delete_post(post : Post) Void
         +edit_post(post : Post, new_title : String, new_content : String) Void
@@ -120,7 +129,7 @@ classDiagram
         +opening_hours : String
         +is_approved : Bool
         +created_at : Datetime
-        +observers : List~User~
+        +observers : List~StudentUser~
         +calculate_average_rating() Float
         +count_reviews() Integer
         +count_favorites() Integer
@@ -172,7 +181,8 @@ classDiagram
         +remove_space(space : StudySpace) Void
     }
 
-    class ReviewReport {
+    class Report {
+        <<abstract>>
         +id : Integer
         +reason : String
         +status : ReportStatus
@@ -182,13 +192,29 @@ classDiagram
         -notify_observers(new_status : ReportStatus) Void
     }
 
+    class ReviewReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class StudySpaceReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class UserReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class PostReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
     class OwnershipRequest {
         +id : Integer
-        +status : ReportStatus
+        +status : OwnerchipRequestStatus
         +created_at : Datetime
-        +Resolved_at : Datetime
-        +resolve() Void
-        +dismiss() Void
+        +resolved_at : Datetime
+        +approve() Void
+        +reject() Void
         -notify_user() Void
     }
 
@@ -228,7 +254,7 @@ classDiagram
         +id : Integer
         +name : String
         +description : String
-        +price : Decima
+        +price : Decimal
         +duration_days : Integer
         +is_active : Bool
     }
@@ -248,7 +274,7 @@ classDiagram
         +amount : Decimal
         +status : PaymentStatus
         +created_at : Datetime
-        +external_payment_id : Integer
+        +external_payment_id : String
         +approve() Void
         +reject() Void
     }
@@ -262,24 +288,27 @@ classDiagram
     User <|-- StudentUser
     User <|-- BusinessUser
     User <|-- AdminUser
-    User "1" --> "0..*" ReviewReport : emite
+    User "1" --> "0..*" Report : emite
+    User "1" --> "0..*" UserReport : recibe
     User "1" --> "0..*" NotificationPreference : gestiona
 
     StudentUser "1" --> "0..*" Review : publica
     StudentUser "1" --> "0..*" StudySpacesList : guarda
     StudentUser "1" --> "0..*" ReviewVote: emite
 
-    BusinessUser "1" --> "0..*" StudySpace : gestiona
+    BusinessUser "0..1" --> "0..*" StudySpace : gestiona
     BusinessUser "1" --> "0..*" Post : publica
-    BusinessUser "1" --> "o..*" OwnershipRequest : emite
+    BusinessUser "1" --> "0..*" OwnershipRequest : emite
     BusinessUser "1" --> "0..*" Campaign : contrata
 
-    AdminUser "1" --> "0..*" ReviewReport : gestiona
-    AdminUser "1" --> "0..*" OwnershipRequest : gestiona
+    AdminUser "0..1" --> "0..*" Report : gestiona
+    AdminUser "0..1" --> "0..*" OwnershipRequest : gestiona
+    AdminUser "0..1" --> "0..*" Campaign : gestiona
 
     StudySpace "1" --> "0..*" Review : recibe
     StudySpace "1" --> "0..*" Post : recibe
     StudySpace "1" --> "0..*" StudySpacesList : es guardado en
+    StudySpace "1" --> "0..*" StudySpaceReport : recibe
     StudySpace "1" --> "0..*" OwnershipRequest : recibe
     StudySpace "1" --> "0..*" Campaign : es promocionado por
 
@@ -287,6 +316,13 @@ classDiagram
 
     Review "1" --> "0..*" ReviewReport : recibe
     Review "1" --> "0..*" ReviewVote : recibe
+
+    Post "1" --> "0..*" PostReport : recibe
+
+    Report <|-- ReviewReport
+    Report <|-- StudySpaceReport
+    Report <|-- UserReport
+    Report <|-- PostReport
 
     NotificationService <|-- ModerationNotificationService
     NotificationService <|-- PromotionNotificationService
