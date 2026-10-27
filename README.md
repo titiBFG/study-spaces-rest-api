@@ -226,15 +226,16 @@ classDiagram
 
     class NotificationService {
         <<abstract>>
-        +create_notification(user : User, message : String) Notification
+        +create_notifications(user : User, message : String) List~Notification~
+        +send_notifications(user : User, message : String) Void
     }
 
     class ModerationNotificationService {
-        +create_notification(user : User, message : String) Notification
+        +create_notifications(user : User, message : String) List~Notification~
     }
 
     class PromotionNotificationService {
-        +create_notification(user : User, message : String) Notification
+        +create_notifications(user : User, message : String) List~Notification~
     }
 
     class Notification {
@@ -333,10 +334,11 @@ classDiagram
     Notification <|-- EmailNotification
     Notification <|-- InAppNotification
 
-    ModerationNotificationService ..> EmailNotification : instancia
-    ModerationNotificationService ..> InAppNotification : instancia
-    PromotionNotificationService ..> EmailNotification : instancia
-    PromotionNotificationService ..> InAppNotification : instancia
+    NotificationService ..> Notification
+    ModerationNotificationService ..> EmailNotification : crea
+    ModerationNotificationService ..> InAppNotification : crea
+    PromotionNotificationService ..> EmailNotification : crea
+    PromotionNotificationService ..> InAppNotification : crea
 
     AdvertisingPlan "1" --> "0..*" Campaign : corresponde a
 
@@ -344,7 +346,6 @@ classDiagram
 
     StudySpace ..> PromotionNotificationService : usa
     Report ..> ModerationNotificationService : usa
-    NotificationService ..> Notification : usa
 
     MercadoPagoService ..> Payment
     MercadoPagoService ..> Campaign
@@ -365,6 +366,11 @@ El proyecto implementa una arquitectura en capas desacopladas aplicando el **Pat
 * **Routers (Controladores):** Manejan las peticiones HTTP, validación de entrada/salida mediante schemas de Pydantic y códigos de respuesta HTTP.
 * **Services:** Contienen la lógica del negocio (reglas de cálculo de calificaciones, validaciones cruzadas, restricciones por rol).
 * **Repositories:** Encapsulan y abstraen las operaciones sobre la base de datos mediante SQLAlchemy, permitiendo testear la lógica de negocio de manera aislada (mediante *mocks*) sin acoplarse al motor de persistencia.
+
+El proyecto también implementa el **Patrón Observer** y el **Patrón Factory Method** para gestionar la arquitectura del servicio de notificaciones:
+
+* **Observer:** Permite reaccionar ante eventos y cambio de estados (como una promoción en una StudySpace o la resolución de un Report) sin acoplar directamente al objeto observado con todos los componentes que deben recibir la alerta. El objeto emisor del evento simplemente notifica a sus obesrvadores registrados (User).
+* **Factory Method:** Permite delegar la creación de las notificaciones (NotificationService) a subclases especializadas (como ModerationNotificationService). De esta forma, cada servicio decide dinámicamente qué canales instanciar (EmailNotification, InAppNotification o ambas), según el tipo de evento y las preferencias configuradas por el usuario, sin que el objeto que dispara el evento necesite conocer las clases concretas que se terminan creando.
 
 ---
 
