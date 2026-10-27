@@ -210,7 +210,7 @@ classDiagram
 
     class OwnershipRequest {
         +id : Integer
-        +status : OwnerchipRequestStatus
+        +status : OwnershipRequestStatus
         +created_at : Datetime
         +resolved_at : Datetime
         +approve() Void
@@ -291,6 +291,7 @@ classDiagram
     User "1" --> "0..*" Report : emite
     User "1" --> "0..*" UserReport : recibe
     User "1" --> "0..*" NotificationPreference : gestiona
+    User "1" --> "0..*" Notification : recibe
 
     StudentUser "1" --> "0..*" Review : publica
     StudentUser "1" --> "0..*" StudySpacesList : guarda
@@ -324,6 +325,8 @@ classDiagram
     Report <|-- UserReport
     Report <|-- PostReport
 
+    NotificationPreference ..> NotificationService
+
     NotificationService <|-- ModerationNotificationService
     NotificationService <|-- PromotionNotificationService
 
@@ -340,7 +343,7 @@ classDiagram
     Campaign "1" --> "0..*" Payment : registra
 
     StudySpace ..> PromotionNotificationService : usa
-    ReviewReport ..> ModerationNotificationService : usa
+    Report ..> ModerationNotificationService : usa
     NotificationService ..> Notification : usa
 
     MercadoPagoService ..> Payment
@@ -348,7 +351,7 @@ classDiagram
 
     StudySpace ..> NoiseLevel : usa
     ReviewReport ..> ReportStatus : usa
-    OwnershipRequest ..> ReportStatus : usa
+    OwnershipRequest ..> OwnershipRequestStatus : usa
     Campaign ..> CampaignStatus : usa
     Payment ..> PaymentStatus : usa
 ```
