@@ -40,13 +40,6 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 classDiagram
     direction TB
 
-    class UserRole {
-        <<enumeration>>
-        ESTUDIANTE
-        NEGOCIO
-        ADMINISTRADOR
-    }
-
     class NoiseLevel {
         <<enumeration>>
         BAJO
@@ -61,83 +54,307 @@ classDiagram
         DESCARTADO
     }
 
+    class OwnershipRequestStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADA
+        RECHAZADA
+    }
+
+    class CampaignStatus {
+        <<enumeration>>
+        PENDIENTE
+        ACTIVA
+        FINALIZADA
+        CANCELADA
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADO
+        RECHAZADO
+        CANCELADO
+    }
+
     class User {
-        +int id
-        +string email
-        +string hashed_password
-        +string full_name
-        +UserRole role
-        +bool is_active
-        +datetime created_at
-        +verify_password(plain_password: str) bool
-        +is_admin() bool
-        +is_student() bool
-        +is_business() bool
+        <<abstract>>
+        +id : Integer
+        +email : String
+        +hashed_password : String
+        +full_name : String
+        +is_active : Bool
+        +created_at : Datetime
+        +notification_preferences : List~NotificationPreference~
+        +verify_password(plain_password : String) Bool
+        +verify_email() Bool
+        +receive_notification() Void
+        +change_notification_preference(notification : NotificationPreference, change : Bool) Void
+    }
+
+    class StudentUser {
+        +lists : List~StudySpacesList~
+        +write_review(space : StudySpace, comment : String) Review
+        +create_list() StudySpacesList
+        +add_to_list(space : StudySpace, list : StudySpacesList) Void
+        +add_to_favorite(space : StudySpace) Void
+        +notify_promotion() Void
+    }
+
+    class BusinessUser {
+        +list_owned_spaces : List~StudySpace~
+        +campaigns : List~Campaign~
+        +has_active_campaign() Bool
+        +write_post(space : StudySpace) Post
+        +delete_post(post : Post) Void
+        +edit_post(post : Post, new_title : String, new_content : String) Void
+    }
+
+    class AdminUser {
+        +resolve_report() Void
+        +dismiss_report() Void
     }
 
     class StudySpace {
-        +int id
-        +string name
-        +string description
-        +string address
-        +string city
-        +float latitude
-        +float longitude
-        +bool has_wifi
-        +bool has_outlets
-        +NoiseLevel noise_level
-        +string opening_hours
-        +bool is_approved
-        +int owner_id
-        +datetime created_at
-        +calculate_average_rating() float
-        +count_reviews() int
+        +id : Integer
+        +name : String
+        +description : String
+        +address : String
+        +city : String
+        +latitude : Float
+        +longitude : Float
+        +has_wifi : Bool
+        +has_outlets : Bool
+        +noise_level : NoiseLevel
+        +opening_hours : String
+        +is_approved : Bool
+        +created_at : Datetime
+        +observers : List~StudentUser~
+        +calculate_average_rating() Float
+        +count_reviews() Integer
+        +count_favorites() Integer
+        +has_owner() Bool
+        +register_observer(student : StudentUser) Void
+        +remove_observer(student : StudentUser) Void
+        +notify_observers() Void
     }
 
     class Review {
-        +int id
-        +int rating
-        +string comment
-        +bool is_visible
-        +int user_id
-        +int space_id
-        +datetime created_at
-        +datetime updated_at
-        +hide() void
-        +restore() void
+        +id : Integer
+        +rating : Integer
+        +comment : String
+        +images : List~String~
+        +is_visible : Bool
+        +created_at : Datetime
+        +updated_at : Datetime
+        +hide() Void
+        +restore() Void
     }
 
-    class Favorite {
-        +int id
-        +int user_id
-        +int space_id
-        +datetime created_at
+    class ReviewVote {
+        +id : Integer
+        +is_useful : Bool
+        +created_at : Datetime
+    }
+
+    class Post {
+        +id : Integer
+        +title : String
+        +content : String
+        +images : List~String~
+        +is_active : Bool
+        +hide() Void
+        +restore() Void
+    }
+
+    class StudySpacesList {
+        +id : Integer
+        +name : String
+        +created_at : Datetime
+        +list_spaces : List~StudySpace~
+        +save_space(space : StudySpace) Void
+        +remove_space(space : StudySpace) Void
+    }
+
+    class FavoritesList {
+        +save_space(space : StudySpace) Void
+        +remove_space(space : StudySpace) Void
+    }
+
+    class Report {
+        <<abstract>>
+        +id : Integer
+        +reason : String
+        +status : ReportStatus
+        +created_at : Datetime
+        +resolve() Void
+        +dismiss() Void
+        -notify_observers(new_status : ReportStatus) Void
     }
 
     class ReviewReport {
-        +int id
-        +int review_id
-        +int reporter_id
-        +string reason
-        +ReportStatus status
-        +datetime created_at
-        +resolve() void
-        +dismiss() void
+        -notify_observers(new_status : ReportStatus) Void
     }
 
-    User "1" --> "0..*" StudySpace : gestiona
-    User "1" --> "0..*" Review : publica
-    User "1" --> "0..*" Favorite : guarda
-    User "1" --> "0..*" ReviewReport : emite
+    class StudySpaceReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class UserReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class PostReport {
+        -notify_observers(new_status : ReportStatus) Void
+    }
+
+    class OwnershipRequest {
+        +id : Integer
+        +status : OwnershipRequestStatus
+        +created_at : Datetime
+        +resolved_at : Datetime
+        +approve() Void
+        +reject() Void
+        -notify_user() Void
+    }
+
+    class NotificationPreference {
+        +event_type : String
+        +channel : String
+        +is_enabled : Bool
+    }
+
+    class NotificationService {
+        <<abstract>>
+        +create_notifications(user : User, message : String) List~Notification~
+        +send_notifications(user : User, message : String) Void
+    }
+
+    class ModerationNotificationService {
+        +create_notifications(user : User, message : String) List~Notification~
+    }
+
+    class PromotionNotificationService {
+        +create_notifications(user : User, message : String) List~Notification~
+    }
+
+    class Notification {
+        <<abstract>>
+        +send() Void
+    }
+
+    class EmailNotification {
+        +send() Void
+    }
+
+    class InAppNotification {
+        +send() Void
+    }
+
+    class AdvertisingPlan {
+        +id : Integer
+        +name : String
+        +description : String
+        +price : Decimal
+        +duration_days : Integer
+        +is_active : Bool
+    }
+
+    class Campaign {
+        +id : Integer
+        +status : CampaignStatus
+        +start_date : Date
+        +end_date : Date
+        +created_at : Datetime
+        +activate() Void
+        +cancel() Void
+    }
+
+    class Payment {
+        +id : Integer
+        +amount : Decimal
+        +status : PaymentStatus
+        +created_at : Datetime
+        +external_payment_id : String
+        +approve() Void
+        +reject() Void
+    }
+
+    class MercadoPagoService {
+        +create_checkout(campaign : Campaign) String
+        +verify_payment(external_id : String) PaymentStatus
+        +process_notification(payload : String) Void
+    }
+
+    User <|-- StudentUser
+    User <|-- BusinessUser
+    User <|-- AdminUser
+    User "1" --> "0..*" Report : emite
+    User "1" --> "0..*" UserReport : recibe
+    User "1" --> "0..*" NotificationPreference : gestiona
+    User "1" --> "0..*" Notification : recibe
+
+    StudentUser "1" --> "0..*" Review : publica
+    StudentUser "1" --> "0..*" StudySpacesList : guarda
+    StudentUser "1" --> "0..*" ReviewVote: emite
+
+    BusinessUser "0..1" --> "0..*" StudySpace : gestiona
+    BusinessUser "1" --> "0..*" Post : publica
+    BusinessUser "1" --> "0..*" OwnershipRequest : emite
+    BusinessUser "1" --> "0..*" Campaign : contrata
+
+    AdminUser "0..1" --> "0..*" Report : gestiona
+    AdminUser "0..1" --> "0..*" OwnershipRequest : gestiona
+    AdminUser "0..1" --> "0..*" Campaign : gestiona
 
     StudySpace "1" --> "0..*" Review : recibe
-    StudySpace "1" --> "0..*" Favorite : es guardado en
+    StudySpace "1" --> "0..*" Post : recibe
+    StudySpace "1" --> "0..*" StudySpacesList : es guardado en
+    StudySpace "1" --> "0..*" StudySpaceReport : recibe
+    StudySpace "1" --> "0..*" OwnershipRequest : recibe
+    StudySpace "1" --> "0..*" Campaign : es promocionado por
+
+    StudySpacesList <|-- FavoritesList
 
     Review "1" --> "0..*" ReviewReport : recibe
+    Review "1" --> "0..*" ReviewVote : recibe
 
-    User ..> UserRole : usa
+    Post "1" --> "0..*" PostReport : recibe
+
+    Report <|-- ReviewReport
+    Report <|-- StudySpaceReport
+    Report <|-- UserReport
+    Report <|-- PostReport
+
+    NotificationPreference ..> NotificationService
+
+    NotificationService <|-- ModerationNotificationService
+    NotificationService <|-- PromotionNotificationService
+
+    Notification <|-- EmailNotification
+    Notification <|-- InAppNotification
+
+    NotificationService ..> Notification
+    ModerationNotificationService ..> EmailNotification : crea
+    ModerationNotificationService ..> InAppNotification : crea
+    PromotionNotificationService ..> EmailNotification : crea
+    PromotionNotificationService ..> InAppNotification : crea
+
+    AdvertisingPlan "1" --> "0..*" Campaign : corresponde a
+
+    Campaign "1" --> "0..*" Payment : registra
+
+    StudySpace ..> PromotionNotificationService : usa
+    Report ..> ModerationNotificationService : usa
+
+    MercadoPagoService ..> Payment
+    MercadoPagoService ..> Campaign
+
     StudySpace ..> NoiseLevel : usa
     ReviewReport ..> ReportStatus : usa
+    OwnershipRequest ..> OwnershipRequestStatus : usa
+    Campaign ..> CampaignStatus : usa
+    Payment ..> PaymentStatus : usa
 ```
 
 ---
@@ -149,6 +366,11 @@ El proyecto implementa una arquitectura en capas desacopladas aplicando el **Pat
 * **Routers (Controladores):** Manejan las peticiones HTTP, validación de entrada/salida mediante schemas de Pydantic y códigos de respuesta HTTP.
 * **Services:** Contienen la lógica del negocio (reglas de cálculo de calificaciones, validaciones cruzadas, restricciones por rol).
 * **Repositories:** Encapsulan y abstraen las operaciones sobre la base de datos mediante SQLAlchemy, permitiendo testear la lógica de negocio de manera aislada (mediante *mocks*) sin acoplarse al motor de persistencia.
+
+El proyecto también implementa el **Patrón Observer** y el **Patrón Factory Method** para gestionar la arquitectura del servicio de notificaciones:
+
+* **Observer:** Permite reaccionar ante eventos y cambio de estados (como una promoción en una StudySpace o la resolución de un Report) sin acoplar directamente al objeto observado con todos los componentes que deben recibir la alerta. El objeto emisor del evento simplemente notifica a sus obesrvadores registrados (User).
+* **Factory Method:** Permite delegar la creación de las notificaciones (NotificationService) a subclases especializadas (como ModerationNotificationService). De esta forma, cada servicio decide dinámicamente qué canales instanciar (EmailNotification, InAppNotification o ambas), según el tipo de evento y las preferencias configuradas por el usuario, sin que el objeto que dispara el evento necesite conocer las clases concretas que se terminan creando.
 
 ---
 
