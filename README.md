@@ -37,45 +37,9 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 ## Diagrama de Clases UML
 
 ```mermaid
+%%{init: {'class': {'hideEmptyMembersBox': true, 'padding': 5, 'nodeSpacing': 15, 'rankSpacing': 25, 'diagramPadding': 8}, 'flowchart': {'nodeSpacing': 15, 'rankSpacing': 25}, 'themeVariables': {'fontSize': '15px'}, 'themeCSS': '.node rect, .node path, .node polygon { stroke-width: 1.2px !important; } .label { line-height: 1.15 !important; }'}}%%
 classDiagram
-    direction TB
-
-    class NoiseLevel {
-        <<enumeration>>
-        BAJO
-        MEDIO
-        ALTO
-    }
-
-    class ReportStatus {
-        <<enumeration>>
-        PENDIENTE
-        RESUELTO
-        DESCARTADO
-    }
-
-    class OwnershipRequestStatus {
-        <<enumeration>>
-        PENDIENTE
-        APROBADA
-        RECHAZADA
-    }
-
-    class CampaignStatus {
-        <<enumeration>>
-        PENDIENTE
-        ACTIVA
-        FINALIZADA
-        CANCELADA
-    }
-
-    class PaymentStatus {
-        <<enumeration>>
-        PENDIENTE
-        APROBADO
-        RECHAZADO
-        CANCELADO
-    }
+    direction LR
 
     class User {
         <<abstract>>
@@ -137,6 +101,13 @@ classDiagram
         +register_observer(student : StudentUser) Void
         +remove_observer(student : StudentUser) Void
         +notify_observers() Void
+    }
+
+    class NoiseLevel {
+        <<enumeration>>
+        BAJO
+        MEDIO
+        ALTO
     }
 
     class Review {
@@ -208,6 +179,13 @@ classDiagram
         -notify_observers(new_status : ReportStatus) Void
     }
 
+    class ReportStatus {
+        <<enumeration>>
+        PENDIENTE
+        RESUELTO
+        DESCARTADO
+    }
+
     class OwnershipRequest {
         +id : Integer
         +status : OwnershipRequestStatus
@@ -216,6 +194,13 @@ classDiagram
         +approve() Void
         +reject() Void
         -notify_user() Void
+    }
+
+    class OwnershipRequestStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADA
+        RECHAZADA
     }
 
     class NotificationPreference {
@@ -270,6 +255,14 @@ classDiagram
         +cancel() Void
     }
 
+    class CampaignStatus {
+        <<enumeration>>
+        PENDIENTE
+        ACTIVA
+        FINALIZADA
+        CANCELADA
+    }
+
     class Payment {
         +id : Integer
         +amount : Decimal
@@ -278,6 +271,14 @@ classDiagram
         +external_payment_id : String
         +approve() Void
         +reject() Void
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADO
+        RECHAZADO
+        CANCELADO
     }
 
     class MercadoPagoService {
@@ -313,6 +314,8 @@ classDiagram
     StudySpace "1" --> "0..*" StudySpaceReport : recibe
     StudySpace "1" --> "0..*" OwnershipRequest : recibe
     StudySpace "1" --> "0..*" Campaign : es promocionado por
+    StudySpace ..> NoiseLevel : usa
+    StudySpace ..> PromotionNotificationService : usa
 
     StudySpacesList <|-- FavoritesList
 
@@ -325,16 +328,20 @@ classDiagram
     Report <|-- StudySpaceReport
     Report <|-- UserReport
     Report <|-- PostReport
+    Report ..> ModerationNotificationService : usa
+    ReviewReport ..> ReportStatus : usa
+
+    OwnershipRequest ..> OwnershipRequestStatus : usa
 
     NotificationPreference ..> NotificationService
 
     NotificationService <|-- ModerationNotificationService
     NotificationService <|-- PromotionNotificationService
+    NotificationService ..> Notification
 
     Notification <|-- EmailNotification
     Notification <|-- InAppNotification
 
-    NotificationService ..> Notification
     ModerationNotificationService ..> EmailNotification : crea
     ModerationNotificationService ..> InAppNotification : crea
     PromotionNotificationService ..> EmailNotification : crea
@@ -343,18 +350,12 @@ classDiagram
     AdvertisingPlan "1" --> "0..*" Campaign : corresponde a
 
     Campaign "1" --> "0..*" Payment : registra
+    Campaign ..> CampaignStatus : usa
 
-    StudySpace ..> PromotionNotificationService : usa
-    Report ..> ModerationNotificationService : usa
+    Payment ..> PaymentStatus : usa
 
     MercadoPagoService ..> Payment
     MercadoPagoService ..> Campaign
-
-    StudySpace ..> NoiseLevel : usa
-    ReviewReport ..> ReportStatus : usa
-    OwnershipRequest ..> OwnershipRequestStatus : usa
-    Campaign ..> CampaignStatus : usa
-    Payment ..> PaymentStatus : usa
 ```
 
 ---
