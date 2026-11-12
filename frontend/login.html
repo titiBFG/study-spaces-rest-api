@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - StudySpaces</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body>
+    <header>
+        <div class="barra">
+            <h1>📖 StudySpaces</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="favoritos.html">Favoritos</a>
+                <a href="mis-resenas.html">Mis reseñas</a>
+                <a href="mi-cuenta.html">Mi cuenta</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="encabezado-pagina">
+        <h2>Iniciar sesión</h2>
+        <p>Ingresá a tu cuenta de StudySpaces.</p>
+    </section>
+
+    <div class="contenedor-cuenta">
+        <form id="formLogin" class="formulario-cuenta">
+            <label for="emailLogin">Correo electrónico</label>
+            <input type="email" id="emailLogin" required
+                placeholder="ejemplo@correo.com">
+
+            <label for="passwordLogin">Contraseña</label>
+            <input type="password" id="passwordLogin" required
+                placeholder="Ingresá tu contraseña">
+
+            <button type="submit">Iniciar sesión</button>
+
+            <p id="mensajeLogin" class="mensaje-cuenta"></p>
+
+            <p class="enlace-cuenta">
+                ¿No tenés cuenta?
+                <a href="registro.html">Registrate</a>
+            </p>
+        </form>
+    </div>
+
+    <footer>
+        <p>StudySpaces - Encontrá tu lugar ideal para estudiar</p>
+    </footer>
+
+    <script src="js/cuenta.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>

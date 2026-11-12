@@ -1,0 +1,394 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #4b3528;
+    background-color: #fff8f0;
+}
+
+header {
+    background-color: #fffdf9;
+    border-bottom: 1px solid #ead7c6;
+}
+
+.barra {
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.barra h1 {
+    color: #70462f;
+    font-size: 27px;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: #4b3528;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: #a66a45;
+}
+
+.presentacion, .encabezado-pagina {
+    text-align: center;
+    background: linear-gradient(120deg, #f5d6bd, #fff0df);
+}
+
+.presentacion {
+    padding: 65px 20px;
+}
+
+.presentacion h2 {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.presentacion p {
+    font-size: 17px;
+}
+
+.encabezado-pagina {
+    padding: 45px 20px;
+}
+
+.encabezado-pagina h2 {
+    font-size: 30px;
+}
+
+.buscador {
+    display: flex;
+    max-width: 650px;
+    margin: 30px auto 0;
+    gap: 10px;
+}
+
+.buscador input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #dfc9b5;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+button, .boton-detalle {
+    background-color: #70462f;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .boton-detalle:hover {
+    background-color: #573521;
+}
+
+main {
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 30px;
+}
+
+.filtros, .tarjeta, .detalle-tarjeta {
+    background-color: #fffdf9;
+    border: 1px solid #ead7c6;
+    border-radius: 15px;
+}
+
+.filtros {
+    padding: 25px;
+    align-self: start;
+}
+
+.filtros h2 {
+    font-size: 21px;
+    margin-top: 0;
+}
+
+.filtros h3 {
+    font-size: 15px;
+    margin-top: 25px;
+}
+
+.filtros label {
+    display: block;
+    margin: 12px 0;
+}
+
+.filtros select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dfc9b5;
+    border-radius: 8px;
+}
+
+.filtros button {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.filtros .limpiar {
+    background: transparent;
+    color: #70462f;
+    margin-top: 5px;
+}
+
+.resultados h2 {
+    font-size: 22px;
+    margin-top: 0;
+}
+
+.tarjeta {
+    margin-bottom: 20px;
+    padding: 15px;
+    display: flex;
+    gap: 20px;
+}
+
+.tarjeta img {
+    width: 220px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.informacion {
+    flex: 1;
+}
+
+.informacion h3 {
+    margin: 5px 0 10px;
+    font-size: 21px;
+}
+
+.informacion p, .detalle-tarjeta p {
+    margin: 8px 0;
+    color: #715b4d;
+}
+
+.titulo-tarjeta, .detalle-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.corazon {
+    background: transparent;
+    color: #bc765c;
+    font-size: 30px;
+    padding: 0 8px;
+}
+
+.corazon:hover {
+    background: transparent;
+    color: #914c37;
+}
+
+.etiquetas {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+.etiquetas span {
+    background-color: #f8e7d7;
+    color: #70462f;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.sin-resultados {
+    background: #fffdf9;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.detalle-contenedor {
+    max-width: 1000px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+.volver {
+    color: #70462f;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.detalle-tarjeta {
+    padding: 30px;
+}
+
+.detalle-tarjeta h2 {
+    font-size: 30px;
+    margin: 0;
+}
+
+.detalle-tarjeta h3 {
+    margin-top: 30px;
+}
+
+.detalle-imagen {
+    display: block;
+    width: 100%;
+    max-width: 700px;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 20px auto;
+}
+
+.boton-favorito {
+    background-color: #f5d6bd;
+    color: #70462f;
+}
+
+.boton-favorito:hover {
+    background-color: #edc3a3;
+}
+
+.pagina-favoritos {
+    max-width: 1000px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+/* Reseñas */
+
+.formulario-resena {
+    background-color: #fff4e8;
+    border: 1px solid #ead7c6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.formulario-resena label {
+    display: block;
+    margin: 15px 0 7px;
+    font-weight: bold;
+}
+
+.formulario-resena input,
+.formulario-resena select,
+.formulario-resena textarea {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dfc9b5;
+    border-radius: 8px;
+    font: inherit;
+    background-color: white;
+}
+
+.formulario-resena textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.formulario-resena button {
+    margin-top: 18px;
+}
+
+.resena {
+    border-bottom: 1px solid #ead7c6;
+    padding: 18px 0;
+}
+
+.resena h4 {
+    margin: 0 0 8px;
+}
+
+.estrellas {
+    color: #b16b2e;
+    font-size: 19px;
+}
+
+.resena p {
+    margin-top: 10px;
+    white-space: pre-wrap;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #715b4d;
+}
+
+@media (max-width: 750px) {
+    .barra {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    main {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta {
+        flex-direction: column;
+    }
+
+    .tarjeta img {
+        width: 100%;
+        height: 200px;
+    }
+
+    .presentacion h2 {
+        font-size: 27px;
+    }
+
+    .detalle-tarjeta {
+        padding: 20px;
+    }
+
+    .detalle-titulo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .buscador {
+        flex-direction: column;
+    }
+}
+
+nav a.activo {
+    color: #4b3528;
+    background-color: transparent;
+    padding: 0 0 5px;
+    border-radius: 0;
+    border-bottom: 2px solid #a66a45;
+    font-weight: normal;
+}
