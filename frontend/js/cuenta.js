@@ -28,7 +28,8 @@ if (formLogin) {
             const datos = await respuesta.json();
 
             if (respuesta.ok) {
-                mensaje.textContent = "Datos correctos. ¡Bienvenido, " + datos.full_name + "!";
+                localStorage.setItem("token", datos.access_token);
+                window.location.href = "mi-cuenta.html";
             } else {
                 mensaje.textContent = datos.detail || "No se pudo iniciar sesión.";
             }

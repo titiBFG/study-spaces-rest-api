@@ -27,17 +27,11 @@
     </section>
 
     <div class="contenedor-cuenta">
-        <div class="formulario-cuenta cuenta-informacion">
+        <div id="accesoCuenta" class="formulario-cuenta cuenta-informacion">
             <h3>Bienvenido a StudySpaces</h3>
 
             <p>
-                Para acceder a tu perfil, tus favoritos
-                y tus reseñas personales, necesitás iniciar sesión.
-            </p>
-
-            <p class="aviso-cuenta">
-                El sistema de usuarios todavía está pendiente
-                de conexión con el backend.
+                Para acceder a tu perfil, necesitás iniciar sesión.
             </p>
 
             <a class="boton-detalle" href="login.html">
@@ -48,11 +42,25 @@
                 Crear una cuenta
             </a>
         </div>
+
+        <div id="perfilCuenta" class="formulario-cuenta cuenta-informacion" hidden>
+            <div id="inicialCuenta" class="avatar-cuenta"></div>
+
+            <h3 id="nombreCuenta"></h3>
+            <p id="emailCuenta"></p>
+
+            <button id="cerrarSesion" type="button">
+                Cerrar sesión
+            </button>
+        </div>
+
+        <p id="mensajeCuenta" class="mensaje-cuenta"></p>
     </div>
 
     <footer>
         <p>StudySpaces - Encontrá tu lugar ideal para estudiar</p>
     </footer>
+
     <script src="js/menu.js"></script>
 </body>
 </html>
