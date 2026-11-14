@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySpaces</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+    <header>
+        <div class="barra">
+            <h1>📖 StudySpaces</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="favoritos.html">Favoritos</a>
+                <a href="mis-resenas.html">Mis reseñas</a>
+                <a href="#">Mi cuenta</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="presentacion">
+        <h2>Encontrá tu espacio para estudiar</h2>
+        <p>Buscá, compará y descubrí lugares ideales para concentrarte.</p>
+
+        <div class="buscador">
+            <input type="text" id="buscar"
+                placeholder="Buscar biblioteca, café, universidad...">
+            <button id="botonBuscar">Buscar</button>
+        </div>
+    </section>
+
+    <main>
+        <aside class="filtros">
+            <h2>Filtrar resultados</h2>
+
+            <h3>Conectividad</h3>
+            <label>
+                <input type="checkbox" id="wifi">
+                Con WiFi
+            </label>
+
+            <h3>Comodidades</h3>
+            <label>
+                <input type="checkbox" id="enchufes">
+                Con enchufes
+            </label>
+
+            <h3>Nivel de ruido</h3>
+            <select id="ruido">
+                <option value="">Todos</option>
+                <option value="low">Bajo</option>
+                <option value="medium">Medio</option>
+                <option value="high">Alto</option>
+            </select>
+
+            <button id="aplicarFiltros">Aplicar filtros</button>
+            <button id="limpiarFiltros" class="limpiar">Limpiar filtros</button>
+        </aside>
+
+        <section class="resultados">
+            <h2 id="cantidad">Espacios disponibles</h2>
+            <div id="listaEspacios"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>StudySpaces - Encontrá tu lugar ideal para estudiar</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>
