@@ -1,0 +1,110 @@
+
+.contenedor-cuenta {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.formulario-cuenta {
+    background-color: #fffdf9;
+    border: 1px solid #ead7c6;
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.formulario-cuenta label {
+    display: block;
+    margin: 18px 0 8px;
+    font-weight: bold;
+}
+
+.formulario-cuenta input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dfc9b5;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.formulario-cuenta button {
+    width: 100%;
+    margin-top: 25px;
+}
+
+.mensaje-cuenta {
+    color: #70462f;
+    text-align: center;
+    margin-top: 18px;
+}
+
+.enlace-cuenta {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.enlace-cuenta a {
+    color: #70462f;
+    font-weight: bold;
+}
+
+.cuenta-informacion {
+    text-align: center;
+}
+
+.cuenta-informacion h3 {
+    font-size: 23px;
+}
+
+.cuenta-informacion p {
+    color: #715b4d;
+    line-height: 1.6;
+}
+
+.aviso-cuenta {
+    background-color: #fff0df;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.cuenta-informacion .boton-detalle {
+    display: block;
+    margin-top: 20px;
+}
+
+.boton-secundario {
+    display: block;
+    background-color: #f5d6bd;
+    color: #70462f;
+    padding: 13px 20px;
+    border-radius: 9px;
+    text-decoration: none;
+    margin-top: 12px;
+}
+
+.boton-secundario:hover {
+    background-color: #edc3a3;
+}
+
+.avatar-cuenta {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background-color: #e9c4a5;
+    color: #70462f;
+    font-size: 36px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+#cerrarSesion {
+    margin-top: 20px;
+}
+
+@media (max-width: 750px) {
+    .formulario-cuenta {
+        padding: 20px;
+    }
+}
