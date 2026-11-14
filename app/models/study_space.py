@@ -6,9 +6,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 from app.models.enums import NoiseLevel
+from app.models.list_item import ListItem
 
 if TYPE_CHECKING:
-    from app.models.favorite import Favorite
     from app.models.review import Review
     from app.models.user import User
 
@@ -44,8 +44,9 @@ class StudySpace(Base):
     reviews: Mapped[list["Review"]] = relationship(
         back_populates="space", cascade="all, delete-orphan"
     )
-    favorites: Mapped[list["Favorite"]] = relationship(
-        back_populates="space", cascade="all, delete-orphan"
+    list_items: Mapped[list["ListItem"]] = relationship(
+        back_populates="space",
+        cascade="all, delete-orphan"
     )
 
     def calculate_average_rating(self) -> float:

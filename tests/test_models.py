@@ -3,7 +3,8 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.models import (
-    Favorite,
+    FavoritesList,
+    ListItem,
     NoiseLevel,
     ReportStatus,
     Review,
@@ -132,12 +133,19 @@ def test_favorite_unique_constraint(session):
     session.add_all([user, space])
     session.commit()
 
-    fav1 = Favorite(user_id=user.id, space_id=space.id)
-    session.add(fav1)
+    favorites = FavoritesList(name="Favoritos", user_id=user.id)
+    session.add(favorites)
     session.commit()
 
-    fav2 = Favorite(user_id=user.id, space_id=space.id)
-    session.add(fav2)
+    item1 = ListItem(list_id=favorites.id, space_id=space.id)
+    session.add(item1)
+    session.commit()
+
+    assert len(favorites.items) == 1
+    assert favorites.items[0].space_id == space.id
+
+    item2 = ListItem(list_id=favorites.id, space_id=space.id)
+    session.add(item2)
     with pytest.raises(IntegrityError):
         session.commit()
     session.rollback()
