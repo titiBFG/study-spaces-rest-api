@@ -36,46 +36,12 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 
 ## Diagrama de Clases UML
 
+[![Abrir en Mermaid Live (Click & Drag + Zoom)](https://img.shields.io/badge/🔍_Abrir_en_Mermaid_Live-Click_&_Drag_+_Zoom-FF3670?style=for-the-badge)](https://mermaid.live/view#pako:eNrFGmtv2zjyr-gMFHFvk2C7QIGFtyjgJC42hzQx4mw_FAEERprYvEqkjqSSerPpb78h9TApUrKdbe_yITA5D857hrSfRglPYTQZvXr1RBlVk-jpIMmIlAf604qmMMsLtf4I-R0IecK_4r4SJRxGBwVJU8qWuPEWVwzZLAqSVDtv9JYg7Mtm6xe9lVKyFCSft6S_PuPufcYfkxURyhy6AydNpFaQwyciKLnLoBL3njO1oH8CLg7evC2-HrR4p4uF3jzWvCMBiTqMqs8FUav2M8_WS86ip0gqwb_A0SNN1QpFOP6l-Br9g-YFF4ow9Vv0HB1n5A4yRM0og6MV0OVKacw3b13Eg-fnV69umTHpWaX8LYvwL6VaDIrH3ZzcsmrPYEV_SBDRU7Wj_969I3coEEnU-_eb3Z9oGk2ic6ZgCcLahpzQDCELJdBaFmBF5ArSuMAjHrlIQyj3ZZbFjOQQAlIZowj0QQNPOM8sUCKAKORNFMLO8KOiOVhwxhW9pwnR6saFgHsQwBKQiH1Bpfp2acHnLfibxeEBBL1ft8KPi4xQ5uvyuitZTWeMMvag6AFAhWJbPsT6xGlqa7cibOkiWUqM7X0UJKzLYVRxqW1nn_Hsen-hyhSY6gbBTxkaqjWYRlrrhABp1hbeo6AKYgEPFB7HUqMY6zT4KAjPczzAstm1Qfb8Gesj0Rydwyw8zOJY8QovdJQGOFuGgWfgms09eeBa-AArj8QYHeNB8Jx7XutY9KSUmKNSBk0a80eGkWuODJjXtmxC8oLQJWvRTuuNb26W1WkSN_h-3FU-KnjQbK-jOXesnEIGDbr-h9gaw7MJpFR5WIcRg8dYUZVtkrraS7BYunHQa8FpmlPmmU-A5NmDjjVd7vy8SanMqZQheCDmK-WdA3oqXF-BSkEmghZ1HnpgjDKUWIZACVXr0H6GWazTEWEfMk5sp2ScLftgOgYesQj4hVJDeIm-MKncATJOJSYdPEBm6giuLvTCQuEFMBQxXvFSyL4iXWBWPEC6f5nmd-hirJhOHtS1yE2ELCkzXSEIYhOsjQINxZbo4q4pEl4yVVcjiXDfmxVGk_thHGM2zFMRKuFLlBRE3Ag_lpXQdU7V4nvBKSBHI-1LVZed1lBDQb1xoNvMgZU5CNMf7H5-Mv3X1Wb1cXZ2bi2nFzdXwUOq0r1L1lQuCoK6HcFmlqN7rXjQ4G9uvD1QSe-yF0wFZZEOwvXwOQ44TiouYMjylVE-cbVTOUEVSgk4-uylQedIXWp3OcwtxI4P3Gq8nw_6BrMXm7DTsv9OWd4WBqYL79J_JVabCnGXCaFO8F3wO7p_aGqRp_n_SoJr0zFffgdAi8twE5SKqFLbuTpiYZZ7OKvu-b3N3gMceSVTzx5BMbZmtG-W78N945MfdYJuJj-Kty49P4q3jbZTF5vPLs_OZ5c3s83W9Wzxx6ztX_rvbLY4nV7fTM_CPe1Kd3q5osU1_KeE3YpPq1iX-KUR3o9Qz1ehsvpvvNH3ZgA2GTFUcsOSv9Tq0_n11cn0bGr74fT36ed2y5tWQtdWx_Q4yuCkptZFuMzj_ZZB1jOUAtOvNO5MOiDBAmOWusf3VMD6qmpfwuVYmxqP0ll3GOU49JMlWPcc783B6TLA0v3Y9Xr0I09rZ23R7btq0S0PzRX5_yiDjbGDT7ULhjJlpl9z-nhupT5n06J4MfU0xWKqcORly3lG2A-8rxaCmonhDBKcAO2pLi2rqIpTspZ9M21gJOyo0jxf7FVfGyKvriKGULGe6OuyaVcOTKkwZFs1NlrgduBVjmB9yoZc5Yr64kJ6enP-ySqjH84vpxfnn53Sejq9PJ1d9JXWOVmb69UOZia5vg0Hnd56oGa3d2ODr3hNZiSLi4pBTINvwPu0t7Ci36VxXfmN68o3eHiA-AgiISmfkyUfKHTJCpIvvFTj5p3Oiu7Xvl3aF2ij47i1JrVfn_t8gybF6410H5qRVcZJOtxJzKvbu7-Ojux3iS7IfuHswtq3OwtwO3pzO4qOjt7jp5-Pj_-Ji3qCnESQ0yZD-3CtaXaiv0yhd1sIeoaLSYT3Wr1Hdie3TqyI7PfyoF7mgWQSFeVdhjx2IureflHQkoiU7HGifn1ojVnROe_QBn3gYM84HWqPdF69-TpqbqPxJm3H_duoTzd5o18vMLtJo-rmwTisZxs9ro7byALy7sfAEnlDuPFqbfqhMLLDfZikdsjuBH7UgawDL-URsP14BBN0mDhg3t2JLdOi2OaLmUTbF0VHQTwOx8fv7RfSSVRKEkQanF9rsi5hZT9T_pzHnAaz9mavn4O220Zk3hu71ckEQU9weKc055htI70tjg_tOtvH2FRqH7YRwYFpmw9fXCxfOebSlM6DgeMdL7g0es-d1yHsaR5VAHnShagawY3ag7ptoR2KxX7SrqQhESv-3sWmD9G7wzQ8hz2nJfEvT1i-cSLald6_Ptn0g9m6_fit5P2nNw3AvZ5ta1tCgCw4SyFqWbTwUNrWo7zOWf29kyAdGi1j597hBHPDwFQ2Z1x20AITrEUxiNOcPjoc4cSN1k5Hk9HT7cj8DOZ2NEFlUrgnZaZuR8-IRErFF2uWjCbmZz2j6luZ-qcqzWZB2GfO6-XzfwFMXGb0))
+
 ```mermaid
+%%{init: {'class': {'hideEmptyMembersBox': true, 'padding': 5, 'nodeSpacing': 15, 'rankSpacing': 25, 'diagramPadding': 8}, 'flowchart': {'nodeSpacing': 15, 'rankSpacing': 25}, 'themeVariables': {'fontSize': '15px'}, 'themeCSS': '.node rect, .node path, .node polygon { stroke-width: 1.2px !important; } .label { line-height: 1.15 !important; }'}}%%
 classDiagram
     direction TB
-
-    class NoiseLevel {
-        <<enumeration>>
-        BAJO
-        MEDIO
-        ALTO
-    }
-
-    class ReportStatus {
-        <<enumeration>>
-        PENDIENTE
-        RESUELTO
-        DESCARTADO
-    }
-
-    class OwnershipRequestStatus {
-        <<enumeration>>
-        PENDIENTE
-        APROBADA
-        RECHAZADA
-    }
-
-    class CampaignStatus {
-        <<enumeration>>
-        PENDIENTE
-        ACTIVA
-        FINALIZADA
-        CANCELADA
-    }
-
-    class PaymentStatus {
-        <<enumeration>>
-        PENDIENTE
-        APROBADO
-        RECHAZADO
-        CANCELADO
-    }
 
     class User {
         <<abstract>>
@@ -137,6 +103,13 @@ classDiagram
         +register_observer(student : StudentUser) Void
         +remove_observer(student : StudentUser) Void
         +notify_observers() Void
+    }
+
+    class NoiseLevel {
+        <<enumeration>>
+        BAJO
+        MEDIO
+        ALTO
     }
 
     class Review {
@@ -208,6 +181,13 @@ classDiagram
         -notify_observers(new_status : ReportStatus) Void
     }
 
+    class ReportStatus {
+        <<enumeration>>
+        PENDIENTE
+        RESUELTO
+        DESCARTADO
+    }
+
     class OwnershipRequest {
         +id : Integer
         +status : OwnershipRequestStatus
@@ -216,6 +196,13 @@ classDiagram
         +approve() Void
         +reject() Void
         -notify_user() Void
+    }
+
+    class OwnershipRequestStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADA
+        RECHAZADA
     }
 
     class NotificationPreference {
@@ -270,6 +257,14 @@ classDiagram
         +cancel() Void
     }
 
+    class CampaignStatus {
+        <<enumeration>>
+        PENDIENTE
+        ACTIVA
+        FINALIZADA
+        CANCELADA
+    }
+
     class Payment {
         +id : Integer
         +amount : Decimal
@@ -278,6 +273,14 @@ classDiagram
         +external_payment_id : String
         +approve() Void
         +reject() Void
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        PENDIENTE
+        APROBADO
+        RECHAZADO
+        CANCELADO
     }
 
     class MercadoPagoService {
@@ -313,6 +316,8 @@ classDiagram
     StudySpace "1" --> "0..*" StudySpaceReport : recibe
     StudySpace "1" --> "0..*" OwnershipRequest : recibe
     StudySpace "1" --> "0..*" Campaign : es promocionado por
+    StudySpace ..> NoiseLevel : usa
+    StudySpace ..> PromotionNotificationService : usa
 
     StudySpacesList <|-- FavoritesList
 
@@ -325,16 +330,20 @@ classDiagram
     Report <|-- StudySpaceReport
     Report <|-- UserReport
     Report <|-- PostReport
+    Report ..> ModerationNotificationService : usa
+    ReviewReport ..> ReportStatus : usa
+
+    OwnershipRequest ..> OwnershipRequestStatus : usa
 
     NotificationPreference ..> NotificationService
 
     NotificationService <|-- ModerationNotificationService
     NotificationService <|-- PromotionNotificationService
+    NotificationService ..> Notification
 
     Notification <|-- EmailNotification
     Notification <|-- InAppNotification
 
-    NotificationService ..> Notification
     ModerationNotificationService ..> EmailNotification : crea
     ModerationNotificationService ..> InAppNotification : crea
     PromotionNotificationService ..> EmailNotification : crea
@@ -343,18 +352,12 @@ classDiagram
     AdvertisingPlan "1" --> "0..*" Campaign : corresponde a
 
     Campaign "1" --> "0..*" Payment : registra
+    Campaign ..> CampaignStatus : usa
 
-    StudySpace ..> PromotionNotificationService : usa
-    Report ..> ModerationNotificationService : usa
+    Payment ..> PaymentStatus : usa
 
     MercadoPagoService ..> Payment
     MercadoPagoService ..> Campaign
-
-    StudySpace ..> NoiseLevel : usa
-    ReviewReport ..> ReportStatus : usa
-    OwnershipRequest ..> OwnershipRequestStatus : usa
-    Campaign ..> CampaignStatus : usa
-    Payment ..> PaymentStatus : usa
 ```
 
 ---
