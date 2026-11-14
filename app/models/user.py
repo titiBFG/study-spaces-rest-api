@@ -7,9 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 from app.models.enums import UserRole
+from app.models.study_spaces_list import StudySpacesList
 
 if TYPE_CHECKING:
-    from app.models.favorite import Favorite
     from app.models.report import ReviewReport
     from app.models.review import Review
     from app.models.study_space import StudySpace
@@ -37,8 +37,9 @@ class User(Base):
     reviews: Mapped[list["Review"]] = relationship(
         back_populates="author", cascade="all, delete-orphan"
     )
-    favorites: Mapped[list["Favorite"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
+    lists: Mapped[list["StudySpacesList"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
     reports: Mapped[list["ReviewReport"]] = relationship(
         back_populates="reporter", cascade="all, delete-orphan"

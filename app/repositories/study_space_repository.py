@@ -28,3 +28,7 @@ def get_all_spaces(
         query = query.filter(StudySpace.noise_level == noise_level)
 
     return query.all()
+
+def get_space_by_id(session: Session, space_id: int) -> StudySpace | None:
+    """Devuelve el espacio de estudio con ese id, o None si no existe."""
+    return session.query(StudySpace).filter(StudySpace.id == space_id).first()

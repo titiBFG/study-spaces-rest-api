@@ -3,7 +3,7 @@ import bcrypt
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.repositories.user_repository import get_user_by_email, create_user
+from app.repositories.user_repository import create_user, get_user_by_email
 from app.schemas.user import UserCreate, UserLogin
 
 
