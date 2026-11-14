@@ -3,12 +3,15 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.models import (
+    AdminUser,
+    BusinessUser,
     FavoritesList,
     ListItem,
     NoiseLevel,
     ReportStatus,
     Review,
     ReviewReport,
+    StudentUser,
     StudySpace,
     User,
     UserRole,
@@ -19,43 +22,56 @@ def test_user_model_and_methods(session):
     raw_password = "SecretPassword123"
     hashed = bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-    user = User(
+    user = StudentUser(
         email="student@unsam.edu.ar",
         hashed_password=hashed,
         full_name="Estudiante UNSAM",
-        role=UserRole.STUDENT,
     )
     session.add(user)
     session.commit()
     session.refresh(user)
 
     assert user.id is not None
-    assert user.is_student() is True
-    assert user.is_admin() is False
-    assert user.is_business() is False
+    assert user.role == UserRole.STUDENT
     assert user.verify_password("SecretPassword123") is True
     assert user.verify_password("WrongPassword") is False
 
 
+def test_user_is_abstract():
+    with pytest.raises(TypeError):
+        User(email="x@unsam.edu.ar", hashed_password="hash", full_name="X")
+
+
+def test_user_subclasses_set_role_and_load_polymorphically(session):
+    student = StudentUser(email="a@unsam.edu.ar", hashed_password="h", full_name="A")
+    business = BusinessUser(email="b@unsam.edu.ar", hashed_password="h", full_name="B")
+    admin = AdminUser(email="c@unsam.edu.ar", hashed_password="h", full_name="C")
+    session.add_all([student, business, admin])
+    session.commit()
+    session.expunge_all()
+
+    assert isinstance(session.get(User, student.id), StudentUser)
+    assert isinstance(session.get(User, business.id), BusinessUser)
+    assert isinstance(session.get(User, admin.id), AdminUser)
+    assert session.get(User, admin.id).role == UserRole.ADMIN
+
+
 def test_study_space_and_reviews_relationships(session):
     # Create owner and student
-    owner = User(
+    owner = BusinessUser(
         email="cafe@unsam.edu.ar",
         hashed_password="hash",
         full_name="Dueño Cafe",
-        role=UserRole.BUSINESS,
     )
-    student1 = User(
+    student1 = StudentUser(
         email="s1@unsam.edu.ar",
         hashed_password="hash",
         full_name="Alumno 1",
-        role=UserRole.STUDENT,
     )
-    student2 = User(
+    student2 = StudentUser(
         email="s2@unsam.edu.ar",
         hashed_password="hash",
         full_name="Alumno 2",
-        role=UserRole.STUDENT,
     )
     session.add_all([owner, student1, student2])
     session.commit()
@@ -115,11 +131,10 @@ def test_study_space_and_reviews_relationships(session):
 
 
 def test_favorite_unique_constraint(session):
-    user = User(
+    user = StudentUser(
         email="fav_user@unsam.edu.ar",
         hashed_password="hash",
         full_name="Fav User",
-        role=UserRole.STUDENT,
     )
     space = StudySpace(
         name="Café del Bosque",
@@ -152,17 +167,15 @@ def test_favorite_unique_constraint(session):
 
 
 def test_review_report_workflow(session):
-    student = User(
+    student = StudentUser(
         email="author@unsam.edu.ar",
         hashed_password="hash",
         full_name="Review Author",
-        role=UserRole.STUDENT,
     )
-    reporter = User(
+    reporter = StudentUser(
         email="reporter@unsam.edu.ar",
         hashed_password="hash",
         full_name="Report Person",
-        role=UserRole.STUDENT,
     )
     space = StudySpace(
         name="Espacio Test",

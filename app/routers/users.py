@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -6,17 +5,25 @@ from app.database.session import get_session
 from app.models.user import User
 from app.schemas.user import LoginResponse, UserCreate, UserLogin, UserResponse
 from app.services.auth_service import create_token, get_current_user
-from app.services.user_service import login_user, register_user
+from app.services.user_service import login_user, register_business, register_student
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=201)
-def register(
+@router.post("/register/student", response_model=UserResponse, status_code=201)
+def register_as_student(
     data: UserCreate,
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session),  # noqa: B008
 ):
-    return register_user(session, data)
+    return register_student(session, data)
+
+
+@router.post("/register/business", response_model=UserResponse, status_code=201)
+def register_as_business(
+    data: UserCreate,
+    session: Session = Depends(get_session),  # noqa: B008
+):
+    return register_business(session, data)
 
 
 @router.post("/login", response_model=LoginResponse)

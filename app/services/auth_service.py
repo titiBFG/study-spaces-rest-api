@@ -1,5 +1,5 @@
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from fastapi import Depends, HTTPException
@@ -8,14 +8,14 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.database.session import get_session
-from app.models.user import User
+from app.models.user import AdminUser, BusinessUser, StudentUser, User
 
 security = HTTPBearer()
 settings = get_settings()
 
 
 def create_token(user: User):
-    expiration = datetime.now(timezone.utc) + timedelta(hours=8)
+    expiration = datetime.now(UTC) + timedelta(hours=8)
 
     return jwt.encode(
         {"sub": str(user.id), "exp": expiration},
@@ -25,8 +25,8 @@ def create_token(user: User):
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    session: Session = Depends(get_session),
+    credentials: HTTPAuthorizationCredentials = Depends(security),  # noqa: B008
+    session: Session = Depends(get_session),  # noqa: B008
 ):
     try:
         data = jwt.decode(
@@ -50,3 +50,19 @@ def get_current_user(
         )
 
     return user
+
+
+def _require(user_class: type[User], detail: str):
+    """Crea una dependencia de FastAPI que exige un usuario de cierta subclase."""
+
+    def dependency(user: User = Depends(get_current_user)):  # noqa: B008
+        if not isinstance(user, user_class):
+            raise HTTPException(status_code=403, detail=detail)
+        return user
+
+    return dependency
+
+
+require_student = _require(StudentUser, "Solo disponible para estudiantes")
+require_business = _require(BusinessUser, "Solo disponible para negocios")
+require_admin = _require(AdminUser, "Solo disponible para administradores")

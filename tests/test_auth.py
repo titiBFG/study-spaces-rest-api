@@ -1,12 +1,7 @@
-"""Tests de autenticación: registro, login y /users/me.
-
-Los helpers de abajo concentran el formato de los requests. Si más adelante
-el registro pide un campo nuevo (por ejemplo `role`), se cambia acá y no en
-cada test.
-"""
 import pytest
 
-from app.models import User
+from app.models import AdminUser, BusinessUser, StudentUser, User
+from app.services.auth_service import create_token
 
 DEFAULT_USER = {
     "full_name": "Ana Test",
@@ -15,10 +10,10 @@ DEFAULT_USER = {
 }
 
 
-def register(client, **overrides):
-    """Registra un usuario. Los campos de `overrides` pisan los de DEFAULT_USER."""
+def register(client, kind="student", **overrides):
+    """Registra un usuario (student o business). `overrides` pisa DEFAULT_USER."""
     payload = {**DEFAULT_USER, **overrides}
-    return client.post("/users/register", json=payload)
+    return client.post(f"/users/register/{kind}", json=payload)
 
 
 def login(client, email=DEFAULT_USER["email"], password=DEFAULT_USER["password"]):
@@ -99,7 +94,7 @@ def test_register_invalid_email_returns_422(client):
 
 
 def test_register_missing_field_returns_422(client):
-    response = client.post("/users/register", json={"email": "ana@example.com"})
+    response = client.post("/users/register/student", json={"email": "ana@example.com"})
 
     assert response.status_code == 422
 
@@ -112,6 +107,60 @@ def test_register_stores_hashed_password(client, session):
     assert user is not None
     assert user.hashed_password != DEFAULT_USER["password"]
     assert user.verify_password(DEFAULT_USER["password"]) is True
+
+
+# ----------------------- Registro por tipo de usuario -----------------------
+
+def test_register_student_creates_student_user(client, session):
+    response = register(client, "student")
+
+    assert response.status_code == 201
+    assert response.json()["role"] == "student"
+    user = session.query(User).filter(User.email == DEFAULT_USER["email"]).first()
+    assert isinstance(user, StudentUser)
+
+
+def test_register_business_creates_business_user(client, session):
+    response = register(client, "business")
+
+    assert response.status_code == 201
+    assert response.json()["role"] == "business"
+    user = session.query(User).filter(User.email == DEFAULT_USER["email"]).first()
+    assert isinstance(user, BusinessUser)
+
+
+def test_register_business_duplicate_email_across_types_returns_400(client):
+    register(client, "student")
+
+    response = register(client, "business")
+
+    assert response.status_code == 400
+
+
+def test_admin_cannot_be_registered_publicly(client):
+    response = register(client, "admin")
+
+    assert response.status_code in (404, 405)
+
+
+def test_login_returns_role(client):
+    register(client, "business")
+
+    response = login(client)
+
+    assert response.json()["user"]["role"] == "business"
+
+
+def test_current_user_is_instance_of_its_subclass(client, session):
+    admin = AdminUser(email="admin@example.com", hashed_password="x", full_name="Admin")
+    session.add(admin)
+    session.commit()
+    headers = {"Authorization": f"Bearer {create_token(admin)}"}
+
+    response = client.get("/users/me", headers=headers)
+
+    assert response.status_code == 200
+    assert response.json()["role"] == "admin"
 
 
 # ------------------------------ Login -------------------------------

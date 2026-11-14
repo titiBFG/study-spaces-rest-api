@@ -1,5 +1,6 @@
-
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+from app.models.enums import UserRole
 
 
 class UserCreate(BaseModel):
@@ -14,6 +15,7 @@ class UserResponse(BaseModel):
     id: int
     full_name: str
     email: EmailStr
+    role: UserRole
 
 
 class UserLogin(BaseModel):

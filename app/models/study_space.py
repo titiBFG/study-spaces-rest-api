@@ -10,7 +10,7 @@ from app.models.list_item import ListItem
 
 if TYPE_CHECKING:
     from app.models.review import Review
-    from app.models.user import User
+    from app.models.user import BusinessUser
 
 
 class StudySpace(Base):
@@ -40,7 +40,7 @@ class StudySpace(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    owner: Mapped["User | None"] = relationship(back_populates="owned_spaces")
+    owner: Mapped["BusinessUser | None"] = relationship(back_populates="owned_spaces")
     reviews: Mapped[list["Review"]] = relationship(
         back_populates="space", cascade="all, delete-orphan"
     )
