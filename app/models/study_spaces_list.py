@@ -8,7 +8,7 @@ from app.database.base import Base
 
 if TYPE_CHECKING:
     from app.models.list_item import ListItem
-    from app.models.user import User
+    from app.models.user import StudentUser
 
 
 class StudySpacesList(Base):
@@ -25,7 +25,7 @@ class StudySpacesList(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    user: Mapped["User"] = relationship(
+    user: Mapped["StudentUser"] = relationship(
         back_populates="lists"
     )
 

@@ -4,15 +4,18 @@ from app.models.report import ReviewReport
 from app.models.review import Review
 from app.models.study_space import StudySpace
 from app.models.study_spaces_list import FavoritesList, StudySpacesList
-from app.models.user import User
+from app.models.user import AdminUser, BusinessUser, StudentUser, User
 
 __all__ = [
+	"AdminUser",
+	"BusinessUser",
 	"FavoritesList",
 	"ListItem",
 	"NoiseLevel",
 	"ReportStatus",
 	"Review",
 	"ReviewReport",
+	"StudentUser",
 	"StudySpace",
 	"StudySpacesList",
 	"User",

@@ -1,11 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.enums import UserRole
 from app.models.list_item import ListItem
 from app.models.study_space import StudySpace
 from app.models.study_spaces_list import FavoritesList, StudySpacesList
-from app.models.user import User
+from app.models.user import StudentUser, User
 from app.repositories.study_space_repository import get_space_by_id
 from app.repositories.study_spaces_list_repository import (
     add_item_to_list,
@@ -28,7 +27,7 @@ FAVORITES_LIST_NAME = "Favoritos"
 
 def _ensure_student(user: User) -> None:
     """Solo los estudiantes pueden crear listas y guardar favoritos."""
-    if user.role != UserRole.STUDENT:
+    if not isinstance(user, StudentUser):
         raise HTTPException(
             status_code=403,
             detail="Solo los estudiantes pueden usar listas",

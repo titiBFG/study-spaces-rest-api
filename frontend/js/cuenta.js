@@ -1,4 +1,3 @@
-
 const API_URL = "http://127.0.0.1:8000";
 
 const formLogin = document.getElementById("formLogin");
@@ -59,7 +58,7 @@ if (formRegistro) {
         mensaje.textContent = "Registrando usuario...";
 
         try {
-            const respuesta = await fetch(API_URL + "/users/register", {
+            const respuesta = await fetch(API_URL + "/users/register/student", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

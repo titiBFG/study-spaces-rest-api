@@ -1,13 +1,13 @@
 import pytest
 
 from app.models import (
+    BusinessUser,
     FavoritesList,
     ListItem,
     NoiseLevel,
+    StudentUser,
     StudySpace,
     StudySpacesList,
-    User,
-    UserRole,
 )
 from app.services.auth_service import create_token
 
@@ -16,7 +16,7 @@ from app.services.auth_service import create_token
 def register_and_login(client, email):
     """Registra un estudiante y devuelve el header Authorization."""
     client.post(
-        "/users/register",
+        "/users/register/student",
         json={"full_name": "Test User", "email": email, "password": "password123"},
     )
     response = client.post(
@@ -69,12 +69,11 @@ def other_student(client):
 
 @pytest.fixture
 def business(session):
-    """Usuario con rol negocio (el registro solo crea estudiantes por ahora)."""
-    user = User(
+    """Usuario negocio, creado directo en la base."""
+    user = BusinessUser(
         email="negocio@example.com",
         hashed_password="hash",
         full_name="Negocio",
-        role=UserRole.BUSINESS,
     )
     session.add(user)
     session.commit()
@@ -89,9 +88,8 @@ def space(session):
 # ----------------------------- Modelos -----------------------------
 
 def test_list_type_is_set_by_class(session):
-    user = User(
-        email="m@example.com", hashed_password="hash",
-        full_name="M", role=UserRole.STUDENT,
+    user = StudentUser(
+        email="m@example.com", hashed_password="hash", full_name="M",
     )
     session.add(user)
     session.commit()

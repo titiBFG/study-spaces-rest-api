@@ -3,11 +3,15 @@ import bcrypt
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.models.user import BusinessUser, StudentUser, User
 from app.repositories.user_repository import create_user, get_user_by_email
 from app.schemas.user import UserCreate, UserLogin
 
 
-def register_user(session: Session, data: UserCreate):
+def register_user(
+    session: Session, data: UserCreate, user_class: type[User] = StudentUser
+):
+    """Registra un usuario del tipo indicado (por defecto, estudiante)."""
     email = data.email.lower()
 
     if get_user_by_email(session, email):
@@ -31,10 +35,19 @@ def register_user(session: Session, data: UserCreate):
 
     return create_user(
         session,
+        user_class,
         data.full_name,
         email,
         hashed_password,
     )
+
+
+def register_student(session: Session, data: UserCreate):
+    return register_user(session, data, StudentUser)
+
+
+def register_business(session: Session, data: UserCreate):
+    return register_user(session, data, BusinessUser)
 
 
 def login_user(session: Session, data: UserLogin):

@@ -17,7 +17,7 @@ from app.database.base import Base
 if TYPE_CHECKING:
     from app.models.report import ReviewReport
     from app.models.study_space import StudySpace
-    from app.models.user import User
+    from app.models.user import StudentUser
 
 
 class Review(Base):
@@ -42,7 +42,7 @@ class Review(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    author: Mapped["User"] = relationship(back_populates="reviews")
+    author: Mapped["StudentUser"] = relationship(back_populates="reviews")
     space: Mapped["StudySpace"] = relationship(back_populates="reviews")
     reports: Mapped[list["ReviewReport"]] = relationship(
         back_populates="review", cascade="all, delete-orphan"
