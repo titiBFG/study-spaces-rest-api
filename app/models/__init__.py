@@ -1,5 +1,6 @@
 from app.models.enums import NoiseLevel, ReportStatus, UserRole
 from app.models.list_item import ListItem
+from app.models.post import Post
 from app.models.report import ReviewReport
 from app.models.review import Review
 from app.models.review_vote import ReviewVote
@@ -13,6 +14,7 @@ __all__ = [
 	"FavoritesList",
 	"ListItem",
 	"NoiseLevel",
+	"Post",
 	"ReportStatus",
 	"Review",
 	"ReviewReport",

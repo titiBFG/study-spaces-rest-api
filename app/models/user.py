@@ -9,6 +9,7 @@ from app.database.base import Base
 from app.models.enums import UserRole
  
 if TYPE_CHECKING:
+    from app.models.post import Post
     from app.models.report import ReviewReport
     from app.models.review import Review
     from app.models.review_vote import ReviewVote
@@ -86,6 +87,9 @@ class BusinessUser(User):
     """Negocio: gestiona los espacios de estudio de los que es dueño."""
  
     owned_spaces: Mapped[list["StudySpace"]] = relationship(back_populates="owner")
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="author", cascade="all, delete-orphan"
+    )
  
     __mapper_args__ = {  # noqa: RUF012
         "polymorphic_identity": UserRole.BUSINESS,
