@@ -11,6 +11,7 @@ from app.models.enums import UserRole
 if TYPE_CHECKING:
     from app.models.report import ReviewReport
     from app.models.review import Review
+    from app.models.review_vote import ReviewVote
     from app.models.study_space import StudySpace
     from app.models.study_spaces_list import StudySpacesList
 
@@ -71,6 +72,9 @@ class StudentUser(User):
     )
     lists: Mapped[list["StudySpacesList"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
+    )
+    votes: Mapped[list["ReviewVote"]] = relationship(
+        back_populates="voter", cascade="all, delete-orphan"
     )
  
     __mapper_args__ = {  # noqa: RUF012

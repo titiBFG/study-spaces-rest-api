@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -65,3 +64,13 @@ class StudySpace(Base):
         return sum(
             1 for review in self.reviews if getattr(review, "is_visible", True)
         )
+
+    @property
+    def average_rating(self) -> float:
+        """Promedio de calificaciones visibles (para exponerlo en la API)."""
+        return self.calculate_average_rating()
+
+    @property
+    def reviews_count(self) -> int:
+        """Cantidad de reseñas visibles (para exponerla en la API)."""
+        return self.count_reviews()

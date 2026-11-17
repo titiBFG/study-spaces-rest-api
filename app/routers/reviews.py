@@ -1,86 +1,86 @@
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database.session import get_session
-from app.models.review import Review
-from app.models.study_space import StudySpace
 from app.models.user import User
-from app.schemas.review import ReviewCreate, ReviewResponse
-from app.services.auth_service import get_current_user, require_student
+from app.schemas.review import (
+    ReviewCreate,
+    ReviewResponse,
+    ReviewUpdate,
+    ReviewVoteCreate,
+)
+from app.services import review_service
+from app.services.auth_service import require_student
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
-def preparar_resena(resena):
-    return {
-        "id": resena.id,
-        "rating": resena.rating,
-        "comment": resena.comment,
-        "space_id": resena.space_id,
-        "user_id": resena.user_id,
-        "created_at": resena.created_at,
-        "author_name": resena.author.full_name
-    }
-
-
 @router.get("/mine", response_model=list[ReviewResponse])
-def mis_resenas(
-    session: Session = Depends(get_session),
-    user: User = Depends(require_student),
+def get_my_reviews(
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
 ):
-    resenas = session.query(Review).filter(
-        Review.user_id == user.id
-    ).all()
-
-    return [preparar_resena(resena) for resena in resenas]
+    """Devuelve las reseñas escritas por el estudiante autenticado."""
+    return review_service.get_my_reviews(session, user)
 
 
 @router.get("/space/{space_id}", response_model=list[ReviewResponse])
-def resenas_del_espacio(
+def get_space_reviews(
     space_id: int,
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session),  # noqa: B008
 ):
-    resenas = session.query(Review).filter(
-        Review.space_id == space_id,
-        Review.is_visible == True
-    ).all()
-
-    return [preparar_resena(resena) for resena in resenas]
+    """Devuelve las reseñas visibles de un espacio de estudio (acceso público)."""
+    return review_service.get_space_reviews(session, space_id)
 
 
 @router.post("/space/{space_id}", response_model=ReviewResponse, status_code=201)
-def crear_resena(
+def create_review(
     space_id: int,
-    datos: ReviewCreate,
-    session: Session = Depends(get_session),
-    user: User = Depends(require_student),
+    data: ReviewCreate,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
 ):
-    espacio = session.get(StudySpace, space_id)
+    """Publica la reseña del estudiante sobre un espacio (una por espacio)."""
+    return review_service.create_review(session, user, space_id, data)
 
-    if espacio is None:
-        raise HTTPException(status_code=404, detail="Espacio no encontrado")
 
-    anterior = session.query(Review).filter(
-        Review.space_id == space_id,
-        Review.user_id == user.id
-    ).first()
+@router.put("/{review_id}", response_model=ReviewResponse)
+def update_review(
+    review_id: int,
+    data: ReviewUpdate,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
+):
+    """Edita una reseña propia; solo se modifican los campos enviados."""
+    return review_service.update_review(session, user, review_id, data)
 
-    if anterior:
-        raise HTTPException(
-            status_code=400,
-            detail="Ya publicaste una reseña para este espacio"
-        )
 
-    resena = Review(
-        rating=datos.rating,
-        comment=datos.comment,
-        space_id=space_id,
-        user_id=user.id
-    )
+@router.delete("/{review_id}", status_code=204)
+def delete_review(
+    review_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
+):
+    """Elimina una reseña propia."""
+    review_service.delete_review(session, user, review_id)
 
-    session.add(resena)
-    session.commit()
-    session.refresh(resena)
 
-    return preparar_resena(resena)
+@router.put("/{review_id}/vote", response_model=ReviewResponse)
+def vote_review(
+    review_id: int,
+    data: ReviewVoteCreate,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
+):
+    """Vota una reseña ajena como útil o no útil (reemplaza el voto anterior)."""
+    return review_service.vote_review(session, user, review_id, data)
+
+
+@router.delete("/{review_id}/vote", status_code=204)
+def remove_vote(
+    review_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(require_student),  # noqa: B008
+):
+    """Quita el voto del estudiante sobre una reseña."""
+    review_service.remove_vote(session, user, review_id)

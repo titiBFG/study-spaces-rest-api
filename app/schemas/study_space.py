@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.enums import NoiseLevel
@@ -20,6 +19,8 @@ class StudySpaceResponse(BaseModel):
     opening_hours: str | None
     image_url: str | None = None
     is_approved: bool
+    average_rating: float = 0.0
+    reviews_count: int = 0
 
 
 class StudySpaceCreate(BaseModel):
