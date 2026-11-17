@@ -1,5 +1,5 @@
 
-const API_LISTAS = "http://127.0.0.1:8000";
+const API_LISTAS = "https://study-spaces-rest-api.onrender.com";
 const tokenListas = localStorage.getItem("token");
 
 const contenedorListas = document.getElementById("contenedorListas");

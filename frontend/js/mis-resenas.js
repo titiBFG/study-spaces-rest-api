@@ -1,5 +1,5 @@
 
-const API_MIS_RESENAS = "http://127.0.0.1:8000";
+const API_MIS_RESENAS = "https://study-spaces-rest-api.onrender.com";
 
 async function mostrarMisResenas() {
     const contenedor = document.getElementById("listaMisResenas");

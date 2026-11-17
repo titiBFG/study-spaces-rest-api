@@ -1,5 +1,5 @@
 
-const API_URL_ESPACIOS = "http://127.0.0.1:8000";
+const API_URL_ESPACIOS = "https://study-spaces-rest-api.onrender.com";
 
 let espacios = [];
 let favoritos = [];

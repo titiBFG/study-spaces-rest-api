@@ -1,5 +1,5 @@
 
-const API_ADMIN = "http://127.0.0.1:8000";
+const API_ADMIN = "https://study-spaces-rest-api.onrender.com";
 
 const contenedorPendientes = document.getElementById("contenedorPendientes");
 const mensajeAdmin = document.getElementById("mensajeAdmin");

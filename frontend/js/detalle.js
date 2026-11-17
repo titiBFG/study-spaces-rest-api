@@ -3,7 +3,7 @@ const parametros = new URLSearchParams(window.location.search);
 const idEspacio = Number(parametros.get("id"));
 
 const contenedorDetalle = document.getElementById("detalleEspacio");
-const API_RESENAS = "http://127.0.0.1:8000";
+const API_RESENAS = "https://study-spaces-rest-api.onrender.com";
 
 async function mostrarResenas() {
     const lista = document.getElementById("listaResenas");
