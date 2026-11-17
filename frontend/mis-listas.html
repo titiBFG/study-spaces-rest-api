@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis listas - StudySpaces</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body>
+    <header>
+        <div class="barra">
+            <h1>📖 StudySpaces</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="favoritos.html">Favoritos</a>
+                <a href="mis-resenas.html">Mis reseñas</a>
+                <a href="mis-listas.html">Mis listas</a>
+                <a href="mi-cuenta.html">Mi cuenta</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="encabezado-pagina">
+        <h2>Mis listas</h2>
+        <p>Organizá tus espacios de estudio.</p>
+    </section>
+
+    <div class="pagina-favoritos">
+
+        <button id="botonNuevaLista" type="button">
+            + Nueva lista
+        </button>
+
+        <div id="crearLista" hidden>
+            <h3>Crear una lista</h3>
+
+            <form id="formLista">
+                <label for="nombreLista">Nombre de la lista</label>
+                <input
+                    id="nombreLista"
+                    placeholder="Ejemplo: Lugares tranquilos"
+                    maxlength="100"
+                    required
+                >
+
+                <button type="submit">Guardar</button>
+                <button id="cancelarLista" type="button">Cancelar</button>
+            </form>
+        </div>
+
+        <p id="mensajeListas"></p>
+
+        <h3>Mis listas guardadas</h3>
+        <div id="contenedorListas"></div>
+
+    </div>
+
+    <footer>
+        <p>StudySpaces - Encontrá tu lugar ideal para estudiar</p>
+    </footer>
+
+    <script src="js/mis-listas.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>

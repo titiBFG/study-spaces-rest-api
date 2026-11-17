@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -29,6 +30,7 @@ class StudySpace(Base):
         Enum(NoiseLevel, native_enum=False)
     )
     opening_hours: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     owner_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
@@ -50,7 +52,6 @@ class StudySpace(Base):
     )
 
     def calculate_average_rating(self) -> float:
-        """Calculate average rating based on visible reviews."""
         visible_ratings = [
             review.rating
             for review in self.reviews
@@ -61,7 +62,6 @@ class StudySpace(Base):
         return round(sum(visible_ratings) / len(visible_ratings), 2)
 
     def count_reviews(self) -> int:
-        """Count total visible reviews."""
         return sum(
             1 for review in self.reviews if getattr(review, "is_visible", True)
         )

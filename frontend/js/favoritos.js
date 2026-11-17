@@ -3,13 +3,28 @@ function mostrarFavoritos() {
     const contenedor = document.getElementById("listaFavoritos");
     const cantidad = document.getElementById("cantidadFavoritos");
 
-    const idsFavoritos = obtenerFavoritos();
-
-    const lista = espacios.filter(function(espacio) {
-        return idsFavoritos.includes(espacio.id);
-    });
+    if (!contenedor) {
+        return;
+    }
 
     contenedor.innerHTML = "";
+
+    if (!localStorage.getItem("token")) {
+        cantidad.textContent = "Mis favoritos";
+
+        contenedor.innerHTML = `
+            <p>Iniciá sesión para ver tus favoritos.</p>
+            <a class="boton-detalle" href="login.html">
+                Iniciar sesión
+            </a>
+        `;
+        return;
+    }
+
+    const lista = espacios.filter(function(espacio) {
+        return esFavorito(espacio.id);
+    });
+
     cantidad.textContent = lista.length + " espacios favoritos";
 
     if (lista.length === 0) {
@@ -17,7 +32,9 @@ function mostrarFavoritos() {
             <div class="sin-resultados">
                 <h3>Todavía no tenés favoritos ♡</h3>
                 <p>Explorá los espacios y guardá los que más te gusten.</p>
-                <a class="boton-detalle" href="index.html">Explorar espacios</a>
+                <a class="boton-detalle" href="index.html">
+                    Explorar espacios
+                </a>
             </div>
         `;
         return;
@@ -27,5 +44,3 @@ function mostrarFavoritos() {
         contenedor.appendChild(crearTarjeta(espacio));
     });
 }
-
-mostrarFavoritos();
