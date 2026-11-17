@@ -2,91 +2,129 @@
 const parametros = new URLSearchParams(window.location.search);
 const idEspacio = Number(parametros.get("id"));
 
-const espacio = espacios.find(function(item) {
-    return item.id === idEspacio;
-});
-
 const contenedorDetalle = document.getElementById("detalleEspacio");
+const API_RESENAS = "https://study-spaces-rest-api.onrender.com";
 
-function obtenerResenas() {
-    return JSON.parse(localStorage.getItem("resenas")) || [];
+async function mostrarResenas() {
+    const lista = document.getElementById("listaResenas");
+    const promedio = document.getElementById("promedioResenas");
+
+    try {
+        const respuesta = await fetch(
+            API_RESENAS + "/reviews/space/" + idEspacio
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar las reseñas");
+        }
+
+        const resenas = await respuesta.json();
+
+        lista.innerHTML = "";
+        promedio.textContent = "";
+
+        if (resenas.length === 0) {
+            lista.textContent = "Todavía no hay reseñas para este espacio.";
+            return;
+        }
+
+        let suma = 0;
+
+        resenas.forEach(function(resena) {
+            suma += resena.rating;
+
+            const tarjeta = document.createElement("div");
+            tarjeta.className = "resena";
+
+            const nombre = document.createElement("h4");
+            nombre.textContent = resena.author_name;
+
+            const estrellas = document.createElement("div");
+            estrellas.className = "estrellas";
+            estrellas.textContent =
+                "★".repeat(resena.rating) +
+                "☆".repeat(5 - resena.rating);
+
+            const comentario = document.createElement("p");
+            comentario.textContent = resena.comment;
+
+            tarjeta.appendChild(nombre);
+            tarjeta.appendChild(estrellas);
+            tarjeta.appendChild(comentario);
+
+            lista.appendChild(tarjeta);
+        });
+
+        promedio.textContent =
+            "Calificación promedio: " +
+            (suma / resenas.length).toFixed(1) +
+            " / 5 (" + resenas.length + " reseñas)";
+    } catch (error) {
+        lista.textContent = "No se pudieron cargar las reseñas.";
+    }
 }
 
-function guardarResena(evento) {
+async function guardarResena(evento) {
     evento.preventDefault();
 
-    const nombre = document.getElementById("nombreResena").value.trim();
-    const calificacion = Number(document.getElementById("calificacion").value);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Tenés que iniciar sesión para publicar una reseña.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const calificacion = Number(
+        document.getElementById("calificacion").value
+    );
+
     const comentario = document.getElementById("comentario").value.trim();
 
-    if (!nombre || !comentario || !calificacion) {
+    if (!calificacion || !comentario) {
         alert("Completá todos los campos.");
         return;
     }
 
-    const resenas = obtenerResenas();
+    try {
+        const respuesta = await fetch(
+            API_RESENAS + "/reviews/space/" + idEspacio,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    rating: calificacion,
+                    comment: comentario
+                })
+            }
+        );
 
-    const nuevaResena = {
-        espacioId: espacio.id,
-        nombre: nombre,
-        calificacion: calificacion,
-        comentario: comentario
-    };
+        if (respuesta.ok) {
+            alert("Reseña publicada correctamente.");
+            document.getElementById("formResena").reset();
+            mostrarResenas();
+        } else {
+            const error = await respuesta.json();
 
-    resenas.push(nuevaResena);
-    localStorage.setItem("resenas", JSON.stringify(resenas));
-
-    mostrarDetalle();
-}
-
-function mostrarResenas() {
-    const lista = document.getElementById("listaResenas");
-
-    const resenas = obtenerResenas().filter(function(resena) {
-        return resena.espacioId === espacio.id;
-    });
-
-    lista.innerHTML = "";
-
-    if (resenas.length === 0) {
-        lista.textContent = "Todavía no hay reseñas para este espacio.";
-        return;
+            if (respuesta.status === 403) {
+                alert("Solo los estudiantes pueden publicar reseñas.");
+            } else {
+                alert(error.detail || "No se pudo publicar la reseña.");
+            }
+        }
+    } catch (error) {
+        alert("No se pudo conectar con el servidor.");
     }
-
-    let suma = 0;
-
-    resenas.forEach(function(resena) {
-        suma += resena.calificacion;
-
-        const tarjeta = document.createElement("div");
-        tarjeta.className = "resena";
-
-        const nombre = document.createElement("h4");
-        nombre.textContent = resena.nombre;
-
-        const estrellas = document.createElement("div");
-        estrellas.className = "estrellas";
-        estrellas.textContent = "★".repeat(resena.calificacion) +
-            "☆".repeat(5 - resena.calificacion);
-
-        const comentario = document.createElement("p");
-        comentario.textContent = resena.comentario;
-
-        tarjeta.appendChild(nombre);
-        tarjeta.appendChild(estrellas);
-        tarjeta.appendChild(comentario);
-
-        lista.appendChild(tarjeta);
-    });
-
-    const promedio = suma / resenas.length;
-
-    document.getElementById("promedioResenas").textContent =
-        "Calificación promedio: " + promedio.toFixed(1) +
-        " / 5 (" + resenas.length + " reseñas)";
 }
 
 function mostrarDetalle() {
+    const espacio = espacios.find(function(item) {
+        return item.id === idEspacio;
+    });
+
     if (!espacio) {
         contenedorDetalle.innerHTML = `
             <div class="sin-resultados">
@@ -101,26 +139,20 @@ function mostrarDetalle() {
     contenedorDetalle.innerHTML = `
         <div class="detalle-tarjeta">
             <div class="detalle-titulo">
-                <h2>${espacio.name}</h2>
-                <button class="boton-favorito" onclick="favoritoDetalle()">
-                    ${esFavorito(espacio.id) ? "♥ Quitar de favoritos" : "♡ Agregar a favoritos"}
-                </button>
+                <h2 id="nombreDetalle"></h2>
+                <button class="boton-favorito" id="favoritoDetalle"></button>
             </div>
 
-            <p>📍 ${espacio.address}, ${espacio.city}</p>
+            <p id="direccionDetalle"></p>
 
-            <img class="detalle-imagen" src="${espacio.image}" alt="Foto del espacio">
+            <img class="detalle-imagen" id="imagenDetalle"
+                alt="Foto del espacio">
 
             <h3>Sobre este espacio</h3>
-            <p>${espacio.description}</p>
+            <p id="descripcionDetalle"></p>
 
             <h3>Características</h3>
-
-            <div class="etiquetas">
-                <span>📶 WiFi: ${espacio.has_wifi ? "Sí" : "No"}</span>
-                <span>🔌 Enchufes: ${espacio.has_outlets ? "Sí" : "No"}</span>
-                <span>🔊 Nivel de ruido: ${nombreRuido(espacio.noise_level)}</span>
-            </div>
+            <div class="etiquetas" id="caracteristicasDetalle"></div>
 
             <h3>Reseñas y calificaciones</h3>
             <p id="promedioResenas"></p>
@@ -130,9 +162,6 @@ function mostrarDetalle() {
                 <h3>Dejá tu reseña</h3>
 
                 <form id="formResena">
-                    <label for="nombreResena">Tu nombre</label>
-                    <input type="text" id="nombreResena" required maxlength="80">
-
                     <label for="calificacion">Calificación</label>
                     <select id="calificacion" required>
                         <option value="">Seleccioná una calificación</option>
@@ -153,14 +182,42 @@ function mostrarDetalle() {
         </div>
     `;
 
+    document.getElementById("nombreDetalle").textContent = espacio.name;
+
+    document.getElementById("direccionDetalle").textContent =
+        "📍 " + espacio.address + ", " + espacio.city;
+
+    const imagen = document.getElementById("imagenDetalle");
+    imagen.src = espacio.image_url || imagenEjemplo;
+    imagen.alt = "Foto de " + espacio.name;
+
+    imagen.onerror = function() {
+        imagen.onerror = null;
+        imagen.src = imagenEjemplo;
+    };
+
+    document.getElementById("descripcionDetalle").textContent =
+        espacio.description;
+
+    document.getElementById("caracteristicasDetalle").textContent =
+        "📶 WiFi: " + (espacio.has_wifi ? "Sí" : "No") +
+        "  🔌 Enchufes: " + (espacio.has_outlets ? "Sí" : "No") +
+        "  🔊 Nivel de ruido: " + nombreRuido(espacio.noise_level);
+
+    const botonFavorito = document.getElementById("favoritoDetalle");
+
+    botonFavorito.textContent = esFavorito(espacio.id)
+        ? "♥ Quitar de favoritos"
+        : "♡ Agregar a favoritos";
+
+    botonFavorito.addEventListener("click", function() {
+        cambiarFavorito(espacio.id);
+    });
+
+    document.getElementById("formResena").addEventListener(
+        "submit",
+        guardarResena
+    );
+
     mostrarResenas();
-
-    document.getElementById("formResena").addEventListener("submit", guardarResena);
 }
-
-function favoritoDetalle() {
-    cambiarFavorito(espacio.id);
-    mostrarDetalle();
-}
-
-mostrarDetalle();

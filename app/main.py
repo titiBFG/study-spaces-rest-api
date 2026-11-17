@@ -7,6 +7,7 @@ from app.routers.study_spaces import router as spaces_router
 from app.routers.study_spaces_lists import favorites_router
 from app.routers.study_spaces_lists import router as lists_router
 from app.routers.users import router as users_router
+from app.routers.reviews import router as reviews_router
 
 settings = get_settings()
 
@@ -31,6 +32,8 @@ app.include_router(spaces_router)
 app.include_router(users_router)
 app.include_router(lists_router)
 app.include_router(favorites_router)
+app.include_router(reviews_router)
+
 
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:

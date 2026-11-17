@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis espacios - StudySpaces</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body>
+    <header>
+        <div class="barra">
+            <h1>📖 StudySpaces</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="mi-cuenta.html">Mi cuenta</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="encabezado-pagina">
+        <h2>Mis espacios</h2>
+        <p>Agregá o editá los lugares de tu negocio.</p>
+    </section>
+
+    <div class="contenedor-cuenta">
+        <div class="formulario-cuenta">
+            <h3>Mis lugares</h3>
+            <div id="listaMisEspacios"></div>
+        </div>
+
+        <form id="formEspacio" class="formulario-cuenta">
+            <h3 id="tituloFormulario">Agregar espacio</h3>
+
+            <label for="nombreEspacio">Nombre</label>
+            <input id="nombreEspacio" required>
+
+            <label for="descripcionEspacio">Descripción</label>
+            <textarea id="descripcionEspacio" required></textarea>
+
+            <label for="imagenEspacio">Imagen del espacio (URL)</label>
+            <input
+                id="imagenEspacio"
+                type="url"
+                placeholder="https://ejemplo.com/foto.jpg"
+            >
+            <p>Podés pegar el enlace de una imagen de tu espacio.</p>
+
+            <label for="direccionEspacio">Dirección</label>
+            <input id="direccionEspacio" required>
+
+            <label for="ciudadEspacio">Ciudad</label>
+            <input id="ciudadEspacio" required>
+
+            <label for="latitudEspacio">Latitud</label>
+            <input id="latitudEspacio" type="number" step="any"
+                min="-90" max="90" required>
+
+            <label for="longitudEspacio">Longitud</label>
+            <input id="longitudEspacio" type="number" step="any"
+                min="-180" max="180" required>
+
+            <label for="ruidoEspacio">Nivel de ruido</label>
+            <select id="ruidoEspacio">
+                <option value="low">Bajo</option>
+                <option value="medium">Medio</option>
+                <option value="high">Alto</option>
+            </select>
+
+            <label for="horarioEspacio">Horarios</label>
+            <input id="horarioEspacio" placeholder="Lunes a viernes, 9 a 20">
+
+            <label>
+                <input type="checkbox" id="wifiEspacio">
+                Tiene WiFi
+            </label>
+
+            <label>
+                <input type="checkbox" id="enchufesEspacio">
+                Tiene enchufes
+            </label>
+
+            <button type="submit">Guardar espacio</button>
+            <button type="button" id="cancelarEdicion">
+                Cancelar edición
+            </button>
+
+            <p id="mensajeEspacio"></p>
+        </form>
+    </div>
+
+    <footer>
+        <p>StudySpaces - Encontrá tu lugar ideal para estudiar</p>
+    </footer>
+
+    <script src="js/mis-espacios.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>

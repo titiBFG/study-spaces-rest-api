@@ -1,4 +1,5 @@
-const API_URL = "http://127.0.0.1:8000";
+
+const API_URL = "https://study-spaces-rest-api.onrender.com";
 
 const formLogin = document.getElementById("formLogin");
 
@@ -46,6 +47,7 @@ if (formRegistro) {
 
         const nombre = document.getElementById("nombreRegistro").value;
         const email = document.getElementById("emailRegistro").value;
+        const tipo = document.getElementById("tipoRegistro").value;
         const password = document.getElementById("passwordRegistro").value;
         const confirmar = document.getElementById("confirmarPassword").value;
         const mensaje = document.getElementById("mensajeRegistro");
@@ -58,7 +60,7 @@ if (formRegistro) {
         mensaje.textContent = "Registrando usuario...";
 
         try {
-            const respuesta = await fetch(API_URL + "/users/register/student", {
+            const respuesta = await fetch(API_URL + "/users/register/" + tipo, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
