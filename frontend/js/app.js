@@ -1,50 +1,10 @@
 
-const espacios = [
-    {
-        id: 1,
-        name: "Biblioteca Central",
-        description: "Biblioteca tranquila con mesas para estudiar.",
-        address: "Av. Corrientes 1234",
-        city: "Buenos Aires",
-        has_wifi: true,
-        has_outlets: true,
-        noise_level: "low",
-        image: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600"
-    },
-    {
-        id: 2,
-        name: "Café del Centro",
-        description: "Café cómodo para estudiar y trabajar.",
-        address: "Av. Santa Fe 1500",
-        city: "Buenos Aires",
-        has_wifi: true,
-        has_outlets: true,
-        noise_level: "medium",
-        image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600"
-    },
-    {
-        id: 3,
-        name: "Sala de Estudio",
-        description: "Espacio silencioso ideal para concentrarse.",
-        address: "Av. Córdoba 2000",
-        city: "Buenos Aires",
-        has_wifi: false,
-        has_outlets: true,
-        noise_level: "low",
-        image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600"
-    },
-    {
-        id: 4,
-        name: "Espacio Universitario",
-        description: "Lugar amplio para estudiar en grupo.",
-        address: "Av. Independencia 800",
-        city: "Buenos Aires",
-        has_wifi: true,
-        has_outlets: false,
-        noise_level: "high",
-        image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600"
-    }
-];
+const API_URL_ESPACIOS = "https://study-spaces-rest-api.onrender.com";
+
+let espacios = [];
+let favoritos = [];
+
+const imagenEjemplo = "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600";
 
 function nombreRuido(nivel) {
     if (nivel === "low") {
@@ -58,85 +18,161 @@ function nombreRuido(nivel) {
     return "Alto";
 }
 
-function obtenerFavoritos() {
-    return JSON.parse(localStorage.getItem("favoritos")) || [];
-}
-
 function esFavorito(id) {
-    return obtenerFavoritos().includes(id);
+    return favoritos.includes(id);
 }
 
-function cambiarFavorito(id) {
-    let favoritos = obtenerFavoritos();
+async function cargarFavoritos() {
+    favoritos = [];
 
-    if (favoritos.includes(id)) {
-        favoritos = favoritos.filter(function(item) {
-            return item !== id;
-        });
-    } else {
-        favoritos.push(id);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return;
     }
 
-    localStorage.setItem("favoritos", JSON.stringify(favoritos));
+    try {
+        const respuesta = await fetch(API_URL_ESPACIOS + "/favorites", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (respuesta.ok) {
+            const datos = await respuesta.json();
+
+            favoritos = datos.map(function(espacio) {
+                return espacio.id;
+            });
+        }
+    } catch (error) {
+        console.error("No se pudieron cargar los favoritos.");
+    }
+}
+
+async function cambiarFavorito(id) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Iniciá sesión para guardar favoritos.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const guardado = esFavorito(id);
+
+    let url = API_URL_ESPACIOS + "/favorites";
+    let metodo = "POST";
+
+    if (guardado) {
+        url = url + "/" + id;
+        metodo = "DELETE";
+    }
+
+    try {
+        const respuesta = await fetch(url, {
+            method: metodo,
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: guardado ? undefined : JSON.stringify({
+                space_id: id
+            })
+        });
+
+        if (!respuesta.ok) {
+            alert("No se pudo actualizar favoritos.");
+            return;
+        }
+
+        await cargarFavoritos();
+        actualizarVista();
+    } catch (error) {
+        alert("No se pudo conectar con el servidor.");
+    }
 }
 
 function crearTarjeta(espacio) {
     const tarjeta = document.createElement("div");
     tarjeta.className = "tarjeta";
 
-    tarjeta.innerHTML = `
-        <img src="${espacio.image}" alt="Foto del espacio">
+    const imagen = document.createElement("img");
 
-        <div class="informacion">
-            <div class="titulo-tarjeta">
-                <h3>${espacio.name}</h3>
-                <button class="corazon"
-                    onclick="alternarFavorito(${espacio.id})"
-                    aria-label="Cambiar favorito">
-                    ${esFavorito(espacio.id) ? "♥" : "♡"}
-                </button>
-            </div>
+    imagen.src = espacio.image_url || imagenEjemplo;
+    imagen.alt = "Foto de " + espacio.name;
 
-            <p>📍 ${espacio.city}</p>
-            <p>${espacio.description}</p>
+    imagen.onerror = function() {
+        imagen.onerror = null;
+        imagen.src = imagenEjemplo;
+    };
 
-            <div class="etiquetas">
-                ${espacio.has_wifi ? "<span>📶 WiFi</span>" : ""}
-                ${espacio.has_outlets ? "<span>🔌 Enchufes</span>" : ""}
-                <span>Ruido ${nombreRuido(espacio.noise_level).toLowerCase()}</span>
-            </div>
+    const informacion = document.createElement("div");
+    informacion.className = "informacion";
 
-            <a class="boton-detalle" href="detalle.html?id=${espacio.id}">
-                Ver detalle →
-            </a>
-        </div>
-    `;
+    const titulo = document.createElement("div");
+    titulo.className = "titulo-tarjeta";
+
+    const nombre = document.createElement("h3");
+    nombre.textContent = espacio.name;
+
+    const corazon = document.createElement("button");
+    corazon.className = "corazon";
+    corazon.textContent = esFavorito(espacio.id) ? "♥" : "♡";
+    corazon.setAttribute("aria-label", "Cambiar favorito");
+
+    corazon.addEventListener("click", function() {
+        cambiarFavorito(espacio.id);
+    });
+
+    titulo.appendChild(nombre);
+    titulo.appendChild(corazon);
+
+    const ciudad = document.createElement("p");
+    ciudad.textContent = "📍 " + espacio.city;
+
+    const descripcion = document.createElement("p");
+    descripcion.textContent = espacio.description;
+
+    const etiquetas = document.createElement("div");
+    etiquetas.className = "etiquetas";
+
+    etiquetas.textContent =
+        (espacio.has_wifi ? "📶 WiFi  " : "") +
+        (espacio.has_outlets ? "🔌 Enchufes  " : "") +
+        "Ruido " + nombreRuido(espacio.noise_level).toLowerCase();
+
+    const detalle = document.createElement("a");
+    detalle.className = "boton-detalle";
+    detalle.href = "detalle.html?id=" + espacio.id;
+    detalle.textContent = "Ver detalle →";
+
+    informacion.appendChild(titulo);
+    informacion.appendChild(ciudad);
+    informacion.appendChild(descripcion);
+    informacion.appendChild(etiquetas);
+    informacion.appendChild(detalle);
+
+    tarjeta.appendChild(imagen);
+    tarjeta.appendChild(informacion);
 
     return tarjeta;
 }
 
-function alternarFavorito(id) {
-    cambiarFavorito(id);
-
-    if (document.getElementById("listaEspacios")) {
-        filtrarEspacios();
-    }
-
-    if (document.getElementById("listaFavoritos")) {
-        mostrarFavoritos();
-    }
-}
-
 function mostrarEspacios(lista) {
     const contenedor = document.getElementById("listaEspacios");
+
+    if (!contenedor) {
+        return;
+    }
+
     const cantidad = document.getElementById("cantidad");
 
     contenedor.innerHTML = "";
     cantidad.textContent = lista.length + " espacios encontrados";
 
     if (lista.length === 0) {
-        contenedor.innerHTML =
-            '<p class="sin-resultados">No se encontraron espacios con esos filtros.</p>';
+        contenedor.textContent = "No se encontraron espacios con esos filtros.";
         return;
     }
 
@@ -152,30 +188,58 @@ function filtrarEspacios() {
     const ruido = document.getElementById("ruido").value;
 
     const filtrados = espacios.filter(function(espacio) {
-        if (!espacio.name.toLowerCase().includes(nombre)) {
-            return false;
-        }
-
-        if (wifi && !espacio.has_wifi) {
-            return false;
-        }
-
-        if (enchufes && !espacio.has_outlets) {
-            return false;
-        }
-
-        if (ruido !== "" && espacio.noise_level !== ruido) {
-            return false;
-        }
-
-        return true;
+        return espacio.name.toLowerCase().includes(nombre) &&
+            (!wifi || espacio.has_wifi) &&
+            (!enchufes || espacio.has_outlets) &&
+            (!ruido || espacio.noise_level === ruido);
     });
 
     mostrarEspacios(filtrados);
 }
 
+function actualizarVista() {
+    if (document.getElementById("listaEspacios")) {
+        filtrarEspacios();
+    }
+
+    if (typeof mostrarFavoritos === "function") {
+        mostrarFavoritos();
+    }
+
+    if (typeof mostrarDetalle === "function") {
+        mostrarDetalle();
+    }
+}
+
+async function iniciarEspacios() {
+    try {
+        const respuesta = await fetch(API_URL_ESPACIOS + "/spaces/");
+
+        if (!respuesta.ok) {
+            throw new Error("Error en la API");
+        }
+
+        espacios = await respuesta.json();
+
+        await cargarFavoritos();
+
+        actualizarVista();
+    } catch (error) {
+        const contenedor =
+            document.getElementById("listaEspacios") ||
+            document.getElementById("listaFavoritos") ||
+            document.getElementById("detalleEspacio");
+
+        if (contenedor) {
+            contenedor.textContent =
+                "No se pudieron cargar los espacios. Revisá que FastAPI esté funcionando.";
+        }
+    }
+}
+
 if (document.getElementById("listaEspacios")) {
     document.getElementById("botonBuscar").addEventListener("click", filtrarEspacios);
+
     document.getElementById("aplicarFiltros").addEventListener("click", filtrarEspacios);
 
     document.getElementById("buscar").addEventListener("keydown", function(evento) {
@@ -190,27 +254,8 @@ if (document.getElementById("listaEspacios")) {
         document.getElementById("enchufes").checked = false;
         document.getElementById("ruido").value = "";
 
-        mostrarEspacios(espacios);
+        filtrarEspacios();
     });
-
-    mostrarEspacios(espacios);
 }
 
-// Navegación y menú activo
-const paginaActual = window.location.pathname.split("/").pop();
-
-document.querySelectorAll("nav a").forEach(function(enlace) {
-    if (enlace.textContent.trim() === "Mi cuenta") {
-        enlace.href = "mi-cuenta.html";
-    }
-
-    const destino = enlace.getAttribute("href");
-
-    if (destino === paginaActual) {
-        enlace.classList.add("activo");
-    }
-
-    if (paginaActual === "detalle.html" && destino === "index.html") {
-        enlace.classList.add("activo");
-    }
-});
+iniciarEspacios();

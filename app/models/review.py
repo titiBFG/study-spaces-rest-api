@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -9,6 +10,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,6 +18,7 @@ from app.database.base import Base
 
 if TYPE_CHECKING:
     from app.models.report import ReviewReport
+    from app.models.review_vote import ReviewVote
     from app.models.study_space import StudySpace
     from app.models.user import StudentUser
 
@@ -30,6 +33,9 @@ class Review(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     rating: Mapped[int]
     comment: Mapped[str] = mapped_column(Text)
+    images: Mapped[list[str]] = mapped_column(
+        JSON, default=list, server_default=text("'[]'")
+    )
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     space_id: Mapped[int] = mapped_column(
@@ -47,11 +53,14 @@ class Review(Base):
     reports: Mapped[list["ReviewReport"]] = relationship(
         back_populates="review", cascade="all, delete-orphan"
     )
+    votes: Mapped[list["ReviewVote"]] = relationship(
+        back_populates="review", cascade="all, delete-orphan"
+    )
 
     def hide(self) -> None:
-        """Hide review from public view upon moderation."""
+        """Oculta la reseña."""
         self.is_visible = False
 
     def restore(self) -> None:
-        """Restore review visibility."""
+        """Restaura la visibilidad de la reseña."""
         self.is_visible = True

@@ -1,14 +1,35 @@
 
 const pagina = window.location.pathname.split("/").pop();
+const navegacion = document.querySelector("nav");
 
-document.querySelectorAll("nav a").forEach(function(enlace) {
-    if (enlace.textContent.trim() === "Mi cuenta") {
-        enlace.href = "mi-cuenta.html";
+function colocarLogo() {
+    const titulo = document.querySelector("header .barra h1");
+
+    if (!titulo) {
+        return;
     }
 
-    const destino = enlace.getAttribute("href");
+    titulo.textContent = "";
 
-    if (destino === pagina) {
+    const imagen = document.createElement("img");
+    imagen.src = "img/logo.png";
+    imagen.alt = "Logo de StudySpaces";
+    imagen.style.width = "42px";
+    imagen.style.height = "42px";
+    imagen.style.borderRadius = "10px";
+    imagen.style.verticalAlign = "middle";
+    imagen.style.marginRight = "10px";
+
+    titulo.appendChild(imagen);
+    titulo.appendChild(document.createTextNode("StudySpaces"));
+}
+
+function crearEnlace(nombre, destino) {
+    const enlace = document.createElement("a");
+    enlace.href = destino;
+    enlace.textContent = nombre;
+
+    if (pagina === destino) {
         enlace.classList.add("activo");
     }
 
@@ -16,13 +37,69 @@ document.querySelectorAll("nav a").forEach(function(enlace) {
         enlace.classList.add("activo");
     }
 
-    if (
-        (pagina === "login.html" || pagina === "registro.html") &&
-        destino === "mi-cuenta.html"
-    ) {
-        enlace.classList.add("activo");
+    return enlace;
+}
+
+function armarMenu(usuario) {
+    if (!navegacion) {
+        return;
     }
-});
+
+    navegacion.innerHTML = "";
+
+    navegacion.appendChild(crearEnlace("Inicio", "index.html"));
+
+    if (usuario.role === "student") {
+        navegacion.appendChild(
+            crearEnlace("Favoritos", "favoritos.html")
+        );
+
+        navegacion.appendChild(
+            crearEnlace("Mis listas", "mis-listas.html")
+        );
+
+        navegacion.appendChild(
+            crearEnlace("Mis reseñas", "mis-resenas.html")
+        );
+    }
+
+    if (usuario.role === "business") {
+        navegacion.appendChild(
+            crearEnlace("Mis espacios", "mis-espacios.html")
+        );
+    }
+
+    if (usuario.role === "admin") {
+        navegacion.appendChild(
+            crearEnlace("Administración", "admin.html")
+        );
+    }
+
+    const enlaceCuenta = crearEnlace("", "mi-cuenta.html");
+
+    const inicial = usuario.full_name.trim().charAt(0).toUpperCase();
+
+    const circulo = document.createElement("span");
+    circulo.textContent = inicial;
+    circulo.style.display = "inline-flex";
+    circulo.style.alignItems = "center";
+    circulo.style.justifyContent = "center";
+    circulo.style.width = "32px";
+    circulo.style.height = "32px";
+    circulo.style.borderRadius = "50%";
+    circulo.style.backgroundColor = "#e9c4a5";
+    circulo.style.color = "#70462f";
+    circulo.style.fontWeight = "bold";
+
+    enlaceCuenta.appendChild(circulo);
+    enlaceCuenta.title = usuario.full_name;
+    enlaceCuenta.setAttribute(
+        "aria-label",
+        "Mi cuenta: " + usuario.full_name
+    );
+
+    navegacion.appendChild(enlaceCuenta);
+}
 
 async function mostrarUsuario() {
     const token = localStorage.getItem("token");
@@ -32,11 +109,14 @@ async function mostrarUsuario() {
     }
 
     try {
-        const respuesta = await fetch("http://127.0.0.1:8000/users/me", {
-            headers: {
-                "Authorization": "Bearer " + token
+        const respuesta = await fetch(
+            "https://study-spaces-rest-api.onrender.com/users/me",
+            {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
             }
-        });
+        );
 
         if (!respuesta.ok) {
             localStorage.removeItem("token");
@@ -44,28 +124,8 @@ async function mostrarUsuario() {
         }
 
         const usuario = await respuesta.json();
-        const enlaceCuenta = document.querySelector('nav a[href="mi-cuenta.html"]');
 
-        if (enlaceCuenta) {
-            const inicial = usuario.full_name.trim().charAt(0).toUpperCase();
-
-            const circulo = document.createElement("span");
-            circulo.textContent = inicial;
-            circulo.style.display = "inline-flex";
-            circulo.style.alignItems = "center";
-            circulo.style.justifyContent = "center";
-            circulo.style.width = "32px";
-            circulo.style.height = "32px";
-            circulo.style.borderRadius = "50%";
-            circulo.style.backgroundColor = "#e9c4a5";
-            circulo.style.color = "#70462f";
-            circulo.style.fontWeight = "bold";
-
-            enlaceCuenta.textContent = "";
-            enlaceCuenta.appendChild(circulo);
-            enlaceCuenta.title = usuario.full_name;
-            enlaceCuenta.setAttribute("aria-label", "Mi cuenta: " + usuario.full_name);
-        }
+        armarMenu(usuario);
 
         const nombreCuenta = document.getElementById("nombreCuenta");
         const emailCuenta = document.getElementById("emailCuenta");
@@ -76,10 +136,39 @@ async function mostrarUsuario() {
         if (nombreCuenta) {
             nombreCuenta.textContent = usuario.full_name;
             emailCuenta.textContent = usuario.email;
-            inicialCuenta.textContent = usuario.full_name.trim().charAt(0).toUpperCase();
+            inicialCuenta.textContent =
+                usuario.full_name.trim().charAt(0).toUpperCase();
 
             perfilCuenta.hidden = false;
             accesoCuenta.hidden = true;
+
+            if (usuario.role === "business") {
+                let enlaceEspacios = document.getElementById(
+                    "enlaceAdministrarEspacios"
+                );
+
+                if (!enlaceEspacios) {
+                    enlaceEspacios = document.createElement("a");
+                    enlaceEspacios.id = "enlaceAdministrarEspacios";
+                    enlaceEspacios.href = "mis-espacios.html";
+                    enlaceEspacios.className = "boton-detalle";
+                    enlaceEspacios.textContent = "Administrar mis espacios";
+
+                    const botonCerrar = document.getElementById("cerrarSesion");
+
+                    if (
+                        botonCerrar &&
+                        botonCerrar.parentElement === perfilCuenta
+                    ) {
+                        perfilCuenta.insertBefore(
+                            enlaceEspacios,
+                            botonCerrar
+                        );
+                    } else {
+                        perfilCuenta.appendChild(enlaceEspacios);
+                    }
+                }
+            }
         }
     } catch (error) {
         const mensaje = document.getElementById("mensajeCuenta");
@@ -90,6 +179,7 @@ async function mostrarUsuario() {
     }
 }
 
+colocarLogo();
 mostrarUsuario();
 
 const botonCerrarSesion = document.getElementById("cerrarSesion");

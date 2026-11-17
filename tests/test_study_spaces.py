@@ -13,6 +13,7 @@ def test_get_spaces_with_filters(client, session):
         has_wifi=True,
         has_outlets=True,
         noise_level=NoiseLevel.LOW,
+        is_approved=True,
     )
 
     space2 = StudySpace(
@@ -25,6 +26,7 @@ def test_get_spaces_with_filters(client, session):
         has_wifi=False,
         has_outlets=False,
         noise_level=NoiseLevel.HIGH,
+        is_approved=True,
     )
 
     session.add_all([space1, space2])
@@ -49,3 +51,26 @@ def test_get_spaces_with_filters(client, session):
     response = client.get("/spaces/?noise_level=low")
     assert len(response.json()) == 1
     assert response.json()[0]["name"] == "Biblioteca Central"
+
+
+def test_pending_space_not_visible(client, session):
+    espacio = StudySpace(
+        name="Espacio Pendiente",
+        description="Todavia no aprobado",
+        address="Calle 789",
+        city="San Martin",
+        latitude=-34.57,
+        longitude=-58.53,
+        has_wifi=True,
+        has_outlets=True,
+        noise_level=NoiseLevel.LOW,
+        is_approved=False,
+    )
+
+    session.add(espacio)
+    session.commit()
+
+    response = client.get("/spaces/")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 0
