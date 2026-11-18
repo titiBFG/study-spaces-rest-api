@@ -1,5 +1,6 @@
-
 import getpass
+import os
+import sys
 
 import bcrypt
 
@@ -9,9 +10,17 @@ from app.repositories.user_repository import get_user_by_email
 
 
 def crear_admin():
-    nombre = input("Nombre del administrador: ").strip()
-    email = input("Correo electrónico: ").strip().lower()
-    password = getpass.getpass("Contraseña: ")
+    if "--auto" in sys.argv:
+        nombre = os.getenv("ADMIN_NAME", "").strip()
+        email = os.getenv("ADMIN_EMAIL", "").strip().lower()
+        password = os.getenv("ADMIN_PASSWORD", "")
+
+        if not nombre or not email or not password:
+            return
+    else:
+        nombre = input("Nombre del administrador: ").strip()
+        email = input("Correo electrónico: ").strip().lower()
+        password = getpass.getpass("Contraseña: ")
 
     if not nombre or not email or not password:
         print("Todos los datos son obligatorios.")
