@@ -7,6 +7,11 @@ def get_user_by_email(session: Session, email: str):
     return session.query(User).filter(User.email == email).first()
 
 
+def get_user_by_id(session: Session, user_id: int) -> User | None:
+    """Devuelve el usuario con ese id, o None si no existe."""
+    return session.query(User).filter(User.id == user_id).first()
+
+
 def create_user(
     session: Session,
     user_class: type[User],
