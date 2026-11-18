@@ -10,7 +10,7 @@ from app.models.enums import UserRole
  
 if TYPE_CHECKING:
     from app.models.post import Post
-    from app.models.report import ReviewReport
+    from app.models.report import Report, UserReport
     from app.models.review import Review
     from app.models.review_vote import ReviewVote
     from app.models.study_space import StudySpace
@@ -40,8 +40,15 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
-    reports: Mapped[list["ReviewReport"]] = relationship(
-        back_populates="reporter", cascade="all, delete-orphan"
+    reports: Mapped[list["Report"]] = relationship(
+        back_populates="reporter",
+        foreign_keys="Report.reporter_id",
+        cascade="all, delete-orphan",
+    )
+    received_reports: Mapped[list["UserReport"]] = relationship(
+        back_populates="reported_user",
+        foreign_keys="Report.reported_user_id",
+        cascade="all, delete-orphan",
     )
  
     __mapper_args__ = {  # noqa: RUF012
@@ -98,6 +105,10 @@ class BusinessUser(User):
  
 class AdminUser(User):
     """Administrador: modera contenido y gestiona solicitudes."""
+ 
+    managed_reports: Mapped[list["Report"]] = relationship(
+        back_populates="resolved_by", foreign_keys="Report.resolved_by_id"
+    )
  
     __mapper_args__ = {  # noqa: RUF012
         "polymorphic_identity": UserRole.ADMIN,

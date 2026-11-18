@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.base import Base
 
 if TYPE_CHECKING:
+    from app.models.report import PostReport
     from app.models.study_space import StudySpace
     from app.models.user import BusinessUser
 
@@ -38,6 +39,9 @@ class Post(Base):
 
     space: Mapped["StudySpace"] = relationship(back_populates="posts")
     author: Mapped["BusinessUser"] = relationship(back_populates="posts")
+    reports: Mapped[list["PostReport"]] = relationship(
+        back_populates="post", cascade="all, delete-orphan"
+    )
 
     @property
     def author_name(self) -> str:
