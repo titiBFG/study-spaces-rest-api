@@ -9,6 +9,8 @@ from app.models.enums import NoiseLevel
 from app.models.list_item import ListItem
 
 if TYPE_CHECKING:
+    from app.models.post import Post
+    from app.models.report import StudySpaceReport
     from app.models.review import Review
     from app.models.user import BusinessUser
 
@@ -43,6 +45,12 @@ class StudySpace(Base):
 
     owner: Mapped["BusinessUser | None"] = relationship(back_populates="owned_spaces")
     reviews: Mapped[list["Review"]] = relationship(
+        back_populates="space", cascade="all, delete-orphan"
+    )
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="space", cascade="all, delete-orphan"
+    )
+    reports: Mapped[list["StudySpaceReport"]] = relationship(
         back_populates="space", cascade="all, delete-orphan"
     )
     list_items: Mapped[list["ListItem"]] = relationship(

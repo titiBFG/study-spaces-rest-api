@@ -17,3 +17,10 @@ class ReportStatus(str, Enum):
     PENDING = "pending"
     RESOLVED = "resolved"
     DISMISSED = "dismissed"
+
+
+class ReportType(str, Enum):
+    REVIEW = "review"
+    POST = "post"
+    STUDY_SPACE = "study_space"
+    USER = "user"
