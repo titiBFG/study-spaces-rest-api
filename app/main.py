@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
+from app.routers.notifications import router as notifications_router
 from app.routers.posts import router as posts_router
 from app.routers.reports import router as reports_router
 from app.routers.reviews import router as reviews_router
@@ -36,6 +37,7 @@ app.include_router(favorites_router)
 app.include_router(reviews_router)
 app.include_router(posts_router)
 app.include_router(reports_router)
+app.include_router(notifications_router)
 
 
 @app.get("/health", tags=["health"])

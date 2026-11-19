@@ -2,17 +2,17 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, object_session, relationship
 
 from app.database.base import Base
-from app.models.enums import NoiseLevel
+from app.models.enums import NoiseLevel, NotificationEventType
 from app.models.list_item import ListItem
 
 if TYPE_CHECKING:
     from app.models.post import Post
     from app.models.report import StudySpaceReport
     from app.models.review import Review
-    from app.models.user import BusinessUser
+    from app.models.user import BusinessUser, StudentUser
 
 
 class StudySpace(Base):
@@ -82,3 +82,41 @@ class StudySpace(Base):
     def reviews_count(self) -> int:
         """Cantidad de reseñas visibles (para exponerla en la API)."""
         return self.count_reviews()
+
+    @property
+    def observers(self) -> list["StudentUser"]:
+        """Estudiantes que tienen este espacio en favoritos y quieren enterarse de sus novedades.
+
+        Los observadores no se guardan aparte: guardar el espacio en favoritos
+        es suscribirse y quitarlo es desuscribirse.
+        """
+        session = object_session(self)
+
+        if session is None:
+            return []
+
+        # Imports locales para evitar imports circulares entre modelos.
+        from app.models.study_spaces_list import FavoritesList
+        from app.models.user import StudentUser
+
+        return (
+            session.query(StudentUser)
+            .join(FavoritesList, FavoritesList.user_id == StudentUser.id)
+            .join(ListItem, ListItem.list_id == FavoritesList.id)
+            .filter(ListItem.space_id == self.id)
+            .all()
+        )
+
+    def notify_observers(self, event_type: NotificationEventType, message: str) -> None:
+        """Avisa a todos los observadores del espacio (patrón Observer)."""
+        session = object_session(self)
+
+        if session is None:
+            return
+
+        # Import local: el servicio depende de los modelos (evita el import circular).
+        from app.services.notification_service import PromotionNotificationService
+
+        PromotionNotificationService(session).broadcast(
+            self.observers, event_type, message
+        )
