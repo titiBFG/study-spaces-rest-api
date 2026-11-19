@@ -1,9 +1,8 @@
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.session import get_session
-from app.models.enums import NoiseLevel, UserRole
+from app.models.enums import NoiseLevel, NotificationEventType, UserRole
 from app.models.study_space import StudySpace
 from app.models.user import User
 from app.schemas.study_space import StudySpaceCreate, StudySpaceResponse
@@ -19,7 +18,7 @@ def get_spaces(
     has_wifi: bool | None = None,
     has_outlets: bool | None = None,
     noise_level: NoiseLevel | None = None,
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session),  # noqa: B008
 ):
     espacios = list_spaces(
         session,
@@ -37,8 +36,8 @@ def get_spaces(
 
 @router.get("/mine", response_model=list[StudySpaceResponse])
 def mis_espacios(
-    session: Session = Depends(get_session),
-    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
 ):
     if user.role != UserRole.BUSINESS:
         raise HTTPException(status_code=403, detail="Solo para negocios")
@@ -50,8 +49,8 @@ def mis_espacios(
 
 @router.get("/pending", response_model=list[StudySpaceResponse])
 def espacios_pendientes(
-    session: Session = Depends(get_session),
-    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
 ):
     if user.role != UserRole.ADMIN:
         raise HTTPException(
@@ -67,8 +66,8 @@ def espacios_pendientes(
 @router.post("/", response_model=StudySpaceResponse, status_code=201)
 def crear_espacio(
     datos: StudySpaceCreate,
-    session: Session = Depends(get_session),
-    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
 ):
     if user.role != UserRole.BUSINESS:
         raise HTTPException(status_code=403, detail="Solo para negocios")
@@ -90,8 +89,8 @@ def crear_espacio(
 def editar_espacio(
     space_id: int,
     datos: StudySpaceCreate,
-    session: Session = Depends(get_session),
-    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
 ):
     if user.role != UserRole.BUSINESS:
         raise HTTPException(status_code=403, detail="Solo para negocios")
@@ -118,8 +117,8 @@ def editar_espacio(
 @router.patch("/{space_id}/approve", response_model=StudySpaceResponse)
 def aprobar_espacio(
     space_id: int,
-    session: Session = Depends(get_session),
-    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
 ):
     if user.role != UserRole.ADMIN:
         raise HTTPException(
@@ -135,9 +134,18 @@ def aprobar_espacio(
             detail="Espacio no encontrado"
         )
 
+    was_approved = espacio.is_approved
     espacio.is_approved = True
 
     session.commit()
     session.refresh(espacio)
+
+    # Un espacio editado vuelve a publicarse al aprobarse: se avisa a quienes lo
+    # tienen en favoritos. Si ya estaba aprobado, no hay novedad que avisar.
+    if not was_approved:
+        espacio.notify_observers(
+            NotificationEventType.SPACE_UPDATED,
+            f"{espacio.name} actualizó su información.",
+        )
 
     return espacio

@@ -9,6 +9,8 @@ from app.database.base import Base
 from app.models.enums import UserRole
  
 if TYPE_CHECKING:
+    from app.models.notification import Notification
+    from app.models.notification_preference import NotificationPreference
     from app.models.post import Post
     from app.models.report import Report, UserReport
     from app.models.review import Review
@@ -49,6 +51,12 @@ class User(Base):
         back_populates="reported_user",
         foreign_keys="Report.reported_user_id",
         cascade="all, delete-orphan",
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    notification_preferences: Mapped[list["NotificationPreference"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
     )
  
     __mapper_args__ = {  # noqa: RUF012

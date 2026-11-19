@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Text, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, object_session, relationship
 
 from app.database.base import Base
 from app.models.enums import ReportStatus, ReportType
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from app.models.review import Review
     from app.models.study_space import StudySpace
     from app.models.user import AdminUser, User
+    from app.services.notification_service import ModerationNotificationService
 
 
 class Report(Base):
@@ -122,9 +123,25 @@ class Report(Base):
     def _notify_observers(self, new_status: ReportStatus) -> None:
         """Avisa a los interesados del cambio de estado del reporte.
 
-        Por defecto no hace nada: lo completan las subclases cuando se
-        implementan las notificaciones.
+        Por defecto avisa a quien reportó. Las subclases lo sobrescriben para
+        avisar también al autor de lo reportado.
         """
+        service = self._moderation_service()
+
+        if service is not None:
+            service.notify_report_closed(self)
+
+    def _moderation_service(self) -> "ModerationNotificationService | None":
+        """Servicio de notificaciones de moderación, o None si el reporte no está en una sesión."""
+        session = object_session(self)
+
+        if session is None:
+            return None
+
+        # Import local: el servicio depende de los modelos (evita el import circular).
+        from app.services.notification_service import ModerationNotificationService
+
+        return ModerationNotificationService(session)
 
 
 class ReviewReport(Report):
@@ -142,6 +159,16 @@ class ReviewReport(Report):
         """Oculta la reseña reportada."""
         self.review.hide()
 
+    def _notify_observers(self, new_status: ReportStatus) -> None:
+        """Avisa a quien reportó y, si se ocultó la reseña, también a su autora o autor."""
+        super()._notify_observers(new_status)
+        service = self._moderation_service()
+
+        if service is not None and new_status == ReportStatus.RESOLVED:
+            service.notify_content_hidden(
+                self.review.author, f"reseña de {self.review.space.name}"
+            )
+
 
 class PostReport(Report):
     """Reporte de una publicación de un negocio."""
@@ -157,6 +184,16 @@ class PostReport(Report):
     def _apply_resolution(self) -> None:
         """Oculta la publicación reportada."""
         self.post.hide()
+
+    def _notify_observers(self, new_status: ReportStatus) -> None:
+        """Avisa a quien reportó y, si se ocultó la publicación, también a su autor."""
+        super()._notify_observers(new_status)
+        service = self._moderation_service()
+
+        if service is not None and new_status == ReportStatus.RESOLVED:
+            service.notify_content_hidden(
+                self.post.author, f"publicación «{self.post.title}»"
+            )
 
 
 class StudySpaceReport(Report):

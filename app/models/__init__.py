@@ -1,5 +1,14 @@
-from app.models.enums import NoiseLevel, ReportStatus, ReportType, UserRole
+from app.models.enums import (
+	NoiseLevel,
+	NotificationChannel,
+	NotificationEventType,
+	ReportStatus,
+	ReportType,
+	UserRole,
+)
 from app.models.list_item import ListItem
+from app.models.notification import InAppNotification, Notification
+from app.models.notification_preference import NotificationPreference
 from app.models.post import Post
 from app.models.report import (
 	PostReport,
@@ -18,8 +27,13 @@ __all__ = [
 	"AdminUser",
 	"BusinessUser",
 	"FavoritesList",
+	"InAppNotification",
 	"ListItem",
 	"NoiseLevel",
+	"Notification",
+	"NotificationChannel",
+	"NotificationEventType",
+	"NotificationPreference",
 	"Post",
 	"PostReport",
 	"Report",
