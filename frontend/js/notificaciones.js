@@ -23,6 +23,16 @@ function iniciarNotificaciones() {
     if (botonMarcarTodas) {
         botonMarcarTodas.addEventListener("click", marcarTodasComoLeidas);
     }
+
+    document.addEventListener("click", function (evento) {
+        const clicEnBoton = boton.contains(evento.target);
+        const clicEnPanel = panel.contains(evento.target);
+
+        if (!clicEnBoton && !clicEnPanel) {
+            panel.hidden = true;
+            boton.setAttribute("aria-expanded", "false");
+        }
+    });
 }
 
 async function cargarNotificaciones() {
@@ -70,6 +80,13 @@ async function cargarNotificaciones() {
             mensaje.textContent = notificacion.message;
 
             elemento.appendChild(mensaje);
+
+            const fecha = document.createElement("small");
+            fecha.className = "fecha-notificacion";
+
+            fecha.textContent = tiempoTranscurrido(notificacion.created_at);
+
+            elemento.appendChild(fecha);
 
             if (!notificacion.is_read) {
                 const botonLeida = document.createElement("button");
@@ -186,4 +203,52 @@ async function marcarNotificacionComoLeida(id) {
         console.error(error);
         alert("No se pudo marcar la notificación como leída.");
     }
+}
+
+function tiempoTranscurrido(fecha) {
+    const ahora = new Date();
+    const fechaNotificacion = new Date(fecha);
+
+    const segundos = Math.max(
+        0,
+        Math.floor((ahora - fechaNotificacion) / 1000)
+    );
+
+    if (segundos < 60) {
+        return "Hace un momento";
+    }
+
+    const minutos = Math.floor(segundos / 60);
+
+    if (minutos < 60) {
+        return `Hace ${minutos} ${minutos === 1 ? "minuto" : "minutos"}`;
+    }
+
+    const horas = Math.floor(minutos / 60);
+
+    if (horas < 24) {
+        return `Hace ${horas} ${horas === 1 ? "hora" : "horas"}`;
+    }
+
+    const dias = Math.floor(horas / 24);
+
+    if (dias < 7) {
+        return `Hace ${dias} ${dias === 1 ? "día" : "días"}`;
+    }
+
+    const semanas = Math.floor(dias / 7);
+
+    if (dias < 30) {
+        return `Hace ${semanas} ${semanas === 1 ? "semana" : "semanas"}`;
+    }
+
+    const meses = Math.floor(dias / 30);
+
+    if (dias < 365) {
+        return `Hace ${meses} ${meses === 1 ? "mes" : "meses"}`;
+    }
+
+    const anios = Math.floor(dias / 365);
+
+    return `Hace ${anios} ${anios === 1 ? "año" : "años"}`;
 }
