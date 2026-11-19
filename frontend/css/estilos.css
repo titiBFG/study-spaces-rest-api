@@ -357,6 +357,35 @@ main {
     white-space: pre-wrap;
 }
 
+/* Imágenes de las reseñas */
+
+.imagen-resena {
+    width: 150px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 10px 10px 5px 0;
+}
+
+/* Votos de las reseñas */
+
+.votos-resena {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.votos-resena button {
+    background-color: #f5d6bd;
+    color: #70462f;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.votos-resena button:hover {
+    background-color: #edc3a3;
+}
+
 footer {
     text-align: center;
     padding: 25px;
