@@ -29,6 +29,7 @@ from app.schemas.review import (
     ReviewUpdate,
     ReviewVoteCreate,
 )
+from app.services.notification_service import ActivityNotificationService
 
 # ------------------------- Helpers internos -------------------------
 
@@ -137,6 +138,7 @@ def create_review(
     review = create_review_in_db(
         session, user.id, space_id, data.rating, data.comment, data.images
     )
+    ActivityNotificationService(session).notify_new_review(review)
     return _to_response(review)
 
 
@@ -165,7 +167,15 @@ def vote_review(
     Si el usuario ya había votado, su voto anterior se reemplaza.
     """
     review = _get_votable_review(session, user, review_id)
+    # Se guarda el valor anterior antes de votar: save_vote modifica el mismo objeto.
+    previous_vote = get_vote(session, review.id, user.id)
+    previous_value = previous_vote.is_useful if previous_vote is not None else None
     save_vote(session, review.id, user.id, data.is_useful)
+
+    # Solo se avisa si el voto es nuevo o cambió, para no repetir la notificación.
+    if previous_value != data.is_useful:
+        ActivityNotificationService(session).notify_review_voted(review, data.is_useful)
+
     return _to_response_with_votes(session, review)
 
 
