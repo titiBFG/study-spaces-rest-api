@@ -75,6 +75,42 @@ function armarMenu(usuario) {
         );
     }
 
+    const contenedorNotificaciones = document.createElement("div");
+    contenedorNotificaciones.className = "contenedor-notificaciones";
+
+    contenedorNotificaciones.innerHTML = `
+    <button
+        id="botonNotificaciones"
+        class="boton-notificaciones"
+        type="button"
+        aria-label="Abrir notificaciones"
+        aria-expanded="false"
+    >
+        🔔
+        <span id="contadorNotificaciones"
+              class="contador-notificaciones"
+              hidden>0</span>
+    </button>
+
+    <div id="panelNotificaciones"
+         class="panel-notificaciones"
+         hidden>
+
+        <div class="encabezado-notificaciones">
+            <h3>Notificaciones</h3>
+            <button id="marcarTodasLeidas" type="button">
+                Marcar todas como leídas
+            </button>
+        </div>
+
+        <div id="listaNotificaciones">
+            <p>Todavía no hay notificaciones.</p>
+        </div>
+    </div>
+`;
+
+navegacion.appendChild(contenedorNotificaciones);
+iniciarNotificaciones();
     const enlaceCuenta = crearEnlace("", "mi-cuenta.html");
 
     const inicial = usuario.full_name.trim().charAt(0).toUpperCase();
@@ -185,7 +221,7 @@ mostrarUsuario();
 const botonCerrarSesion = document.getElementById("cerrarSesion");
 
 if (botonCerrarSesion) {
-    botonCerrarSesion.addEventListener("click", function() {
+    botonCerrarSesion.addEventListener("click", function () {
         localStorage.removeItem("token");
         window.location.href = "login.html";
     });
