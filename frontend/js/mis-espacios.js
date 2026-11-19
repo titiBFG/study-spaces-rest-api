@@ -1,4 +1,3 @@
-
 const API = "https://study-spaces-rest-api.onrender.com";
 const token = localStorage.getItem("token");
 
@@ -68,6 +67,9 @@ async function cargarEspacios() {
             if (espacio.is_approved) {
                 estado.textContent = "✓ Aprobado";
                 estado.style.color = "#427a4b";
+            } else if (espacio.is_rejected) {
+                estado.textContent = "✕ Rechazado";
+                estado.style.color = "#b94a48";
             } else {
                 estado.textContent = "⏳ Pendiente de aprobación";
                 estado.style.color = "#a66a45";

@@ -1,4 +1,3 @@
-
 const API_ADMIN = "https://study-spaces-rest-api.onrender.com";
 
 const contenedorPendientes = document.getElementById("contenedorPendientes");
@@ -84,6 +83,15 @@ async function cargarPendientes() {
                 aprobarEspacio(espacio.id);
             });
 
+            const botonRechazar = document.createElement("button");
+            botonRechazar.textContent = "Rechazar espacio";
+            botonRechazar.style.backgroundColor = "#b94a48";
+            botonRechazar.style.marginLeft = "10px";
+
+            botonRechazar.addEventListener("click", function() {
+                rechazarEspacio(espacio.id);
+            });
+
             informacion.appendChild(nombre);
             informacion.appendChild(descripcion);
             informacion.appendChild(direccion);
@@ -91,6 +99,7 @@ async function cargarPendientes() {
             informacion.appendChild(enchufes);
             informacion.appendChild(ruido);
             informacion.appendChild(boton);
+            informacion.appendChild(botonRechazar);
 
             if (espacio.image_url) {
                 const imagen = document.createElement("img");
@@ -131,6 +140,38 @@ async function aprobarEspacio(id) {
         if (!respuesta.ok) {
             mensajeAdmin.textContent =
                 "No se pudo aprobar el espacio.";
+            return;
+        }
+
+        await cargarPendientes();
+
+    } catch (error) {
+        mensajeAdmin.textContent =
+            "No se pudo conectar con el servidor.";
+    }
+}
+
+async function rechazarEspacio(id) {
+    const token = localStorage.getItem("token");
+
+    if (!confirm("¿Estás seguro de que querés rechazar este espacio?")) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(
+            API_ADMIN + "/spaces/" + id + "/reject",
+            {
+                method: "PATCH",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        if (!respuesta.ok) {
+            mensajeAdmin.textContent =
+                "No se pudo rechazar el espacio.";
             return;
         }
 

@@ -37,3 +37,6 @@ class NotificationEventType(str, Enum):
     NEW_REVIEW = "new_review"
     CONTENT_MODERATED = "content_moderated"
     REPORT_OUTCOME = "report_outcome"
+    SPACE_PENDING = "space_pending"
+    SPACE_APPROVED = "space_approved"
+    SPACE_REJECTED = "space_rejected"

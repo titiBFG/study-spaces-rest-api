@@ -8,6 +8,7 @@ from app.models.user import User
 from app.schemas.study_space import StudySpaceCreate, StudySpaceResponse
 from app.services.auth_service import get_current_user
 from app.services.study_space_service import list_spaces
+from app.services.notification_service import SpaceApprovalNotificationService
 
 router = APIRouter(prefix="/spaces", tags=["spaces"])
 
@@ -59,7 +60,8 @@ def espacios_pendientes(
         )
 
     return session.query(StudySpace).filter(
-        StudySpace.is_approved == False
+        StudySpace.is_approved == False,
+        StudySpace.is_rejected == False
     ).all()
 
 
@@ -75,12 +77,15 @@ def crear_espacio(
     espacio = StudySpace(
         **datos.model_dump(),
         owner_id=user.id,
-        is_approved=False
+        is_approved=False,
+        is_rejected=False
     )
 
     session.add(espacio)
     session.commit()
     session.refresh(espacio)
+
+    SpaceApprovalNotificationService(session).notify_new_space(espacio)
 
     return espacio
 
@@ -107,9 +112,12 @@ def editar_espacio(
         setattr(espacio, campo, valor)
 
     espacio.is_approved = False
+    espacio.is_rejected = False
 
     session.commit()
     session.refresh(espacio)
+
+    SpaceApprovalNotificationService(session).notify_new_space(espacio)
 
     return espacio
 
@@ -134,18 +142,66 @@ def aprobar_espacio(
             detail="Espacio no encontrado"
         )
 
+    if espacio.is_rejected:
+        raise HTTPException(
+            status_code=400,
+            detail="El espacio debe volver a revisión"
+        )
+
     was_approved = espacio.is_approved
     espacio.is_approved = True
+    espacio.is_rejected = False
 
     session.commit()
     session.refresh(espacio)
 
-    # Un espacio editado vuelve a publicarse al aprobarse: se avisa a quienes lo
-    # tienen en favoritos. Si ya estaba aprobado, no hay novedad que avisar.
     if not was_approved:
+        SpaceApprovalNotificationService(session).notify_space_approved(
+            espacio
+        )
+
         espacio.notify_observers(
             NotificationEventType.SPACE_UPDATED,
             f"{espacio.name} actualizó su información.",
         )
+
+    return espacio
+
+
+@router.patch("/{space_id}/reject", response_model=StudySpaceResponse)
+def rechazar_espacio(
+    space_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(get_current_user),  # noqa: B008
+):
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo para administradores"
+        )
+
+    espacio = session.get(StudySpace, space_id)
+
+    if espacio is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Espacio no encontrado"
+        )
+
+    if espacio.is_approved or espacio.is_rejected:
+        raise HTTPException(
+            status_code=400,
+            detail="El espacio no está pendiente de aprobación"
+        )
+
+    espacio.is_approved = False
+    espacio.is_rejected = True
+
+    session.commit()
+    session.refresh(espacio)
+
+    SpaceApprovalNotificationService(session).notify_space_rejected(
+        espacio
+    )
 
     return espacio
