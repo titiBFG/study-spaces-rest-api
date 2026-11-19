@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Spaces REST API — Presentación Programación 2 (UNSAM)</title>
+
+    <!-- Reveal.js 5.x CSS & Tema base -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+
+    <!-- Highlight.js (Monokai / Atom One Dark para bloques de código) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+    <!-- Estilos institucionales UNSAM -->
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- 1. PORTADA -->
+            <section class="unsam-cover" data-background-gradient="linear-gradient(135deg, #00264D 0%, #003A70 55%, #0077B6 100%)">
+                <span class="cover-badge">Universidad Nacional de San Martín · Programación 2</span>
+                <h1>Study Spaces REST API</h1>
+                <p class="subtitle">
+                    Plataforma RESTful y cliente web para conectar estudiantes con espacios aptos para estudiar,
+                    gestionar reseñas, listas personalizadas y moderación de contenido.
+                </p>
+
+                <div class="cover-meta">
+                    <div class="cover-box">
+                        <div class="cover-box-title">Integrantes</div>
+                        <ul>
+                            <li>Julieta Elhalem</li>
+                            <li>Aldana Mota</li>
+                            <li>Valentina Di Iorio</li>
+                            <li>Santino Enzo Semec</li>
+                        </ul>
+                    </div>
+                    <div class="cover-box">
+                        <div class="cover-box-title">Docentes Evaluadores</div>
+                        <ul>
+                            <li>Rosana Matuk (<code>@matuk</code>)</li>
+                            <li>Santiago Blas (<code>@santiagoblaslaguzza</code>)</li>
+                        </ul>
+                        <p style="margin-top: 10px; color: #BAE6FD;">
+                            <strong>API en producción:</strong> <code>study-spaces-rest-api.onrender.com</code>
+                        </p>
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    Bienvenidos. Hoy presentamos Study Spaces REST API, nuestro trabajo práctico para Programación 2 en UNSAM.
+                    Presionando la tecla S pueden ver estas notas del orador, y con F pasan a pantalla completa.
+                </aside>
+            </section>
+
+            <!-- 2. PROBLEMA Y SOLUCIÓN -->
+            <section>
+                <div class="slide-header">
+                    <h2>El Problema y la Solución</h2>
+                    <span class="slide-tag">Contexto</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card navy">
+                        <h3>El Problema</h3>
+                        <ul>
+                            <li>Los estudiantes buscan lugares tranquilos para estudiar (cafeterías, bibliotecas, coworkings).</li>
+                            <li>La información relevante suele estar dispersa: <strong>¿tiene WiFi estable? ¿hay enchufes? ¿qué nivel de ruido tiene?</strong></li>
+                            <li>Falta un espacio centralizado con reseñas confiables de otros estudiantes y datos actualizados por los propios negocios.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Nuestra Solución</h3>
+                        <ul>
+                            <li><strong>API RESTful modular</strong> construida con FastAPI + cliente web en <code>frontend/</code>.</li>
+                            <li><strong>3 roles diferenciados:</strong>
+                                <ul>
+                                    <li><strong>Estudiante:</strong> busca, filtra, reseña, vota utilidad, guarda en listas/favoritos y reporta.</li>
+                                    <li><strong>Negocio:</strong> registra y edita sus espacios y publica novedades (<code>/posts</code>).</li>
+                                    <li><strong>Administrador:</strong> aprueba espacios pendientes y modera reportes.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Objetivo del MVP:</strong> Construir una arquitectura orientada a objetos limpia, desacoplada, testeada y desplegada en la nube.
+                </div>
+
+                <aside class="notes">
+                    Explicar brevemente la motivación del proyecto y los tres actores principales del sistema: Estudiante, Negocio y Administrador.
+                </aside>
+            </section>
+
+            <!-- 3. ALCANCE DEL MVP (RQ1 - RQ6 + EXTRAS) -->
+            <section>
+                <div class="slide-header">
+                    <h2>Alcance del MVP Implementado</h2>
+                    <span class="slide-tag">Requerimientos RQ1 – RQ6</span>
+                </div>
+
+                <div class="grid-3">
+                    <div class="mini-card navy">
+                        <div class="title">RQ1 · Usuarios y JWT</div>
+                        <p class="desc">Registro diferenciado (Estudiante / Negocio), hashing con Bcrypt, tokens Bearer JWT y RBAC polimórfico.</p>
+                    </div>
+                    <div class="mini-card">
+                        <div class="title">RQ2 · Gestión de Espacios</div>
+                        <p class="desc">Alta, edición y consulta de espacios por negocios, con flujo de aprobación por administradores.</p>
+                    </div>
+                    <div class="mini-card navy">
+                        <div class="title">RQ3 · Búsqueda y Filtros</div>
+                        <p class="desc">Filtrado dinámico por nombre/término, disponibilidad de WiFi, enchufes y nivel de ruido.</p>
+                    </div>
+                    <div class="mini-card">
+                        <div class="title">RQ4 · Reseñas y Votos</div>
+                        <p class="desc">Calificaciones (1–5), comentarios, hasta 5 imágenes, cálculo automático de promedio y votos de utilidad.</p>
+                    </div>
+                    <div class="mini-card navy">
+                        <div class="title">RQ5 · Listas y Favoritos</div>
+                        <p class="desc">Herencia <code>StudySpacesList</code> / <code>FavoritesList</code> para organizar espacios guardados y favoritos.</p>
+                    </div>
+                    <div class="mini-card">
+                        <div class="title">RQ6 · Moderación y Posts</div>
+                        <p class="desc">Reportes polimórficos (reseñas, posts, espacios, usuarios) con resolución/descarte + CRUD de publicaciones.</p>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Estado actual:</strong> Los 6 requerimientos del MVP + el módulo extra de <code>/posts</code> están 100% implementados y testeados.
+                </div>
+
+                <aside class="notes">
+                    Recorrer rápidamente los 6 requerimientos del MVP definidos en el README y mencionar que además se sumó el CRUD de publicaciones (/posts) para negocios.
+                </aside>
+            </section>
+
+            <!-- 4. STACK TECNOLÓGICO -->
+            <section>
+                <div class="slide-header">
+                    <h2>Stack Tecnológico</h2>
+                    <span class="slide-tag">Herramientas</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Backend &amp; Datos</h3>
+                        <ul>
+                            <li><strong>Python 3.12+ &amp; FastAPI:</strong> API REST asíncrona con documentación OpenAPI automática (<code>/docs</code>).</li>
+                            <li><strong>Pydantic v2:</strong> Validación estricta de entrada/salida y configuración (<code>pydantic-settings</code>).</li>
+                            <li><strong>SQLAlchemy 2.0:</strong> ORM con mapeo polimórfico (<em>Single-Table Inheritance</em>).</li>
+                            <li><strong>Alembic:</strong> 6 migraciones versionadas sobre <strong>PostgreSQL</strong> (producción) y <strong>SQLite</strong> (dev/test).</li>
+                        </ul>
+                    </div>
+
+                    <div class="card navy">
+                        <h3>Seguridad, QA &amp; Deploy</h3>
+                        <ul>
+                            <li><strong>PyJWT + Bcrypt:</strong> Autenticación stateless con tokens Bearer y contraseñas hasheadas.</li>
+                            <li><strong>Pytest + HTTPX:</strong> Suite de <strong>163 tests</strong> automatizados.</li>
+                            <li><strong>Docker &amp; GitHub Actions:</strong> Contenedor auto-inicializable (migraciones + <code>crear_admin.py --auto</code>) y CI en cada push/PR.</li>
+                            <li><strong>Render + Frontend Web:</strong> API desplegada en la nube integrada con cliente HTML/CSS/JS.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pill-row">
+                    <span class="pill cyan">FastAPI</span>
+                    <span class="pill">SQLAlchemy 2.0</span>
+                    <span class="pill cyan">Alembic</span>
+                    <span class="pill">Pydantic v2</span>
+                    <span class="pill cyan">PyJWT &amp; Bcrypt</span>
+                    <span class="pill">PostgreSQL / SQLite</span>
+                    <span class="pill cyan">Pytest</span>
+                    <span class="pill">Docker &amp; GitHub Actions</span>
+                    <span class="pill cyan">Render</span>
+                </div>
+
+                <aside class="notes">
+                    Destacar por qué elegimos FastAPI (tipado fuerte, validación automática, OpenAPI), SQLAlchemy 2.0 para herencia polimórfica y Alembic para evolucionar el esquema sin perder datos.
+                </aside>
+            </section>
+
+            <!-- 5. ARQUITECTURA EN CAPAS -->
+            <section>
+                <div class="slide-header">
+                    <h2>Arquitectura en Capas</h2>
+                    <span class="slide-tag">Diseño del Sistema</span>
+                </div>
+
+                <div class="layer-stack">
+                    <div class="layer-box cyan">
+                        <span class="layer-name">1. Routers (<code>app/routers/</code>)</span>
+                        <span class="layer-desc">Endpoints HTTP, validación de schemas Pydantic, dependencias de autenticación/rol y códigos de estado.</span>
+                    </div>
+                    <div class="layer-arrow">▼</div>
+                    <div class="layer-box">
+                        <span class="layer-name">2. Services (<code>app/services/</code>)</span>
+                        <span class="layer-desc">Lógica de negocio pura: reglas de permisos, cálculo de promedios, validaciones cruzadas y coordinación.</span>
+                    </div>
+                    <div class="layer-arrow">▼</div>
+                    <div class="layer-box cyan">
+                        <span class="layer-name">3. Repositories (<code>app/repositories/</code>)</span>
+                        <span class="layer-desc">Abstracción de consultas SQLAlchemy; permite aislar y testear servicios sin acoplarse al motor de BD.</span>
+                    </div>
+                    <div class="layer-arrow">▼</div>
+                    <div class="layer-box">
+                        <span class="layer-name">4. Models &amp; DB (<code>app/models/</code>)</span>
+                        <span class="layer-desc">Entidades de dominio con herencia polimórfica, relaciones e invariantes, persistidas en PostgreSQL / SQLite.</span>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Beneficio clave:</strong> Separación de responsabilidades clara; cada capa conoce solo a la capa inmediatamente inferior.
+                </div>
+
+                <aside class="notes">
+                    Explicar cómo una petición HTTP entra por el Router, valida el token y el schema, delega reglas de negocio al Service, y este persiste a través del Repository.
+                </aside>
+            </section>
+
+            <!-- 6. MODELO DE DOMINIO Y POO -->
+            <section>
+                <div class="slide-header">
+                    <h2>Modelo de Dominio y Polimorfismo</h2>
+                    <span class="slide-tag">Programación Orientada a Objetos</span>
+                </div>
+
+                <p style="font-size: 0.65em; color: var(--unsam-muted); margin-top: 0;">
+                    Aplicamos <strong>Single-Table Inheritance</strong> en SQLAlchemy para modelar jerarquías con comportamiento propio y prohibir instanciar clases base abstractas:
+                </p>
+
+                <div class="grid-3">
+                    <div class="card navy">
+                        <h3>Jerarquía <code>User</code></h3>
+                        <p>Discriminador: <code>role</code></p>
+                        <ul>
+                            <li><code>StudentUser</code> (reseñas, listas, votos)</li>
+                            <li><code>BusinessUser</code> (espacios propios, posts)</li>
+                            <li><code>AdminUser</code> (aprobación, moderación)</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Jerarquía <code>StudySpacesList</code></h3>
+                        <p>Especialización de listas</p>
+                        <ul>
+                            <li><code>StudySpacesList</code> (listas personalizadas por el estudiante)</li>
+                            <li><code>FavoritesList</code> (lista única de favoritos con acceso directo en <code>/favorites</code>)</li>
+                        </ul>
+                    </div>
+
+                    <div class="card navy">
+                        <h3>Jerarquía <code>Report</code></h3>
+                        <p>Discriminador: <code>type</code></p>
+                        <ul>
+                            <li><code>ReviewReport</code> (oculta reseña)</li>
+                            <li><code>PostReport</code> (oculta publicación)</li>
+                            <li><code>StudySpaceReport</code></li>
+                            <li><code>UserReport</code> (desactiva usuario)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    Al consultar la base de datos, SQLAlchemy instancia automáticamente la subclase concreta según la columna discriminadora.
+                </div>
+
+                <aside class="notes">
+                    Resaltar que las clases base User y Report validan en __init__ que no se instancien directamente, reforzando el diseño abstracto en Python.
+                </aside>
+            </section>
+
+            <!-- 7. PATRONES DE DISEÑO (CON SUB-SLIDE DE CÓDIGO) -->
+            <section>
+                <section>
+                    <div class="slide-header">
+                        <h2>Patrones de Diseño Aplicados</h2>
+                        <span class="slide-tag">Arquitectura &amp; POO</span>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Implementados en el Código</h3>
+                            <ul>
+                                <li><strong>Repository Pattern + Service Layer:</strong> Desacopla la lógica de negocio de SQLAlchemy.</li>
+                                <li><strong>Template Method (<code>Report</code>):</strong> <code>resolve()</code> y <code>dismiss()</code> definen el esqueleto fijo (aplicar medida → cerrar reporte → notificar) y cada subclase sobrescribe <code>_apply_resolution()</code>.</li>
+                            </ul>
+                        </div>
+
+                        <div class="card navy">
+                            <h3>Proyectados en el UML (Extensión)</h3>
+                            <ul>
+                                <li><strong>Observer:</strong> Suscripción de <code>StudentUser</code> a eventos de <code>StudySpace</code> y resolución de <code>Report</code>.</li>
+                                <li><strong>Factory Method (<code>NotificationService</code>):</strong> Subclases especializadas deciden dinámicamente qué canal instanciar (<code>EmailNotification</code> o <code>InAppNotification</code>).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="callout">
+                        Presioná <strong>▼ (flecha abajo)</strong> para ver el código real del patrón <em>Template Method</em> en <code>app/models/report.py</code>.
+                    </div>
+
+                    <aside class="notes">
+                        Diferenciar claramente qué patrones ya corren en producción (Repository, Service Layer, Template Method en Report) y cuáles están modelados en el UML para la siguiente iteración (Observer y Factory Method).
+                    </aside>
+                </section>
+
+                <!-- SUB-SLIDE VERTICAL: CÓDIGO REAL -->
+                <section>
+                    <div class="slide-header">
+                        <h2>Template Method en <code>app/models/report.py</code></h2>
+                        <span class="slide-tag">Código Real</span>
+                    </div>
+
+                    <pre><code class="language-python" data-trim data-noescape>
+class Report(Base):
+    def resolve(self) -> None:
+        """Da por válido el reporte: aplica la medida y lo cierra."""
+        self._apply_resolution()
+        self._close(ReportStatus.RESOLVED)
+
+    def dismiss(self) -> None:
+        """Descarta el reporte sin tomar medidas sobre lo reportado."""
+        self._close(ReportStatus.DISMISSED)
+
+    def _close(self, new_status: ReportStatus) -> None:
+        self.status = new_status
+        self.resolved_at = datetime.now(UTC)
+        self._notify_observers(new_status)
+
+class ReviewReport(Report):
+    __mapper_args__ = {"polymorphic_identity": ReportType.REVIEW}
+
+    def _apply_resolution(self) -> None:
+        """Oculta la reseña reportada."""
+        self.review.hide()
+                    </code></pre>
+
+                    <aside class="notes">
+                        Mostrar cómo resolve() orquesta el flujo común sin duplicar lógica de cierre o timestamps en ReviewReport, PostReport, StudySpaceReport y UserReport.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- 8. SEGURIDAD Y RBAC -->
+            <section>
+                <div class="slide-header">
+                    <h2>Seguridad, Autenticación y RBAC</h2>
+                    <span class="slide-tag">RQ1 · Acceso por Roles</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card navy">
+                        <h3>Autenticación Stateless</h3>
+                        <ul>
+                            <li>Registro separado por tipo de cuenta: <code>/users/register/student</code> y <code>/users/register/business</code>.</li>
+                            <li>Contraseñas hasheadas con <strong>Bcrypt</strong> (nunca en texto plano).</li>
+                            <li>Login en <code>/users/login</code> devuelve un token <strong>JWT Bearer</strong> firmado con <code>SECRET_KEY</code>.</li>
+                            <li>Administrador inicial creado automáticamente en arranque vía <code>crear_admin.py --auto</code>.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Autorización Basada en Roles</h3>
+                        <ul>
+                            <li>Dependencias de FastAPI verifican la instancia polimórfica del usuario autenticado:</li>
+                            <li><strong>Estudiante:</strong> crear reseñas, votar, gestionar listas/favoritos.</li>
+                            <li><strong>Negocio:</strong> crear/editar sus propios espacios y publicar posts.</li>
+                            <li><strong>Admin:</strong> aprobar espacios pendientes y resolver/descartar reportes.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    Explicar que el control de acceso no solo valida que el usuario esté logueado, sino que verifica su rol y, cuando corresponde, que sea dueño del recurso (por ejemplo, editar solo sus propios espacios o reseñas).
+                </aside>
+            </section>
+
+            <!-- 9. ENDPOINTS PRINCIPALES -->
+            <section>
+                <div class="slide-header">
+                    <h2>Endpoints Principales de la API</h2>
+                    <span class="slide-tag">Routers FastAPI</span>
+                </div>
+
+                <table class="endpoint-table">
+                    <thead>
+                        <tr>
+                            <th>Módulo / Router</th>
+                            <th>Prefijo</th>
+                            <th>Funcionalidad Principal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Usuarios</strong></td>
+                            <td><code>/users</code></td>
+                            <td>Registro diferenciado, login JWT y perfil actual (<code>/users/me</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Espacios</strong></td>
+                            <td><code>/spaces</code></td>
+                            <td>Búsqueda y filtros (WiFi, enchufes, ruido), CRUD de negocio y aprobación admin.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reseñas</strong></td>
+                            <td><code>/reviews</code></td>
+                            <td>CRUD de reseñas con hasta 5 imágenes, promedio automático y votos de utilidad.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Listas &amp; Favoritos</strong></td>
+                            <td><code>/lists</code> · <code>/favorites</code></td>
+                            <td>Creación de listas personalizadas y gestión rápida de espacios favoritos.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Publicaciones</strong></td>
+                            <td><code>/posts</code></td>
+                            <td>Novedades e imágenes publicadas por los negocios en sus espacios.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reportes</strong></td>
+                            <td><code>/reports</code></td>
+                            <td>Emisión de reportes polimórficos y resolución/descarte por administradores.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Salud</strong></td>
+                            <td><code>/health</code></td>
+                            <td>Endpoint de monitoreo (<code>{"status": "ok"}</code>) + Swagger en <code>/docs</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <aside class="notes">
+                    Mostrar la organización limpia en 7 routers registrados en app/main.py, además del healthcheck y la documentación interactiva en /docs.
+                </aside>
+            </section>
+
+            <!-- 10. TESTING, CI/CD Y DESPLIEGUE -->
+            <section>
+                <div class="slide-header">
+                    <h2>Calidad, Testing e Infraestructura</h2>
+                    <span class="slide-tag">QA &amp; DevOps</span>
+                </div>
+
+                <div class="grid-3" style="margin-bottom: 18px;">
+                    <div class="stat-card">
+                        <div class="stat-num">163</div>
+                        <div class="stat-label">Tests automatizados con Pytest</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">6</div>
+                        <div class="stat-label">Migraciones Alembic versionadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">CI/CD</div>
+                        <div class="stat-label">GitHub Actions + Docker + Render</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="mini-card navy">
+                        <div class="title">Testing Automatizado (<code>tests/</code>)</div>
+                        <p class="desc">Cobertura sobre autenticación, modelos polimórficos, espacios, reseñas, listas, posts, reportes y healthcheck con SQLite aislado.</p>
+                    </div>
+                    <div class="mini-card">
+                        <div class="title">Contenedor y Despliegue en la Nube</div>
+                        <p class="desc"><code>Dockerfile</code> ejecuta migraciones Alembic y <code>crear_admin.py --auto</code> al iniciar; desplegado en Render conectado a PostgreSQL.</p>
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    Recalcar que los 163 tests superan ampliamente el mínimo de 10 requeridos y que GitHub Actions (.github/workflows/tests.yml) corre la suite completa en cada push y pull request.
+                </aside>
+            </section>
+
+            <!-- 11. DEMO EN VIVO -->
+            <section>
+                <div class="slide-header">
+                    <h2>Guion de Demo en Vivo</h2>
+                    <span class="slide-tag">API + Frontend Web</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>1. Flujo Estudiante (<code>frontend/</code>)</h3>
+                        <ul>
+                            <li>Ingresar a <code>index.html</code> y filtrar espacios por WiFi, enchufes y nivel de ruido.</li>
+                            <li>Iniciar sesión y abrir <code>detalle.html</code> de un espacio.</li>
+                            <li>Publicar una reseña y verificar la actualización del promedio (<code>average_rating</code>).</li>
+                            <li>Guardar en favoritos (<code>favoritos.html</code>) o en una lista personalizada (<code>mis-listas.html</code>).</li>
+                        </ul>
+                    </div>
+
+                    <div class="card navy">
+                        <h3>2. Flujo Negocio, Admin y Swagger</h3>
+                        <ul>
+                            <li>Desde <code>mis-espacios.html</code>, dar de alta un nuevo espacio (queda pendiente).</li>
+                            <li>Desde <code>admin.html</code>, aprobar el espacio pendiente.</li>
+                            <li>Mostrar en <strong>Swagger (<code>/docs</code>)</strong> la creación y resolución polimórfica de un reporte en <code>/reports</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Endpoints listos para probar:</strong> Local (<code>http://localhost:8000/docs</code>) o Producción (<code>https://study-spaces-rest-api.onrender.com/docs</code>).
+                </div>
+
+                <aside class="notes">
+                    Este es el orden sugerido para la demo en vivo, combinando la interfaz web amigable para el usuario final con Swagger para los endpoints de moderación.
+                </aside>
+            </section>
+
+            <!-- 12. TRABAJO FUTURO Y CIERRE -->
+            <section>
+                <div class="slide-header">
+                    <h2>Trabajo Futuro y Conclusiones</h2>
+                    <span class="slide-tag">Roadmap Post-MVP</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card navy">
+                        <h3>Mejoras Técnicas (<code>ROADMAP.md</code>)</h3>
+                        <ul>
+                            <li><strong>Fase 8:</strong> Excepciones de dominio personalizadas y handlers globales en <code>app/main.py</code>.</li>
+                            <li><strong>Refactor de capas:</strong> Unificar consultas residuales de <code>study_spaces.py</code> en su repositorio/servicio.</li>
+                            <li><strong>Frontend:</strong> Integrar vistas de <code>/reports</code> y <code>/posts</code> en el cliente web.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Extensiones del UML</h3>
+                        <ul>
+                            <li><strong>Notificaciones:</strong> Implementar <em>Observer</em> + <em>Factory Method</em> (Email / In-App).</li>
+                            <li><strong>Titularidad:</strong> Solicitudes de reclamo de espacios (<code>OwnershipRequest</code>).</li>
+                            <li><strong>Monetización:</strong> Campañas publicitarias integradas con <code>MercadoPagoService</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout" style="text-align: center; font-size: 0.72em;">
+                    <strong>¡Muchas gracias!</strong> ¿Preguntas o comentarios?
+                </div>
+
+                <aside class="notes">
+                    Cerrar destacando lo aprendido en diseño orientado a objetos, arquitectura en capas, testing y despliegue real en producción, y abrir espacio para preguntas de los docentes.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js & Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            transition: 'slide',
+            plugins: [RevealHighlight, RevealNotes]
+        });
+    </script>
+</body>
+</html>
