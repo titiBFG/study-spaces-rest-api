@@ -301,6 +301,138 @@ main {
     padding: 0 20px;
 }
 
+/* Notificaciones */
+
+.contenedor-notificaciones {
+    position: relative;
+}
+
+.boton-notificaciones {
+    position: relative;
+    background-color: transparent;
+    color: #70462f;
+    font-size: 23px;
+    padding: 7px 10px;
+}
+
+.boton-notificaciones:hover {
+    background-color: #f8e7d7;
+}
+
+.contador-notificaciones {
+    position: absolute;
+    top: -3px;
+    right: -5px;
+    background-color: #bc765c;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 50%;
+    min-width: 19px;
+    height: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-notificaciones {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 350px;
+    max-height: 420px;
+    overflow-y: auto;
+    background-color: #fffdf9;
+    border: 1px solid #ead7c6;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(75, 53, 40, 0.15);
+    z-index: 100;
+}
+
+.encabezado-notificaciones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #ead7c6;
+}
+
+.encabezado-notificaciones h3 {
+    font-size: 17px;
+    margin: 0;
+}
+
+.encabezado-notificaciones button {
+    background-color: transparent;
+    color: #a66a45;
+    font-size: 12px;
+    padding: 5px;
+}
+
+.encabezado-notificaciones button:hover {
+    background-color: #f8e7d7;
+}
+
+#listaNotificaciones {
+    padding: 10px;
+}
+
+#listaNotificaciones > p {
+    text-align: center;
+    color: #715b4d;
+    font-size: 14px;
+    padding: 15px;
+}
+
+.notificacion {
+    padding: 12px;
+    border-bottom: 1px solid #ead7c6;
+    border-radius: 8px;
+}
+
+.notificacion.no-leida {
+    background-color: #fff0df;
+}
+
+.notificacion p {
+    margin: 0 0 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.fecha-notificacion {
+    color: #8a7465;
+    font-size: 12px;
+}
+
+.notificacion .marcar-leida {
+    background-color: transparent;
+    color: #a66a45;
+    font-size: 12px;
+    padding: 5px 0;
+    margin-top: 8px;
+}
+
+.notificacion .marcar-leida:hover {
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+/* Mantener ocultos los elementos con el atributo hidden */
+
+.contador-notificaciones[hidden],
+.panel-notificaciones[hidden] {
+    display: none;
+}
+
+@media (max-width: 450px) {
+    .panel-notificaciones {
+        width: min(350px, calc(100vw - 30px));
+        right: -70px;
+    }
+}
+
 /* Reseñas */
 
 .formulario-resena {
