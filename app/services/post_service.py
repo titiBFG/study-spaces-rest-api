@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.models.enums import NotificationEventType
 from app.models.post import Post
 from app.models.study_space import StudySpace
 from app.models.user import User
@@ -84,9 +85,15 @@ def create_post(
     """Publica algo en la página de un espacio del que el negocio es dueño."""
     space = _get_owned_space(session, user, space_id)
 
-    return create_post_in_db(
+    post = create_post_in_db(
         session, user.id, space.id, data.title, data.content, data.images
     )
+    space.notify_observers(
+        NotificationEventType.NEW_POST,
+        f"{space.name} publicó: {post.title}",
+    )
+
+    return post
 
 
 def update_post(
