@@ -1009,7 +1009,7 @@
         const tag = l.url ? "a" : "div";
         const attrs = l.url ? `href="${l.url}" target="_blank" rel="noreferrer"` : "";
         return `
-          <${tag} ${attrs} class="rv" style="--i:${idx + 2};display:flex;align-items:center;gap:16px;border-radius:16px;border:1px solid rgba(11,11,18,0.08);background:#fff;padding:14px 20px;transition:transform 250ms,box-shadow 250ms;">
+          <${tag} ${attrs} class="card card-sm rv" style="--i:${idx + 2};display:flex;align-items:center;gap:16px;border-radius:16px;padding:14px 20px;">
             <span class="mono" style="font-size:11px;color:rgba(11,11,18,0.42);">0${idx + 1}</span>
             <span style="flex:1;min-width:0;">
               <span style="display:block;font-size:16px;font-weight:600;letter-spacing:-0.02em;">${escapeHtml(l.title)}</span>
@@ -1205,7 +1205,7 @@
       overview: false,
       help: false,
       transition: reducedMotion.matches ? "none" : "fade",
-      transitionSpeed: "fast",
+      transitionSpeed: "default",
       keyboardCondition: (event) => {
         if (isIndexOpen()) return false;
         const target = event && event.target;

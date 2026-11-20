@@ -106,7 +106,7 @@ a {
   inset: 0;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 320ms ease, visibility 320ms;
+  transition: opacity 640ms ease, visibility 640ms;
 }
 
 #deck-backdrop[data-bg="brand"] .backdrop-brand { opacity: 1; visibility: visible; }
@@ -126,7 +126,7 @@ a {
   transform: translate3d(-50%, -50%, 0);
   backface-visibility: hidden;
   will-change: transform;
-  animation: mesh-drift var(--dur, 24s) ease-in-out var(--delay, 0s) infinite alternate;
+  animation: mesh-drift calc(var(--dur, 24s) * 2) ease-in-out var(--delay, 0s) infinite alternate;
 }
 
 /* Pause background animations on inactive layers, index overlay, or hidden tab */
@@ -329,7 +329,7 @@ body.is-hidden .mesh-blob {
   left: 0;
   border-radius: 999px;
   width: 0%;
-  transition: width 500ms var(--ease-out-expo), background-color 300ms ease;
+  transition: width 800ms var(--ease-out-expo), background-color 450ms ease;
 }
 
 .deck-controls {
@@ -398,7 +398,7 @@ body.is-hidden .mesh-blob {
   flex-direction: column;
   padding: clamp(24px, 4vw, 60px) clamp(24px, 6vw, 96px);
   overflow-y: auto;
-  animation: overview-in 380ms var(--ease-out-expo) both;
+  animation: overview-in 650ms var(--ease-out-expo) both;
 }
 
 @keyframes overview-in {
@@ -515,7 +515,7 @@ body.is-hidden .mesh-blob {
   text-transform: uppercase;
 }
 
-/* Cards, Wash & Lift */
+/* Cards, Wash, Hover Lift & Subtle Sheen Wave */
 .card {
   position: relative;
   background: var(--color-white);
@@ -523,6 +523,28 @@ body.is-hidden .mesh-blob {
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 30px 60px -34px rgba(11, 11, 18, 0.26), 0 2px 8px -3px rgba(11, 11, 18, 0.06);
+  translate: 0 0;
+  transition: translate 560ms var(--ease-out-expo), transform 560ms var(--ease-out-expo), border-color 400ms ease;
+  backface-visibility: hidden;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: -15% -35%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transform: translate3d(-120%, 0, 0);
+  background: linear-gradient(
+    112deg,
+    transparent 24%,
+    rgba(255, 255, 255, 0.52) 45%,
+    rgba(124, 58, 237, 0.065) 51%,
+    rgba(45, 212, 191, 0.065) 57%,
+    transparent 76%
+  );
+  will-change: transform, opacity;
 }
 
 .card-sm {
@@ -533,6 +555,41 @@ body.is-hidden .mesh-blob {
   background: #0b0b12;
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+.card-dark::after {
+  background: linear-gradient(
+    112deg,
+    transparent 24%,
+    rgba(255, 255, 255, 0.085) 45%,
+    rgba(116, 212, 255, 0.075) 55%,
+    transparent 76%
+  );
+}
+
+.card:hover,
+.card:focus-visible,
+.lift[data-active="true"] {
+  translate: 0 -6px;
+  border-color: rgba(11, 11, 18, 0.16);
+}
+
+.card-dark:hover,
+.card-dark:focus-visible {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.card:hover::after,
+.card:focus-visible::after,
+.fan-card:hover .fan-face::after,
+.fan-card:focus-within .fan-face::after {
+  animation: card-sheen 1500ms var(--ease-out-expo) forwards;
+}
+
+@keyframes card-sheen {
+  0% { opacity: 0; transform: translate3d(-115%, 0, 0); }
+  22% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(115%, 0, 0); }
 }
 
 .wash {
@@ -550,13 +607,8 @@ body.is-hidden .mesh-blob {
 }
 
 .lift {
-  transition: transform 260ms var(--ease-out-expo), border-color 200ms;
+  transition: translate 560ms var(--ease-out-expo), transform 560ms var(--ease-out-expo), border-color 400ms ease;
   backface-visibility: hidden;
-}
-
-.lift:hover,
-.lift[data-active="true"] {
-  transform: translate3d(0, -5px, 0);
 }
 
 .chip {
@@ -620,13 +672,13 @@ body.is-hidden .mesh-blob {
 }
 
 /* Entrance animations triggered cleanly on Reveal .present */
-.reveal .slides > section .rv {
+.reveal .slides > section:not(.present) .rv {
   opacity: 0;
   transform: translate3d(0, 14px, 0);
 }
 
 .reveal .slides > section.present .rv {
-  animation: rv-in 420ms var(--ease-out-expo) calc(40ms + var(--i, 0) * 45ms) both;
+  animation: rv-in 840ms var(--ease-out-expo) calc(80ms + var(--i, 0) * 85ms) backwards;
 }
 
 @keyframes rv-in {
@@ -634,13 +686,16 @@ body.is-hidden .mesh-blob {
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-.reveal .slides > section .word {
-  display: inline-block;
+.reveal .slides > section:not(.present) .word {
   opacity: 0;
 }
 
+.reveal .slides > section .word {
+  display: inline-block;
+}
+
 .reveal .slides > section.present .word {
-  animation: word-in 420ms var(--ease-out-expo) calc(var(--d, 40ms) + var(--w, 0) * 38ms) both;
+  animation: word-in 840ms var(--ease-out-expo) calc(var(--d, 80ms) + var(--w, 0) * 75ms) backwards;
 }
 
 @keyframes word-in {
@@ -667,11 +722,11 @@ body.is-hidden .mesh-blob {
 }
 
 .reveal .slides > section.present .fan-card[data-role="rise"] {
-  animation: fan-rise 850ms var(--ease-out-expo) var(--delay, 250ms) both;
+  animation: fan-rise 1400ms var(--ease-out-expo) var(--delay, 250ms) both;
 }
 
 .reveal .slides > section.present .fan-card[data-role="spread"] {
-  animation: fan-spread 800ms var(--ease-out-expo) var(--delay, 650ms) both;
+  animation: fan-spread 1350ms var(--ease-out-expo) var(--delay, 650ms) both;
 }
 
 @keyframes fan-rise {
@@ -693,7 +748,7 @@ body.is-hidden .mesh-blob {
   display: flex;
   flex-direction: column;
   text-align: left;
-  transition: transform 280ms var(--ease-out-expo);
+  transition: transform 560ms var(--ease-out-expo);
   backface-visibility: hidden;
 }
 
@@ -719,7 +774,7 @@ body.is-hidden .mesh-blob {
   border-radius: 34px;
   border: 1px solid rgba(11, 11, 18, 0.08);
   transform: rotateX(58deg) rotateZ(-42deg) translateZ(var(--lift, 0px));
-  transition: transform 380ms var(--ease-out-expo), border-color 250ms;
+  transition: transform 760ms var(--ease-out-expo), border-color 450ms;
   will-change: transform;
 }
 
@@ -732,7 +787,7 @@ body.is-hidden .mesh-blob {
   gap: 12px;
   text-align: left;
   opacity: 0.55;
-  transition: opacity 350ms, transform 350ms var(--ease-out-expo);
+  transition: opacity 650ms, transform 650ms var(--ease-out-expo);
 }
 
 .iso-label-btn[aria-pressed="true"] {
@@ -748,7 +803,7 @@ body.is-hidden .mesh-blob {
 }
 
 .reveal .slides > section.present .grow-bar {
-  animation: grow-bar 800ms var(--ease-out-expo) var(--delay, 200ms) both;
+  animation: grow-bar 1400ms var(--ease-out-expo) var(--delay, 200ms) both;
 }
 
 @keyframes grow-bar {
