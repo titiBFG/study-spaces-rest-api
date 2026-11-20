@@ -340,25 +340,39 @@
     const linesEl = document.getElementById("arch-layer-lines");
     const modsEl = document.getElementById("arch-layer-modules");
 
+    isoHost.innerHTML = layers.map((l, idx) => `
+      <button type="button" class="iso-plate" data-layer-idx="${idx}" aria-pressed="false" aria-label="${escapeHtml(l.name)}"
+        style="top:${idx * 95 + 32}px;z-index:${20 - idx};"></button>
+      <button type="button" class="iso-label-btn" data-layer-idx="${idx}" aria-pressed="false" style="top:${idx * 95 + 172}px;">
+        <span class="mono" style="font-size:11px;color:rgba(11,11,18,0.45);">CAPA 0${idx + 1}</span>
+        <span style="font-size:18px;font-weight:600;letter-spacing:-0.02em;">${escapeHtml(l.name.split(" (")[0])}</span>
+        <span style="width:52px;height:1px;background:rgba(11,11,18,0.2);"></span>
+      </button>
+    `).join("");
+
+    const plateBtns = Array.from(isoHost.querySelectorAll(".iso-plate"));
+    const labelBtns = Array.from(isoHost.querySelectorAll(".iso-label-btn"));
+
     function render() {
-      isoHost.innerHTML = layers.map((l, idx) => {
+      layers.forEach((l, idx) => {
         const isActive = idx === active;
-        const bg = isActive
-          ? `linear-gradient(135deg, color-mix(in srgb, ${l.color} 30%, white), ${l.color})`
-          : `linear-gradient(135deg, #ffffff 30%, color-mix(in srgb, ${l.color} 22%, white))`;
-        const shadow = isActive
-          ? `0 40px 60px -20px color-mix(in srgb, ${l.color} 60%, transparent)`
-          : `0 20px 40px -24px rgba(11,11,18,0.28)`;
-        return `
-          <button type="button" class="iso-plate" data-layer-idx="${idx}" aria-pressed="${isActive}" aria-label="${escapeHtml(l.name)}"
-            style="top:${idx * 95 + 32}px;z-index:${20 - idx};--lift:${isActive ? "48px" : "0px"};border-color:${isActive ? "#fff" : `color-mix(in srgb, ${l.color} 30%, white)`};background:${bg};box-shadow:${shadow};"></button>
-          <button type="button" class="iso-label-btn" data-layer-idx="${idx}" aria-pressed="${isActive}" style="top:${idx * 95 + 172}px;">
-            <span class="mono" style="font-size:11px;color:rgba(11,11,18,0.45);">CAPA 0${idx + 1}</span>
-            <span style="font-size:18px;font-weight:600;letter-spacing:-0.02em;">${escapeHtml(l.name.split(" (")[0])}</span>
-            <span style="width:52px;height:1px;background:rgba(11,11,18,0.2);"></span>
-          </button>
-        `;
-      }).join("");
+        const plate = plateBtns[idx];
+        const label = labelBtns[idx];
+        if (plate) {
+          plate.setAttribute("aria-pressed", String(isActive));
+          plate.style.setProperty("--lift", isActive ? "48px" : "0px");
+          plate.style.borderColor = isActive ? "#fff" : `color-mix(in srgb, ${l.color} 30%, white)`;
+          plate.style.background = isActive
+            ? `linear-gradient(135deg, color-mix(in srgb, ${l.color} 30%, white), ${l.color})`
+            : `linear-gradient(135deg, #ffffff 30%, color-mix(in srgb, ${l.color} 22%, white))`;
+          plate.style.boxShadow = isActive
+            ? `0 40px 60px -20px color-mix(in srgb, ${l.color} 60%, transparent)`
+            : "0 20px 40px -24px rgba(11,11,18,0.28)";
+        }
+        if (label) {
+          label.setAttribute("aria-pressed", String(isActive));
+        }
+      });
 
       const curr = layers[active];
       wash.style.setProperty("--c", curr.color);
@@ -1053,6 +1067,10 @@
       `;
     }).join("");
 
+    groups.forEach((g) => {
+      g.fillEl = chapterBarsEl.querySelector(`[data-bar-fill="${g.chapter}"]`);
+    });
+
     function isIndexOpen() {
       return !indexModal.hidden;
     }
@@ -1116,7 +1134,7 @@
       }
 
       groups.forEach((g) => {
-        const fill = chapterBarsEl.querySelector(`[data-bar-fill="${g.chapter}"]`);
+        const fill = g.fillEl;
         if (!fill) return;
         const groupCh = CHAPTERS[g.chapter];
         const done = idx >= g.start + g.count;
