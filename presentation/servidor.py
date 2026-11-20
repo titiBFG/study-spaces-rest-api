@@ -1,4 +1,4 @@
-"""Servidor HTTP local para abrir la presentación de Reveal.js y la demo embebida."""
+"""Servidor HTTP local para abrir la presentación de Reveal.js y el frontend del proyecto."""
 
 import argparse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -10,7 +10,7 @@ from urllib.parse import unquote
 PRESENTATION_DIR = Path(__file__).resolve().parent
 REPO_ROOT = PRESENTATION_DIR.parent
 FRONTEND_DIR = REPO_ROOT / "frontend"
-DEFAULT_PORT = 8080
+DEFAULT_PORT = 5500
 
 
 class PresentationHandler(SimpleHTTPRequestHandler):
@@ -68,11 +68,13 @@ def main() -> None:
     with ThreadingHTTPServer(("127.0.0.1", port), PresentationHandler) as server:
         url = f"http://127.0.0.1:{port}/"
         print("=" * 64)
-        print("  Presentación Study Spaces REST API (UNSAM · Reveal.js 6.0.2)")
+        print("  Presentación Study Spaces REST API (UNSAM - Reveal.js 6.0.2)")
         print("=" * 64)
         print(f"  Presentación : {url}")
-        print(f"  Demo Frontend: {url}frontend/index.html")
-        print("  Atajos       : [←/→/Espacio] Navegar | [O/I] Índice | [F] Fullscreen")
+        print(f"  Frontend App : {url}frontend/index.html")
+        if args.port is None and port != DEFAULT_PORT:
+            print(f"  [Aviso CORS] Puerto {DEFAULT_PORT} ocupado; la API en Render habilita CORS en el puerto {DEFAULT_PORT}.")
+        print("  Atajos       : [Flechas/Espacio] Navegar | [O/I] Índice | [F] Fullscreen")
         print("  Presioná Ctrl+C para detener el servidor.")
         print("=" * 64, flush=True)
         try:

@@ -1,7 +1,7 @@
 /* ==========================================================================
    Study Spaces REST API — Reveal.js 6.0.2 Theme (Modern Visual System)
-   1600x900 native Reveal stage, zero external CDN/fonts, full reduced-motion
-   and print support.
+   1600x900 native Reveal stage, full-viewport backdrop, pure informational
+   cards, zero external CDN/fonts, full reduced-motion and print support.
    ========================================================================== */
 
 :root {
@@ -24,7 +24,7 @@
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Reveal CSS variables */
-  --r-background-color: #ffffff;
+  --r-background-color: transparent;
   --r-main-font: var(--font-sans);
   --r-main-font-size: 20px;
   --r-main-color: var(--color-ink);
@@ -35,6 +35,10 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 html, body {
@@ -84,14 +88,84 @@ a {
 }
 
 /* ==========================================================================
+   Full-Viewport Mesh Backdrop (Never cuts on wide / ultrawide screens)
+   ========================================================================== */
+.deck-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--color-white);
+}
+
+.backdrop-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 480ms ease;
+}
+
+#deck-backdrop[data-bg="brand"] .backdrop-brand { opacity: 1; }
+#deck-backdrop[data-bg="mvp"] .backdrop-mvp { opacity: 1; }
+#deck-backdrop[data-bg="domain"] .backdrop-domain { opacity: 1; }
+#deck-backdrop[data-bg="demo"] .backdrop-demo { opacity: 1; }
+
+.mesh-blob {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  width: var(--size, 45%);
+  aspect-ratio: 1;
+  background: var(--c, #9592f5);
+  filter: blur(var(--blur, 96px));
+  opacity: var(--o, 0.65);
+  border-radius: 42% 58% 63% 37% / 45% 40% 60% 55%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  animation: mesh-drift var(--dur, 24s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+/* Pause background animations on inactive layers, index overlay, or hidden tab */
+#deck-backdrop:not([data-bg="brand"]) .backdrop-brand .mesh-blob,
+#deck-backdrop:not([data-bg="mvp"]) .backdrop-mvp .mesh-blob,
+#deck-backdrop:not([data-bg="domain"]) .backdrop-domain .mesh-blob,
+#deck-backdrop:not([data-bg="demo"]) .backdrop-demo .mesh-blob,
+body.index-open .mesh-blob,
+body.is-hidden .mesh-blob {
+  animation-play-state: paused !important;
+}
+
+@keyframes mesh-drift {
+  0% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-50%, -50%) translate(14%, -12%) rotate(40deg) scale(1.15); }
+  66% { transform: translate(-50%, -50%) translate(-12%, 14%) rotate(-25deg) scale(0.9); }
+  100% { transform: translate(-50%, -50%) translate(10%, 8%) rotate(20deg) scale(1.08); }
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  mix-blend-mode: overlay;
+  opacity: 0.42;
+  pointer-events: none;
+  background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiB2aWV3Qm94PSIwIDAgMTYwIDE2MCI+PGZpbHRlciBpZD0iZyIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNyIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjxmZUNvbG9yTWF0cml4IHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZykiLz48L3N2Zz4=") 0 0 / 160px 160px;
+}
+
+/* ==========================================================================
    Reveal.js 1600x900 Stage Override
    ========================================================================== */
 .reveal {
   position: fixed;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  background: var(--color-white);
+  background: transparent !important;
   font-family: var(--font-sans);
   font-size: 16px;
   color: var(--color-ink);
@@ -108,6 +182,7 @@ a {
   margin: 0;
   top: 0 !important;
   left: 0;
+  background: transparent;
   overflow: hidden;
   text-align: left;
   box-sizing: border-box;
@@ -147,10 +222,10 @@ a {
   display: none;
 }
 
-/* Slide bounded area between fixed chrome header (92px) and footer (104px) */
+/* Slide bounded area between fixed chrome header and footer */
 .slide-body {
   position: absolute;
-  inset: 92px 96px 104px;
+  inset: 88px 96px 112px;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -160,16 +235,9 @@ a {
 /* ==========================================================================
    Fixed Presentation Chrome (Header + Chapter Progress Footer + Index Modal)
    ========================================================================== */
-.deck-stage-chrome {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 20;
-}
-
 .deck-header {
   position: fixed;
-  top: 24px;
+  top: 20px;
   left: clamp(24px, 5vw, 96px);
   right: clamp(24px, 5vw, 96px);
   z-index: 25;
@@ -222,7 +290,7 @@ a {
 
 .deck-footer {
   position: fixed;
-  bottom: 22px;
+  bottom: 18px;
   left: clamp(24px, 5vw, 96px);
   right: clamp(24px, 5vw, 96px);
   z-index: 25;
@@ -321,6 +389,12 @@ a {
   background: #24242e;
 }
 
+/* Fullscreen button single-icon state */
+#btn-fullscreen .icon-fs-max { display: block; }
+#btn-fullscreen .icon-fs-min { display: none; }
+#btn-fullscreen.is-fullscreen .icon-fs-max { display: none; }
+#btn-fullscreen.is-fullscreen .icon-fs-min { display: block; }
+
 /* Index Overview Overlay */
 .overview {
   position: fixed;
@@ -334,10 +408,6 @@ a {
   padding: clamp(24px, 4vw, 60px) clamp(24px, 6vw, 96px);
   overflow-y: auto;
   animation: overview-in 380ms var(--ease-out-expo) both;
-}
-
-.overview[hidden] {
-  display: none !important;
 }
 
 @keyframes overview-in {
@@ -404,62 +474,14 @@ a {
 }
 
 /* ==========================================================================
-   Modern Visual Primitives (.mesh, .grain, .dot-grid, .card, .wash, .lift)
+   Modern Visual Primitives (.dot-grid, .card, .wash, .lift, Typography)
    ========================================================================== */
-.mesh {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.mesh-blob {
-  position: absolute;
-  left: var(--x, 50%);
-  top: var(--y, 50%);
-  width: var(--size, 45%);
-  aspect-ratio: 1;
-  background: var(--c, #9592f5);
-  filter: blur(var(--blur, 90px));
-  opacity: var(--o, 0.65);
-  border-radius: 42% 58% 63% 37% / 45% 40% 60% 55%;
-  transform: translate(-50%, -50%);
-  will-change: transform;
-  animation: mesh-drift var(--dur, 24s) ease-in-out var(--delay, 0s) infinite alternate;
-}
-
-/* Pause background animations on non-present slides or while Demo Live covers them */
-section:not(.present) .mesh-blob,
-body.demo-active .mesh-blob,
-body.index-open .mesh-blob {
-  animation-play-state: paused !important;
-}
-
-@keyframes mesh-drift {
-  0% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(-50%, -50%) translate(14%, -12%) rotate(40deg) scale(1.15); }
-  66% { transform: translate(-50%, -50%) translate(-12%, 14%) rotate(-25deg) scale(0.9); }
-  100% { transform: translate(-50%, -50%) translate(10%, 8%) rotate(20deg) scale(1.08); }
-}
-
-.grain::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  mix-blend-mode: overlay;
-  opacity: 0.45;
-  pointer-events: none;
-  background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiB2aWV3Qm94PSIwIDAgMTYwIDE2MCI+PGZpbHRlciBpZD0iZyIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNyIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjxmZUNvbG9yTWF0cml4IHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZykiLz48L3N2Zz4=") 0 0 / 160px 160px;
-}
-
 .dot-grid {
   background-color: var(--color-mist);
   background-image: radial-gradient(rgba(11, 11, 18, 0.14) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-/* Typography */
 .label {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -472,7 +494,7 @@ body.index-open .mesh-blob {
 .display {
   font-weight: 600;
   letter-spacing: -0.06em;
-  line-height: 0.94;
+  line-height: 1.06;
   color: var(--color-ink);
 }
 
@@ -554,7 +576,6 @@ body.index-open .mesh-blob {
   box-shadow: 0 40px 70px -34px rgba(11, 11, 18, 0.34), 0 4px 12px -4px rgba(11, 11, 18, 0.09);
 }
 
-/* Chips, Segmented Controls, Buttons, Inputs */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -567,35 +588,6 @@ body.index-open .mesh-blob {
   font-size: 13.5px;
   font-weight: 500;
   white-space: nowrap;
-}
-
-.seg {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(11, 11, 18, 0.04);
-  border: 1px solid rgba(11, 11, 18, 0.08);
-}
-
-.seg button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(11, 11, 18, 0.62);
-  transition: background-color 250ms, color 250ms, box-shadow 250ms;
-}
-
-.seg button[aria-pressed="true"] {
-  background: #ffffff;
-  color: var(--color-ink);
-  box-shadow: 0 6px 16px -8px rgba(11, 11, 18, 0.3), 0 0 0 1px rgba(11, 11, 18, 0.06);
 }
 
 .btn {
@@ -619,11 +611,6 @@ body.index-open .mesh-blob {
 
 .btn:active:not(:disabled) {
   transform: scale(0.97);
-}
-
-.btn:disabled {
-  opacity: 0.35;
-  cursor: default;
 }
 
 .btn-ghost {
@@ -745,7 +732,7 @@ body.index-open .mesh-blob {
   left: 50%;
   width: 300px;
   height: 300px;
-  margin-left: -95px;
+  margin-left: -40px;
   border-radius: 34px;
   border: 1px solid rgba(11, 11, 18, 0.08);
   transform: rotateX(58deg) rotateZ(-42deg) translateZ(var(--lift, 0px));
@@ -785,18 +772,6 @@ body.index-open .mesh-blob {
   to { clip-path: inset(0 0 0 0 round 8px); }
 }
 
-/* Skeleton Loader */
-.skel {
-  background: linear-gradient(90deg, #efefec 0%, #f8f8f6 40%, #efefec 80%) 0 0 / 200% 100%;
-  border-radius: 8px;
-  animation: shimmer 1.4s linear infinite;
-}
-
-@keyframes shimmer {
-  from { background-position: 100% 0; }
-  to { background-position: -100% 0; }
-}
-
 /* ==========================================================================
    Layout Helpers (1600x900 Presentation Composition)
    ========================================================================== */
@@ -830,7 +805,7 @@ body.index-open .mesh-blob {
 
 .split-left-narrow {
   display: grid;
-  grid-template-columns: 430px 1fr;
+  grid-template-columns: 440px 1fr;
   gap: 52px;
   align-items: stretch;
   height: 100%;
@@ -839,13 +814,6 @@ body.index-open .mesh-blob {
 .split-arch {
   display: grid;
   grid-template-columns: 1fr 560px;
-  gap: 48px;
-  height: 100%;
-}
-
-.split-endpoints {
-  display: grid;
-  grid-template-columns: 310px 1fr;
   gap: 48px;
   height: 100%;
 }
@@ -859,27 +827,28 @@ body.index-open .mesh-blob {
 
 /* Cover Typography */
 .cover-title {
-  margin-top: 28px !important;
-  font-size: 136px;
-  line-height: 0.88;
+  margin-top: 22px !important;
+  font-size: 126px;
+  line-height: 1.08;
 }
 
 .cover-sub {
-  margin-top: 28px !important;
+  margin-top: 24px !important;
   max-width: 960px;
-  font-size: 26px;
+  font-size: 25px;
   font-weight: 500;
   letter-spacing: -0.03em;
-  line-height: 1.35;
+  line-height: 1.38;
   color: rgba(11, 11, 18, 0.74);
 }
 
 .cover-meta-grid {
   margin-top: auto;
+  width: 100%;
+  max-width: 100%;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 36px;
-  max-width: 1280px;
 }
 
 .cover-meta-item {
@@ -896,15 +865,13 @@ body.index-open .mesh-blob {
 }
 
 .cover-hint {
-  position: absolute;
-  right: 96px;
-  bottom: 112px;
-  z-index: 3;
+  margin-top: 22px;
+  align-self: flex-end;
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: rgba(11, 11, 18, 0.5);
+  color: rgba(11, 11, 18, 0.54);
 }
 
 .kbd {
@@ -925,11 +892,11 @@ body.index-open .mesh-blob {
 .slide-h2 {
   margin-top: 14px !important;
   font-size: 56px;
-  line-height: 0.96;
+  line-height: 1.04;
 }
 
-.slide-h2.lg { font-size: 70px; }
-.slide-h2.xl { font-size: 96px; }
+.slide-h2.lg { font-size: 68px; }
+.slide-h2.xl { font-size: 92px; }
 
 .slide-lead {
   margin-top: 18px !important;
@@ -939,16 +906,16 @@ body.index-open .mesh-blob {
 }
 
 .concept-box {
-  margin-top: 34px;
+  margin-top: 30px;
   max-width: 560px;
   border-left: 1px solid rgba(11, 11, 18, 0.16);
   padding-left: 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  font-size: 18.5px;
+  font-size: 18px;
   line-height: 1.55;
-  color: rgba(11, 11, 18, 0.62);
+  color: rgba(11, 11, 18, 0.64);
 }
 
 .concept-box strong {
@@ -969,443 +936,6 @@ body.index-open .mesh-blob {
 }
 
 /* ==========================================================================
-   Vanilla Interactive Simulator (Slides 03 & 06)
-   ========================================================================== */
-.sim-shell {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: 18px;
-  border: 1px solid rgba(11, 11, 18, 0.08);
-  background: #ffffff;
-  overflow: hidden;
-  box-shadow: 0 30px 60px -34px rgba(11, 11, 18, 0.28);
-  font-size: 13px;
-}
-
-.sim-topbar {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  height: 52px;
-  padding: 0 18px;
-  border-bottom: 1px solid rgba(11, 11, 18, 0.06);
-}
-
-.sim-brand {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
-
-.sim-nav {
-  display: flex;
-  gap: 18px;
-  font-size: 12.5px;
-  color: rgba(11, 11, 18, 0.55);
-}
-
-.sim-fav-pill {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  background: rgba(11, 11, 18, 0.04);
-  padding: 5px 12px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.sim-main {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  gap: 18px;
-  padding: 14px 16px;
-}
-
-.sim-sidebar {
-  width: 158px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sim-sidebar-title {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(11, 11, 18, 0.42);
-  padding: 4px 8px;
-}
-
-.sim-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 9px;
-  font-size: 12.5px;
-  text-align: left;
-  color: rgba(11, 11, 18, 0.6);
-  transition: background-color 180ms, color 180ms;
-}
-
-.sim-filter-btn:hover {
-  color: var(--color-ink);
-  background: rgba(11, 11, 18, 0.03);
-}
-
-.sim-filter-btn[aria-pressed="true"] {
-  background: rgba(11, 11, 18, 0.07);
-  color: var(--color-ink);
-  font-weight: 600;
-}
-
-.sim-filter-btn.is-accent[aria-pressed="true"] {
-  background: rgba(124, 58, 237, 0.11);
-  color: #6d28d9;
-}
-
-.sim-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sim-search-wrap {
-  position: relative;
-}
-
-.sim-search-wrap svg {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(11, 11, 18, 0.4);
-  pointer-events: none;
-}
-
-.sim-search {
-  width: 100%;
-  height: 38px;
-  padding: 0 14px 0 36px;
-  border-radius: 11px;
-  border: 1px solid rgba(11, 11, 18, 0.1);
-  background: var(--color-mist);
-  font-size: 13px;
-  outline: none;
-}
-
-.sim-search:focus {
-  border-color: rgba(11, 11, 18, 0.35);
-  background: #ffffff;
-}
-
-.sim-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11.5px;
-  color: rgba(11, 11, 18, 0.46);
-}
-
-.sim-grid {
-  flex: 1;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  align-content: start;
-  padding-bottom: 4px;
-}
-
-.space-card {
-  border-radius: 14px;
-  border: 1px solid rgba(11, 11, 18, 0.07);
-  background: #ffffff;
-  padding: 9px;
-  transition: box-shadow 250ms;
-}
-
-.space-card:hover {
-  box-shadow: 0 14px 28px -18px rgba(11, 11, 18, 0.32);
-}
-
-.space-thumb {
-  position: relative;
-  aspect-ratio: 4 / 2.8;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(120% 120% at 25% 15%, #ffffff 0%, color-mix(in srgb, var(--tint) 55%, white) 45%, var(--tint) 100%);
-}
-
-.space-noise-badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  border-radius: 999px;
-  background: rgba(11, 11, 18, 0.76);
-  color: #ffffff;
-  padding: 2px 8px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-}
-
-.space-tags {
-  position: absolute;
-  bottom: 6px;
-  left: 6px;
-  display: flex;
-  gap: 4px;
-}
-
-.space-tag {
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.88);
-  padding: 2px 6px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 500;
-  color: rgba(11, 11, 18, 0.8);
-}
-
-.space-footer {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 9px 4px 3px;
-}
-
-.space-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.space-city {
-  font-size: 10.5px;
-  color: rgba(11, 11, 18, 0.48);
-  margin-top: 2px;
-}
-
-.space-fav-btn {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: var(--color-ink);
-  color: #ffffff;
-  flex-shrink: 0;
-  transition: transform 150ms, background-color 200ms;
-}
-
-.space-fav-btn.is-fav {
-  background: #e11d48;
-}
-
-.sim-empty-box {
-  grid-column: 1 / -1;
-  min-height: 280px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-/* ==========================================================================
-   Slide 19 — DEMO LIVE (Reveal Fragments + Same-Origin Iframe)
-   ========================================================================== */
-.demo-slide-body {
-  position: absolute;
-  inset: 92px 96px 104px;
-  z-index: 2;
-  overflow: hidden;
-}
-
-/* Hidden Reveal fragment hooks that drive the state machine cleanly */
-.demo-fragment-track {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.demo-intro {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 56px;
-  align-items: center;
-  transition: transform 460ms var(--ease-out-expo), opacity 380ms ease;
-}
-
-.demo-slide-body[data-stage="app"] .demo-intro {
-  opacity: 0;
-  transform: translateX(-80px);
-  pointer-events: none;
-}
-
-.demo-stage {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  opacity: 0;
-  transform: translateX(80px);
-  pointer-events: none;
-  transition: transform 460ms var(--ease-out-expo), opacity 380ms ease;
-}
-
-.demo-slide-body[data-stage="app"] .demo-stage {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
-
-.demo-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(11, 11, 18, 0.09);
-  box-shadow: 0 12px 26px -18px rgba(11, 11, 18, 0.24);
-}
-
-.demo-status-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.demo-step-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  background: rgba(124, 58, 237, 0.1);
-  color: #6d28d9;
-  white-space: nowrap;
-}
-
-.demo-step-pill.is-explore {
-  background: rgba(13, 148, 136, 0.14);
-  color: #0d9488;
-}
-
-.demo-step-pill.is-error {
-  background: rgba(225, 29, 72, 0.14);
-  color: #e11d48;
-}
-
-.demo-step-desc {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(11, 11, 18, 0.74);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.demo-toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.demo-toolbar-actions .btn {
-  height: 36px;
-  padding: 0 14px;
-  font-size: 13px;
-}
-
-.demo-frame-wrap {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  border-radius: 22px;
-  overflow: hidden;
-  border: 1px solid rgba(11, 11, 18, 0.11);
-  background: #fff8f0;
-  box-shadow: 0 30px 60px -34px rgba(11, 11, 18, 0.34);
-}
-
-.demo-iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
-  background: #fff8f0;
-}
-
-/* Discreet non-interactive focus ring over real element bounds */
-.demo-guide-ring {
-  position: absolute;
-  pointer-events: none;
-  z-index: 8;
-  border-radius: 16px;
-  border: 2.5px solid #7c3aed;
-  box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.14);
-  opacity: 0;
-  transition: top 380ms var(--ease-out-expo), left 380ms var(--ease-out-expo), width 380ms var(--ease-out-expo), height 380ms var(--ease-out-expo), opacity 260ms ease;
-}
-
-.demo-guide-ring.is-visible {
-  opacity: 1;
-}
-
-.demo-guide-tag {
-  position: absolute;
-  top: -28px;
-  left: 0;
-  background: #7c3aed;
-  color: #ffffff;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 8px;
-  white-space: nowrap;
-}
-
-.demo-overlay-state {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  text-align: center;
-  padding: 32px;
-}
-
-.demo-overlay-state[hidden] {
-  display: none !important;
-}
-
-/* ==========================================================================
    Reduced Motion & Print Support
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -1413,7 +943,7 @@ body.index-open .mesh-blob {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     animation-delay: 0s !important;
-    transition-duration: 0.01ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
   .reveal .slides > section .rv,
@@ -1440,7 +970,7 @@ body.index-open .mesh-blob {
     height: auto !important;
     background: #ffffff !important;
   }
-  .deck-header, .deck-footer, .overview, .mesh, .cover-hint, .demo-guide-ring {
+  .deck-header, .deck-footer, .overview, .deck-backdrop, .cover-hint {
     display: none !important;
   }
   .reveal {
@@ -1465,7 +995,7 @@ body.index-open .mesh-blob {
     padding: 24px !important;
     break-after: page;
   }
-  .slide-body, .demo-slide-body {
+  .slide-body {
     position: static !important;
     inset: auto !important;
   }
@@ -1474,14 +1004,6 @@ body.index-open .mesh-blob {
   .reveal .fragment {
     opacity: 1 !important;
     visibility: visible !important;
-    transform: none !important;
-  }
-  .demo-stage {
-    display: none !important;
-  }
-  .demo-intro {
-    position: static !important;
-    opacity: 1 !important;
     transform: none !important;
   }
 }
