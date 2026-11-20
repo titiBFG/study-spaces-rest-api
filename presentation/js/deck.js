@@ -494,7 +494,282 @@
     `).join("");
   }
 
-  /* ==================== SLIDE 11: 4 STI HIERARCHIES ==================== */
+  /* ==================== SLIDE 11: INTERACTIVE VECTOR UML VIEWER ==================== */
+  function initUmlViewer() {
+    const viewport = document.getElementById("uml-viewport");
+    const canvas = document.getElementById("uml-canvas");
+    const zoomLabel = document.getElementById("uml-zoom-label");
+    const btnIn = document.getElementById("uml-zoom-in");
+    const btnOut = document.getElementById("uml-zoom-out");
+    const btnReset = document.getElementById("uml-zoom-reset");
+    const presetBtns = Array.from(document.querySelectorAll("[data-uml-preset]"));
+    if (!viewport || !canvas) return;
+
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 6;
+    const BASE_X = 4;
+    const BASE_Y = 3.375;
+    const BASE_W = 5170.57666015625;
+    const BASE_H = 2838;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const PRESETS = {
+      fit:           { scale: 1.0,  nx: 0.50, ny: 0.50 },
+      users:         { scale: 2.4,  nx: 0.24, ny: 0.20 },
+      space:         { scale: 2.15, nx: 0.39, ny: 0.54 },
+      reports:       { scale: 2.2,  nx: 0.71, ny: 0.44 },
+      notifications: { scale: 2.25, nx: 0.90, ny: 0.68 }
+    };
+
+    let svgEl = null;
+    let scale = 1;
+    let vx = BASE_X;
+    let vy = BASE_Y;
+    let activePreset = "fit";
+    let animFrame = 0;
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let originVx = BASE_X;
+    let originVy = BASE_Y;
+    let dragUnitsPerPxX = 1;
+    let dragUnitsPerPxY = 1;
+
+    function clampView(x, y, s) {
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, s));
+      const vw = BASE_W / clampedScale;
+      const vh = BASE_H / clampedScale;
+      if (clampedScale <= 1.005) {
+        return { x: BASE_X, y: BASE_Y, s: 1 };
+      }
+      const minX = BASE_X - BASE_W * 0.15;
+      const maxX = BASE_X + BASE_W * 1.15 - vw;
+      const minY = BASE_Y - BASE_H * 0.15;
+      const maxY = BASE_Y + BASE_H * 1.15 - vh;
+      return {
+        x: Math.max(minX, Math.min(maxX, x)),
+        y: Math.max(minY, Math.min(maxY, y)),
+        s: clampedScale
+      };
+    }
+
+    function setActivePreset(key) {
+      activePreset = key;
+      presetBtns.forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.umlPreset === key);
+      });
+    }
+
+    function applyView() {
+      const c = clampView(vx, vy, scale);
+      vx = c.x;
+      vy = c.y;
+      scale = c.s;
+      const vw = BASE_W / scale;
+      const vh = BASE_H / scale;
+      if (svgEl) {
+        svgEl.setAttribute("viewBox", `${vx.toFixed(2)} ${vy.toFixed(2)} ${vw.toFixed(2)} ${vh.toFixed(2)}`);
+      }
+      if (zoomLabel) zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+      if (btnOut) btnOut.disabled = scale <= MIN_SCALE + 0.01;
+      if (btnIn) btnIn.disabled = scale >= MAX_SCALE - 0.01;
+    }
+
+    function cancelAnimation() {
+      if (animFrame) {
+        cancelAnimationFrame(animFrame);
+        animFrame = 0;
+      }
+    }
+
+    function animateToView(targetX, targetY, targetScale) {
+      cancelAnimation();
+      const target = clampView(targetX, targetY, targetScale);
+      if (reducedMotion.matches || !svgEl) {
+        vx = target.x;
+        vy = target.y;
+        scale = target.s;
+        applyView();
+        return;
+      }
+      const startVx = vx;
+      const startVy = vy;
+      const startVw = BASE_W / scale;
+      const startVh = BASE_H / scale;
+      const endVw = BASE_W / target.s;
+      const endVh = BASE_H / target.s;
+      const t0 = performance.now();
+      const duration = 320;
+
+      function step(now) {
+        const p = Math.min(1, (now - t0) / duration);
+        const ease = 1 - Math.pow(1 - p, 3);
+        const curVw = startVw + (endVw - startVw) * ease;
+        const curVh = startVh + (endVh - startVh) * ease;
+        scale = BASE_W / curVw;
+        vx = startVx + (target.x - startVx) * ease;
+        vy = startVy + (target.y - startVy) * ease;
+        if (svgEl) {
+          svgEl.setAttribute("viewBox", `${vx.toFixed(2)} ${vy.toFixed(2)} ${curVw.toFixed(2)} ${curVh.toFixed(2)}`);
+        }
+        if (zoomLabel) zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+        if (p < 1) {
+          animFrame = requestAnimationFrame(step);
+        } else {
+          animFrame = 0;
+          vx = target.x;
+          vy = target.y;
+          scale = target.s;
+          applyView();
+        }
+      }
+      animFrame = requestAnimationFrame(step);
+    }
+
+    function applyPreset(key, immediate = false) {
+      const p = PRESETS[key] || PRESETS.fit;
+      const vw = BASE_W / p.scale;
+      const vh = BASE_H / p.scale;
+      const targetX = BASE_X + BASE_W * p.nx - vw / 2;
+      const targetY = BASE_Y + BASE_H * p.ny - vh / 2;
+      setActivePreset(key);
+      if (immediate) {
+        cancelAnimation();
+        vx = targetX;
+        vy = targetY;
+        scale = p.scale;
+        applyView();
+      } else {
+        animateToView(targetX, targetY, p.scale);
+      }
+    }
+
+    function getAnchorSvgPoint(clientX, clientY) {
+      if (!svgEl || clientX === undefined || clientY === undefined) {
+        const vw = BASE_W / scale;
+        const vh = BASE_H / scale;
+        return { x: vx + vw / 2, y: vy + vh / 2 };
+      }
+      const ctm = svgEl.getScreenCTM();
+      if (!ctm) {
+        const vw = BASE_W / scale;
+        const vh = BASE_H / scale;
+        return { x: vx + vw / 2, y: vy + vh / 2 };
+      }
+      const pt = svgEl.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const svgPt = pt.matrixTransform(ctm.inverse());
+      return { x: svgPt.x, y: svgPt.y };
+    }
+
+    function zoomAt(nextScale, clientX, clientY, animate = false) {
+      const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, nextScale));
+      if (Math.abs(clamped - scale) < 0.001) return;
+      const oldVw = BASE_W / scale;
+      const oldVh = BASE_H / scale;
+      const newVw = BASE_W / clamped;
+      const newVh = BASE_H / clamped;
+      const anchor = getAnchorSvgPoint(clientX, clientY);
+      const nextX = anchor.x - (anchor.x - vx) * (newVw / oldVw);
+      const nextY = anchor.y - (anchor.y - vy) * (newVh / oldVh);
+      setActivePreset(clamped <= 1.02 ? "fit" : "");
+      if (animate) {
+        animateToView(nextX, nextY, clamped);
+      } else {
+        cancelAnimation();
+        vx = nextX;
+        vy = nextY;
+        scale = clamped;
+        applyView();
+      }
+    }
+
+    viewport.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const factor = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+      zoomAt(scale * factor, e.clientX, e.clientY, false);
+    }, { passive: false });
+
+    viewport.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      if (scale > 2.8) {
+        applyPreset("fit");
+      } else {
+        zoomAt(Math.max(2.2, scale * 1.8), e.clientX, e.clientY, true);
+      }
+    });
+
+    viewport.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || !svgEl) return;
+      e.stopPropagation();
+      cancelAnimation();
+      dragging = true;
+      const ctm = svgEl.getScreenCTM();
+      dragUnitsPerPxX = ctm && ctm.a ? 1 / ctm.a : (BASE_W / scale) / (viewport.clientWidth || 1380);
+      dragUnitsPerPxY = ctm && ctm.d ? 1 / ctm.d : (BASE_H / scale) / (viewport.clientHeight || 580);
+      startX = e.clientX;
+      startY = e.clientY;
+      originVx = vx;
+      originVy = vy;
+      viewport.classList.add("is-dragging");
+      viewport.setPointerCapture?.(e.pointerId);
+    });
+
+    viewport.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      vx = originVx - (e.clientX - startX) * dragUnitsPerPxX;
+      vy = originVy - (e.clientY - startY) * dragUnitsPerPxY;
+      setActivePreset(scale <= 1.02 ? "fit" : activePreset === "fit" ? "" : activePreset);
+      applyView();
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      viewport.classList.remove("is-dragging");
+      if (e.pointerId !== undefined) {
+        viewport.releasePointerCapture?.(e.pointerId);
+      }
+    };
+    viewport.addEventListener("pointerup", endDrag);
+    viewport.addEventListener("pointercancel", endDrag);
+
+    if (btnIn) btnIn.addEventListener("click", () => zoomAt(scale * 1.4, undefined, undefined, true));
+    if (btnOut) btnOut.addEventListener("click", () => zoomAt(scale / 1.4, undefined, undefined, true));
+    if (btnReset) btnReset.addEventListener("click", () => applyPreset("fit"));
+    presetBtns.forEach((btn) => {
+      btn.addEventListener("click", () => applyPreset(btn.dataset.umlPreset));
+    });
+
+    fetch("assets/uml.svg", { cache: "no-store" })
+      .then((resp) => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.text();
+      })
+      .then((svgText) => {
+        const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+        const parsed = doc.documentElement;
+        if (!parsed || parsed.nodeName.toLowerCase() !== "svg") return;
+        const imported = document.importNode(parsed, true);
+        imported.removeAttribute("style");
+        imported.setAttribute("width", "100%");
+        imported.setAttribute("height", "100%");
+        imported.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svgEl = imported;
+        canvas.replaceChildren(svgEl);
+        applyView();
+      })
+      .catch(() => {
+        /* Mantiene fallback <img> si el navegador bloquea fetch en file:// */
+      });
+
+    applyPreset("fit", true);
+  }
+
+  /* ==================== SLIDE 12: 4 STI HIERARCHIES ==================== */
   function initDomainStiGrid() {
     const host = document.getElementById("domain-sti-grid");
     if (!host) return;
@@ -634,7 +909,7 @@
       {
         name: "ReviewReport",
         typeVal: 'type = "review"',
-        loc: "app/models/report.py:141",
+        loc: "app/models/report.py:147",
         color: "#ff8904",
         deep: "#ea580c",
         action: "_apply_resolution() invoca self.review.hide() → review.is_visible = False. La reseña deja de listarse y se excluye del promedio del espacio."
@@ -642,7 +917,7 @@
       {
         name: "PostReport",
         typeVal: 'type = "post"',
-        loc: "app/models/report.py:157",
+        loc: "app/models/report.py:173",
         color: "#e12afb",
         deep: "#c026d3",
         action: "_apply_resolution() invoca self.post.hide() → post.is_active = False. La novedad comercial se retira de los listados públicos."
@@ -650,7 +925,7 @@
       {
         name: "StudySpaceReport",
         typeVal: 'type = "study_space"',
-        loc: "app/models/report.py:162",
+        loc: "app/models/report.py:199",
         color: "#7c3aed",
         deep: "#6d28d9",
         action: "Hereda el cierre completo resolve() / dismiss() con hook base no destructivo para que administración revise y corrija datos del espacio."
@@ -658,7 +933,7 @@
       {
         name: "UserReport",
         typeVal: 'type = "user"',
-        loc: "app/models/report.py:189",
+        loc: "app/models/report.py:215",
         color: "#2dd4bf",
         deep: "#0d9488",
         action: "_apply_resolution() marca self.reported_user.is_active = False. El guard de get_current_user rechaza futuros logins y tokens JWT."
@@ -910,7 +1185,7 @@
       const items = [
         { title: "GitHub Actions CI", sub: ".github/workflows/tests.yml", color: "#ff8904", deep: "#ea580c", icon: "git", lines: ["Se ejecuta automáticamente en cada push y Pull Request.", "Instala dependencias y corre pytest -v sobre los 201 tests."] },
         { title: "Docker Auto-Inicializable", sub: "Dockerfile & docker-compose.yml", color: "#74d4ff", deep: "#0284c7", icon: "cpu", lines: ["Imagen Python 3.12-slim que ejecuta alembic upgrade head al iniciar.", "Corre crear_admin.py --auto y levanta Uvicorn en el puerto 8000."] },
-        { title: "PostgreSQL · Neon & SQLite", sub: "app/database/session.py", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["Normaliza automáticamente postgres:// a postgresql+psycopg://.", "Base productiva en Neon (PostgreSQL) y SQLite aislado en desarrollo/tests."] },
+        { title: "PostgreSQL · Neon & SQLite", sub: "app/database/session.py", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["Configura check_same_thread: False automáticamente cuando database_url usa SQLite.", "Base productiva en Neon (PostgreSQL) y SQLite aislado en desarrollo/tests."] },
         { title: "Deploy en Render + Web", sub: "study-spaces-rest-api.onrender.com", color: "#2dd4bf", deep: "#0d9488", icon: "globe", lines: ["API productiva conectada a PostgreSQL en Neon con 8 routers.", "Integrada con las 10 pantallas del cliente web en frontend/."] }
       ];
       deployHost.innerHTML = items.map((item, idx) => `
@@ -1216,6 +1491,7 @@
     initArchLayers();
     initStackGrid();
     initRequestLifecycleCards();
+    initUmlViewer();
     initDomainStiGrid();
     initDomainRatingCards();
     initTemplateSubclassesGrid();
