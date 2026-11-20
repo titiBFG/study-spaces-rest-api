@@ -77,7 +77,7 @@
             </div>
             <div class="cover-meta-item rv" style="--i:6">
               <p class="label" style="font-size:11px;">Producción &amp; QA</p>
-              <p>163 tests Pytest · 6 migraciones Alembic · study-spaces-rest-api.onrender.com</p>
+              <p>201 tests Pytest · 8 migraciones Alembic · study-spaces-rest-api.onrender.com</p>
             </div>
           </div>
           <div class="cover-hint rv" style="--i:7">
@@ -324,23 +324,23 @@ Payload: {"rating": 5, "comment": "Excelente WiFi y silencio", "images": []}
         <aside class="notes">Explicar cómo reforzamos el diseño de clases base abstractas junto con Single-Table Inheritance.</aside>
       </section>
 
-      <!-- 11 · 3 JERARQUÍAS STI -->
-      <section id="domain-inheritance" data-chapter="domain" data-title="3 Jerarquías STI" data-bg="clean">
+      <!-- 11 · 4 JERARQUÍAS STI -->
+      <section id="domain-inheritance" data-chapter="domain" data-title="4 Jerarquías STI" data-bg="clean">
         <div class="slide-body">
           <div class="flex-between">
             <div>
               <p class="label rv" style="--i:0">03 — Single-Table Inheritance en SQLAlchemy</p>
               <h2 class="display slide-h2">
-                3 Jerarquías en el Modelo de Datos<span class="dot" style="--c:#e12afb"></span>
+                4 Jerarquías en el Modelo de Datos<span class="dot" style="--c:#e12afb"></span>
               </h2>
             </div>
             <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
               Al hidratar filas desde la base, SQLAlchemy instancia automáticamente la subclase concreta según su columna discriminadora.
             </p>
           </div>
-          <div class="grid-3 gap-5 flex-1" style="margin-top:28px;" id="domain-sti-grid"></div>
+          <div class="grid-2 grid-rows-2 gap-4 flex-1" style="margin-top:24px;" id="domain-sti-grid"></div>
         </div>
-        <aside class="notes">Presentar en paralelo las tres jerarquías STI reales: User (role), StudySpacesList (list_type) y Report (type).</aside>
+        <aside class="notes">Presentar en paralelo las cuatro jerarquías STI reales: User (role), StudySpacesList (list_type), Report (type) y Notification (channel).</aside>
       </section>
 
       <!-- 12 · ENCAPSULAMIENTO & CÁLCULO DINÁMICO -->
@@ -433,23 +433,23 @@ class Review(Base):
         <aside class="notes">Mostrar el código real de Report.resolve() y las cuatro implementaciones concretas de _apply_resolution().</aside>
       </section>
 
-      <!-- 14 · PATRONES IMPLEMENTADOS VS UML -->
-      <section id="patterns-overview" data-chapter="patterns" data-title="Repository & UML" data-bg="clean">
+      <!-- 14 · PATRONES IMPLEMENTADOS Y EXTENSIBILIDAD -->
+      <section id="patterns-overview" data-chapter="patterns" data-title="Patrones & Observer" data-bg="clean">
         <div class="slide-body">
           <div class="flex-between">
             <div>
-              <p class="label rv" style="--i:0">04 — Implementados vs. Proyectados en UML</p>
+              <p class="label rv" style="--i:0">04 — Implementados en el código de producción</p>
               <h2 class="display slide-h2">
                 Patrones de Diseño en Study Spaces<span class="dot" style="--c:#2dd4bf"></span>
               </h2>
             </div>
-            <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
-              Diferenciación clara entre los patrones activos en el código del MVP y las extensiones proyectadas en el diagrama UML.
+            <p class="rv" style="--i:2;max-width:440px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Repository, Service Layer, Observer y NotificationService polimórfico activos en la API y cubiertos con 201 tests.
             </p>
           </div>
           <div class="grid-2 grid-rows-2 gap-6 flex-1" style="margin-top:28px;" id="patterns-cards-grid"></div>
         </div>
-        <aside class="notes">Diferenciar con honestidad técnica los patrones que corren en producción (Repository, Service Layer, Template Method) y los modelados en UML (Observer, Factory Method).</aside>
+        <aside class="notes">Destacar que Observer (StudySpace.observers + notify_observers) y NotificationService (Template Method + canal polimórfico InAppNotification) ya están implementados y testeados en producción.</aside>
       </section>
 
       <!-- 15 · SEGURIDAD: BCRYPT, JWT Y RBAC POLIMÓRFICO -->
@@ -503,12 +503,12 @@ require_admin    = _require(AdminUser,    "Solo para administradores")</pre>
         <aside class="notes">Resaltar la elegancia del factory _require(user_class) aprovechando las subclases polimórficas de SQLAlchemy.</aside>
       </section>
 
-      <!-- 16 · CATÁLOGO DE LOS 7 ROUTERS -->
+      <!-- 16 · CATÁLOGO DE LOS 8 ROUTERS -->
       <section id="api-endpoints" data-chapter="api" data-title="Endpoints REST" data-bg="clean">
         <div class="slide-body">
           <div class="flex-between">
             <div>
-              <p class="label rv" style="--i:0">05 — 7 Routers registrados en app/main.py</p>
+              <p class="label rv" style="--i:0">05 — 8 Routers registrados en app/main.py</p>
               <h2 class="display slide-h2">
                 Endpoints de la API REST<span class="dot" style="--c:#74d4ff"></span>
               </h2>
@@ -517,48 +517,48 @@ require_admin    = _require(AdminUser,    "Solo para administradores")</pre>
               OpenAPI / Swagger → /docs y /redoc
             </span>
           </div>
-          <div class="grid-3 grid-rows-2 gap-4 flex-1" style="margin-top:26px;" id="routers-cards-grid"></div>
+          <div class="grid-4 grid-rows-2 gap-4 flex-1" style="margin-top:26px;" id="routers-cards-grid"></div>
         </div>
-        <aside class="notes">Vista panorámica de los 7 routers reales registrados en app/main.py y el endpoint /health.</aside>
+        <aside class="notes">Vista panorámica de los 8 routers reales registrados en app/main.py (incluyendo /notifications) y el endpoint /health.</aside>
       </section>
 
-      <!-- 17 · 163 TESTS AUTOMATIZADOS -->
-      <section id="qa-pytest" data-chapter="quality" data-title="163 Tests Pytest" data-bg="clean">
+      <!-- 17 · 201 TESTS AUTOMATIZADOS -->
+      <section id="qa-pytest" data-chapter="quality" data-title="201 Tests Pytest" data-bg="clean">
         <div class="slide-body">
           <div class="split-left-narrow" style="align-items:center;">
             <div class="flex-col">
               <p class="label rv" style="--i:0">06 — Calidad verificada con Pytest</p>
               <h2 class="display slide-h2">
-                163 Tests Automatizados<span class="dot" style="--c:#facc15"></span>
+                201 Tests Automatizados<span class="dot" style="--c:#facc15"></span>
               </h2>
               <p class="slide-lead rv" style="--i:2">
-                Superamos ampliamente el mínimo de 10 pruebas requerido por la cátedra: cada endpoint, regla de negocio y jerarquía polimórfica se testea con <strong>SQLite aislado por test</strong> en <code>tests/conftest.py</code>.
+                Superamos ampliamente el mínimo de 10 pruebas requerido por la cátedra: cada endpoint, regla de negocio, notificación Observer y jerarquía polimórfica se testea con <strong>SQLite aislado por test</strong> en <code>tests/conftest.py</code>.
               </p>
               <div class="grid-2 gap-4 rv" style="--i:3;margin-top:30px;">
                 <div class="card" style="padding:20px;">
                   <span class="wash" style="--c:#2dd4bf;--wash-h:55%"></span>
                   <p class="mono" style="font-size:11px;text-transform:uppercase;color:rgba(11,11,18,0.5);">Suite Pytest</p>
-                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">163</p>
+                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">201</p>
                   <p style="margin-top:4px !important;font-size:13px;color:rgba(11,11,18,0.66);">Verificados con pytest</p>
                 </div>
                 <div class="card" style="padding:20px;">
                   <span class="wash" style="--c:#7c3aed;--wash-h:55%"></span>
                   <p class="mono" style="font-size:11px;text-transform:uppercase;color:rgba(11,11,18,0.5);">Alembic</p>
-                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">6</p>
+                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">8</p>
                   <p style="margin-top:4px !important;font-size:13px;color:rgba(11,11,18,0.66);">Migraciones versionadas</p>
                 </div>
               </div>
             </div>
-            <div class="card flex-col gap-4 rv" style="--i:2;padding:32px;">
+            <div class="card flex-col gap-4 rv" style="--i:2;padding:28px 32px;">
               <div style="display:flex;align-items:baseline;justify-content:space-between;">
                 <p class="label" style="font-size:10.5px;">Distribución real de la suite (tests/)</p>
-                <span class="mono" style="font-size:12.5px;font-weight:600;color:#0d9488;">163 collected &amp; passing</span>
+                <span class="mono" style="font-size:12.5px;font-weight:600;color:#0d9488;">201 collected &amp; passing</span>
               </div>
-              <div id="qa-bars-list" style="margin-top:6px;display:flex;flex-direction:column;gap:14px;"></div>
+              <div id="qa-bars-list" style="margin-top:4px;display:flex;flex-direction:column;gap:11px;"></div>
             </div>
           </div>
         </div>
-        <aside class="notes">Mostrar la cobertura real distribuida en test_reports, test_models, test_reviews, test_lists, test_posts, test_auth, test_study_spaces y test_health.</aside>
+        <aside class="notes">Mostrar la cobertura real distribuida en test_reports, test_lists, test_notifications, test_reviews, test_posts, test_auth, test_study_spaces, test_models y test_health.</aside>
       </section>
 
       <!-- 18 · DOCKER, CI/CD Y DEPLOY EN RENDER -->

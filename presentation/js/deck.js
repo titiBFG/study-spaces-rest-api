@@ -52,12 +52,12 @@
     const host = document.getElementById("agenda-fan");
     if (!host) return;
     const items = [
-      { id: "mvp", title: "MVP RQ1–RQ6", text: "Problema, 3 roles, 6 requerimientos y frontend/." },
-      { id: "architecture", title: "Arquitectura", text: "Stack, 4 capas y ciclo de una request." },
-      { id: "domain", title: "Dominio & POO", text: "Single-Table Inheritance y polimorfismo." },
-      { id: "patterns", title: "Patrones", text: "Repository, Service, Template Method y UML." },
-      { id: "api", title: "JWT & API REST", text: "Seguridad Bcrypt/JWT y los 7 routers." },
-      { id: "quality", title: "QA & Cloud", text: "163 tests Pytest, Docker, CI/CD y Render." },
+      { id: "mvp", title: "MVP RQ1–RQ6", text: "Problema, 3 roles, estados y cliente web." },
+      { id: "architecture", title: "Arquitectura", text: "Stack (Neon, FastAPI), 4 capas y request." },
+      { id: "domain", title: "Dominio & POO", text: "4 jerarquías STI y polimorfismo real." },
+      { id: "patterns", title: "Patrones", text: "Repository, Service, Template Method y Observer." },
+      { id: "api", title: "JWT & API REST", text: "Seguridad Bcrypt/JWT y los 8 routers." },
+      { id: "quality", title: "QA & Cloud", text: "201 tests Pytest, 8 migraciones y Render." },
       { id: "takeaways", title: "Demo & Cierre", text: "Guion de demo aparte, conclusiones y cierre." }
     ];
     const center = (items.length - 1) / 2;
@@ -120,13 +120,13 @@
         text: "Permite guardar espacios favoritos (FavoritesList) y organizar múltiples colecciones temáticas (StudySpacesList) en una sola tabla STI."
       },
       {
-        num: "04 · GOBERNANZA",
-        title: "Negocios y Moderación",
+        num: "04 · GOBERNANZA Y ALERTAS",
+        title: "Moderación y Notificaciones",
         icon: "shield",
         color: "#2dd4bf",
         icColor: "#0d9488",
-        endpoint: "PUT /reports/{id}/resolve",
-        text: "Los negocios cargan espacios y novedades (/posts); administradores aprueban altas pendientes y resuelven reportes polimórficos."
+        endpoint: "PUT /reports/{id}/resolve · /notifications",
+        text: "Admins aprueban o rechazan espacios y resuelven reportes; Observer y NotificationService avisan en tiempo real en /notifications."
       }
     ];
 
@@ -162,8 +162,8 @@
         color: "#7c3aed",
         deep: "#6d28d9",
         points: [
-          "Busca espacios aprobados con filtros combinables en /spaces/.",
-          "Publica reseñas (1–5 ★ + fotos), vota utilidad, arma /lists, /favorites y reporta contenido."
+          "Busca espacios aprobados, publica reseñas (1–5 ★ + fotos), vota utilidad y arma /lists y /favorites.",
+          "Recibe notificaciones in-app por novedades de favoritos (Observer), votos y reportes."
         ]
       },
       {
@@ -173,8 +173,8 @@
         color: "#ff8904",
         deep: "#ea580c",
         points: [
-          "Registra cuenta comercial y da de alta/edita sus espacios (inician con is_approved=False).",
-          "Consulta estado de aprobación en /spaces/mine y publica novedades en /posts/space/{id}."
+          "Ve en /spaces/mine si cada local está Aprobado, Pendiente o Rechazado; si edita uno rechazado, vuelve a Pendiente.",
+          "Publica novedades en /posts/space/{id} y recibe notificaciones de aprobación, rechazo y reseñas."
         ]
       },
       {
@@ -184,8 +184,8 @@
         color: "#2dd4bf",
         deep: "#0d9488",
         points: [
-          "Se crea de forma idempotente en arranque Docker mediante crear_admin.py --auto.",
-          "Aprueba espacios en /spaces/pending y resuelve o descarta reportes (/reports/{id}/resolve)."
+          "Recibe alertas de nuevos locales o espacios re-enviados a revisión en /spaces/pending.",
+          "Aprueba (/approve) o rechaza (/reject) espacios y resuelve o descarta reportes (/reports/{id}/resolve)."
         ]
       }
     ];
@@ -213,11 +213,11 @@
     if (!host) return;
     const reqs = [
       { code: "RQ1", title: "Usuarios, Roles y JWT", icon: "shield", lines: ["Registro diferenciado Estudiante / Negocio y hashing con Bcrypt.", "Tokens Bearer JWT (HS256) y RBAC polimórfico por subclase."], endpoint: "POST /users/login · GET /users/me" },
-      { code: "RQ2", title: "Gestión de Espacios", icon: "layout", lines: ["Alta y edición de espacios por dueños de negocios.", "Flujo de moderación: quedan pendientes hasta aprobación admin."], endpoint: "POST /spaces/ · PATCH /spaces/{id}/approve" },
+      { code: "RQ2", title: "Gestión y Estados", icon: "layout", lines: ["Negocios ven Aprobado, Pendiente o Rechazado en /spaces/mine.", "Si editan un espacio rechazado, vuelve a Pendiente automáticamente."], endpoint: "PATCH /spaces/{id}/approve · /reject" },
       { code: "RQ3", title: "Búsqueda y Filtros", icon: "search", lines: ["Filtrado dinámico combinable por nombre, WiFi, enchufes y ruido.", "Solo expone al público espacios con is_approved = True."], endpoint: "GET /spaces/?has_wifi=true&noise_level=low" },
       { code: "RQ4", title: "Reseñas, Fotos y Votos", icon: "star", lines: ["Calificación 1 a 5, comentario y hasta 5 imágenes por reseña.", "Cálculo dinámico de average_rating y votos de utilidad."], endpoint: "POST /reviews/space/{id} · PUT /reviews/{id}/vote" },
-      { code: "RQ5", title: "Listas y Favoritos", icon: "heart", lines: ["Herencia StudySpacesList / FavoritesList en una misma tabla.", "Múltiples listas temáticas + acceso directo a favoritos."], endpoint: "GET/POST /lists · GET/POST/DELETE /favorites" },
-      { code: "RQ6+", title: "Moderación & Posts", icon: "flag", lines: ["Reportes polimórficos (Review, Post, Space, User) con Template Method.", "Módulo extra /posts para novedades de negocios en sus espacios."], endpoint: "POST /reports/* · PUT /reports/{id}/resolve" }
+      { code: "RQ5", title: "Listas y Favoritos", icon: "heart", lines: ["Herencia StudySpacesList / FavoritesList en una misma tabla.", "Favoritos suscribe al estudiante como Observer de novedades."], endpoint: "GET/POST /lists · GET/POST/DELETE /favorites" },
+      { code: "RQ6+", title: "Moderación, Posts & Alertas", icon: "flag", lines: ["Reportes polimórficos, módulo /posts y bandeja /notifications.", "Notificaciones in-app con preferencias configurables por evento."], endpoint: "PUT /reports/{id}/resolve · GET /notifications" }
     ];
     host.innerHTML = reqs.map((r, idx) => {
       const c = PALETTE[idx];
@@ -275,27 +275,27 @@
         ]
       },
       {
-        num: "03 · ACCIONES DEL ESTUDIANTE",
-        title: "Favoritos, Listas y Mis Reseñas",
-        files: "favoritos.html · mis-listas.html · mis-resenas.html",
+        num: "03 · ACCIONES Y NOTIFICACIONES",
+        title: "Favoritos, Listas y Alertas",
+        files: "favoritos.html · mis-listas.html · mis-resenas.html · js/notificaciones.js",
         color: "#e12afb",
         deep: "#c026d3",
         icon: "heart",
         bullets: [
-          "Guardado y quita directa en FavoritesList (/favorites) más creación y edición de listas temáticas (/lists).",
+          "Guardado en FavoritesList (/favorites), listas temáticas (/lists) y bandeja in-app conectada a /notifications.",
           "Gestión de reseñas propias e ingreso de reportes contra reseñas, posts, espacios o usuarios."
         ]
       },
       {
         num: "04 · GESTIÓN NEGOCIO & ADMIN",
-        title: "Portal Comercial y Moderación",
+        title: "Estados, Rechazo y Moderación",
         files: "mis-espacios.html · admin.html · js/mis-espacios.js · js/admin.js",
         color: "#2dd4bf",
         deep: "#0d9488",
         icon: "shield",
         bullets: [
-          "Los negocios crean/editan locales en /spaces/, revisan aprobaciones en /spaces/mine y publican avisos en /posts.",
-          "El panel admin.html aprueba espacios pendientes (PATCH /spaces/{id}/approve) y resuelve reportes en /reports."
+          "Los negocios ven Aprobado, Pendiente o ✕ Rechazado en /spaces/mine; al editar uno rechazado, vuelve a Pendiente.",
+          "admin.html aprueba (/approve) o rechaza (/reject) espacios pendientes y resuelve reportes en /reports."
         ]
       }
     ];
@@ -327,10 +327,10 @@
     const isoHost = document.getElementById("arch-iso-host");
     if (!isoHost) return;
     const layers = [
-      { name: "1. Routers (Controladores)", color: "#ff8904", lines: ["Definen los endpoints HTTP en app/routers/.", "Validan entrada/salida con schemas Pydantic v2.", "Inyectan sesión DB y dependencias de rol (require_student, require_business, require_admin)."], example: ["users.py", "study_spaces.py", "reviews.py", "study_spaces_lists.py", "posts.py", "reports.py"] },
-      { name: "2. Services (Lógica de Negocio)", color: "#e12afb", lines: ["Concentran las reglas de negocio en app/services/.", "Verifican propiedad de recursos, unicidad y reglas cruzadas.", "Orquestan llamadas a repositorios y métodos del modelo."], example: ["auth_service.py", "user_service.py", "study_space_service.py", "review_service.py", "report_service.py"] },
-      { name: "3. Repositories (Acceso a Datos)", color: "#7c3aed", lines: ["Encapsulan consultas SQLAlchemy 2.0 en app/repositories/.", "Desacoplan la lógica de negocio del motor de persistencia.", "Facilitan el testing unitario y de integración."], example: ["user_repository.py", "study_space_repository.py", "review_repository.py", "post_repository.py", "report_repository.py"] },
-      { name: "4. Models & Database (ORM)", color: "#2dd4bf", lines: ["Entidades de dominio con herencia polimórfica en app/models/.", "6 migraciones versionadas con Alembic.", "Soporte transparente PostgreSQL (Render) y SQLite (dev/tests)."], example: ["User", "StudySpace", "Review", "ReviewVote", "StudySpacesList", "Post", "Report"] }
+      { name: "1. Routers (Controladores)", color: "#ff8904", lines: ["Definen los endpoints HTTP en app/routers/.", "Validan entrada/salida con schemas Pydantic v2.", "Inyectan sesión DB y dependencias de rol (Student, Business, Admin)."], example: ["users.py", "study_spaces.py", "reviews.py", "study_spaces_lists.py", "posts.py", "reports.py", "notifications.py"] },
+      { name: "2. Services (Lógica de Negocio)", color: "#e12afb", lines: ["Concentran las reglas de negocio en app/services/.", "Verifican propiedad, unicidad, ciclo de rechazo/pendiente y notificaciones.", "Orquestan repositorios, Observer y NotificationService."], example: ["auth_service.py", "study_space_service.py", "review_service.py", "report_service.py", "notification_service.py"] },
+      { name: "3. Repositories (Acceso a Datos)", color: "#7c3aed", lines: ["Encapsulan consultas SQLAlchemy 2.0 en app/repositories/.", "Desacoplan la lógica de negocio del motor de persistencia.", "Facilitan el testing unitario y de integración."], example: ["user_repository.py", "study_space_repository.py", "review_repository.py", "report_repository.py", "notification_repository.py"] },
+      { name: "4. Models & Database (ORM)", color: "#2dd4bf", lines: ["Entidades de dominio con 4 jerarquías STI en app/models/.", "8 migraciones versionadas con Alembic.", "Soporte transparente PostgreSQL / Neon (prod) y SQLite (tests)."], example: ["User", "StudySpace", "Review", "StudySpacesList", "Post", "Report", "Notification"] }
     ];
 
     let active = 0;
@@ -407,10 +407,10 @@
     const host = document.getElementById("arch-stack-grid");
     if (!host) return;
     const stack = [
-      { title: "FastAPI + Python 3.12+", tag: "Backend HTTP & OpenAPI", color: "#ff8904", deep: "#ea580c", icon: "zap", lines: ["API RESTful modular con tipado estricto y Swagger automático en /docs.", "CORS configurado y endpoint /health de monitoreo."] },
-      { title: "Pydantic v2", tag: "Schemas & Settings", color: "#e12afb", deep: "#c026d3", icon: "shield", lines: ["Validación declarativa de payloads (ReviewCreate, StudySpaceCreate, etc.).", "Configuración centralizada con pydantic-settings (.env)."] },
-      { title: "SQLAlchemy 2.0 + Alembic", tag: "ORM Polimórfico & Migraciones", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["Mapeo declarativo Mapped[] con Single-Table Inheritance.", "6 migraciones Alembic compatibles con PostgreSQL y SQLite."] },
-      { title: "PyJWT + Bcrypt + Pytest", tag: "Seguridad & 163 Tests", color: "#2dd4bf", deep: "#0d9488", icon: "lock", lines: ["Tokens Bearer JWT firmados (HS256, 8h) y hashes Bcrypt.", "163 tests automatizados con TestClient y SQLite aislado."] }
+      { title: "Python · FastAPI · Pydantic", tag: "Backend y API", color: "#ff8904", deep: "#ea580c", icon: "zap", lines: ["Python 3.12+ y FastAPI modular con tipado estricto y Swagger en /docs.", "Pydantic v2 para validación de payloads y configuración (.env)."] },
+      { title: "PostgreSQL · Neon · SQLAlchemy · Alembic", tag: "Base de datos", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["PostgreSQL serverless en Neon gestionado en producción + SQLite en tests.", "SQLAlchemy 2.0 (4 jerarquías STI) y 8 migraciones versionadas con Alembic."] },
+      { title: "JWT · Bcrypt · Pytest", tag: "Seguridad y pruebas", color: "#2dd4bf", deep: "#0d9488", icon: "lock", lines: ["Tokens Bearer JWT (HS256, 8h), hashing Bcrypt y RBAC polimórfico.", "201 tests automatizados en Pytest con TestClient y SQLite aislado."] },
+      { title: "Docker · Render · GitHub Actions", tag: "Despliegue y CI/CD", color: "#e12afb", deep: "#c026d3", icon: "globe", lines: ["Contenedor Docker auto-inicializable (alembic upgrade head + admin).", "Deploy continuo en Render con pipeline CI en GitHub Actions."] }
     ];
     host.innerHTML = stack.map((item, idx) => `
       <article class="card lift flex-col rv" style="--i:${idx + 2};padding:28px;">
@@ -494,7 +494,7 @@
     `).join("");
   }
 
-  /* ==================== SLIDE 11: 3 STI HIERARCHIES ==================== */
+  /* ==================== SLIDE 11: 4 STI HIERARCHIES ==================== */
   function initDomainStiGrid() {
     const host = document.getElementById("domain-sti-grid");
     if (!host) return;
@@ -511,7 +511,7 @@
         subclasses: [
           ['role = "student"', "StudentUser — Reseñas, listas, votos y reportes."],
           ['role = "business"', "BusinessUser — Alta de espacios propios y /posts."],
-          ['role = "admin"', "AdminUser — Aprobación de espacios y moderación."]
+          ['role = "admin"', "AdminUser — Aprobación/rechazo y moderación."]
         ]
       },
       {
@@ -522,10 +522,10 @@
         file: "app/models/study_spaces_list.py",
         color: "#7c3aed",
         deep: "#6d28d9",
-        note: "Una tabla única relacionada con StudySpace vía list_spaces_association.",
+        note: "Tabla única relacionada con StudySpace vía list_items.",
         subclasses: [
           ['list_type = "custom"', "StudySpacesList — Múltiples colecciones temáticas del estudiante."],
-          ['list_type = "favorites"', "FavoritesList — Lista única por usuario expuesta en /favorites."]
+          ['list_type = "favorites"', "FavoritesList — Lista única que además suscribe al Observer."]
         ]
       },
       {
@@ -538,37 +538,49 @@
         deep: "#ea580c",
         note: "Clase base abstracta (TypeError) + Template Method resolve() y dismiss().",
         subclasses: [
-          ['type = "review"', "ReviewReport — Oculta reseña reportada."],
-          ['type = "post"', "PostReport — Oculta publicación reportada."],
-          ['type = "study_space"', "StudySpaceReport — Seguimiento manual de datos."],
-          ['type = "user"', "UserReport — Desactiva cuenta reportada."]
+          ['type = "review" / "post"', "ReviewReport / PostReport — Oculta reseña o novedad."],
+          ['type = "study_space" / "user"', "StudySpaceReport / UserReport — Seguimiento o bloqueo."]
+        ]
+      },
+      {
+        num: "JERARQUÍA 04",
+        base: "Notification",
+        table: "notifications",
+        discriminator: "channel",
+        file: "app/models/notification.py",
+        color: "#2dd4bf",
+        deep: "#0d9488",
+        note: "Clase base abstracta (TypeError): cada canal define su método send().",
+        subclasses: [
+          ['channel = "in_app"', "InAppNotification — Entrega a bandeja /notifications con read_at e is_read."],
+          ["Extensible por canal", "NOTIFICATION_CLASSES permite sumar email/push sin cambiar servicios."]
         ]
       }
     ];
 
     host.innerHTML = hierarchies.map((h, idx) => `
-      <article class="card lift flex-col rv" style="--i:${idx + 2};padding:26px;justify-content:space-between;">
-        <span class="wash" style="--c:${h.color};--wash-h:48%"></span>
+      <article class="card lift flex-col rv" style="--i:${idx + 2};padding:18px 22px;justify-content:space-between;">
+        <span class="wash" style="--c:${h.color};--wash-h:44%"></span>
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <span class="num-badge">${escapeHtml(h.num)}</span>
-            <span class="mono" style="border-radius:999px;background:rgba(255,255,255,0.9);padding:3px 10px;font-size:11px;font-weight:600;color:${h.deep};">${escapeHtml(h.table)} (${escapeHtml(h.discriminator)})</span>
+            <span class="mono" style="border-radius:999px;background:rgba(255,255,255,0.9);padding:2px 10px;font-size:10.5px;font-weight:600;color:${h.deep};">${escapeHtml(h.table)} (${escapeHtml(h.discriminator)})</span>
           </div>
-          <h3 style="margin-top:10px !important;font-size:28px;font-weight:600;letter-spacing:-0.035em;">
-            ${escapeHtml(h.base)}<span style="color:${h.deep};">.</span>
-          </h3>
-          <p style="margin-top:8px !important;font-size:13.5px;line-height:1.45;color:rgba(11,11,18,0.68);">${escapeHtml(h.note)}</p>
-          <ul style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;">
+            <h3 style="font-size:24px;font-weight:600;letter-spacing:-0.035em;">
+              ${escapeHtml(h.base)}<span style="color:${h.deep};">.</span>
+            </h3>
+            <span class="mono" style="font-size:10.5px;color:rgba(11,11,18,0.58);">${escapeHtml(h.file)}</span>
+          </div>
+          <p style="margin-top:4px !important;font-size:12.5px;line-height:1.4;color:rgba(11,11,18,0.68);">${escapeHtml(h.note)}</p>
+          <ul style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
             ${h.subclasses.map(([disc, desc]) => `
-              <li style="border-radius:12px;border:1px solid rgba(11,11,18,0.06);background:rgba(255,255,255,0.86);padding:9px 12px;">
-                <span class="mono" style="display:block;font-size:11px;font-weight:600;color:${h.deep};">${escapeHtml(disc)}</span>
-                <span style="display:block;margin-top:2px;font-size:13px;line-height:1.4;color:rgba(11,11,18,0.8);">${escapeHtml(desc)}</span>
+              <li style="border-radius:10px;border:1px solid rgba(11,11,18,0.06);background:rgba(255,255,255,0.88);padding:7px 10px;">
+                <span class="mono" style="display:block;font-size:10.5px;font-weight:600;color:${h.deep};">${escapeHtml(disc)}</span>
+                <span style="display:block;margin-top:1px;font-size:12px;line-height:1.35;color:rgba(11,11,18,0.8);">${escapeHtml(desc)}</span>
               </li>
             `).join("")}
           </ul>
-        </div>
-        <div style="padding-top:14px;">
-          <span class="mono" style="display:inline-block;border-radius:8px;border:1px solid #fff;background:rgba(255,255,255,0.9);padding:4px 10px;font-size:11.5px;color:rgba(11,11,18,0.78);">${escapeHtml(h.file)}</span>
         </div>
       </article>
     `).join("");
@@ -695,21 +707,21 @@
       },
       {
         num: "PATRÓN 03",
-        status: "MODELADO EN UML · Hook en Report",
+        status: "IMPLEMENTADO · StudySpace.observers",
         title: "Observer Pattern",
         color: "#ff8904",
         deep: "#ea580c",
-        definition: "Suscripción de StudentUser a novedades de StudySpace y notificaciones ante cambios de estado vía Report._notify_observers().",
-        benefit: "Extensión Post-MVP: desacopla la entidad emisora de eventos de los múltiples suscriptores que reciben alertas."
+        definition: "Guardar un espacio en FavoritesList suscribe al estudiante; StudySpace.notify_observers() dispara PromotionNotificationService ante novedades o cambios aprobados.",
+        benefit: "Impacto: funciona en producción con bandeja /notifications, preferencias por evento (NotificationPreference) y 33 tests dedicados."
       },
       {
         num: "PATRÓN 04",
-        status: "MODELADO EN UML · NotificationService",
-        title: "Factory Method",
+        status: "IMPLEMENTADO (InApp) · NotificationService",
+        title: "Template + Canal Polimórfico",
         color: "#e12afb",
         deep: "#c026d3",
-        definition: "Subclases ModerationNotificationService y PromotionNotificationService encapsulan la instanciación del canal de envío.",
-        benefit: "Extensión Post-MVP: resuelve dinámicamente EmailNotification o InAppNotification según NotificationPreference del usuario."
+        definition: "NotificationService.send_notifications() define el flujo fijo (preferencias → crear → send() → guardar) con 4 servicios concretos por dominio.",
+        benefit: "Extensibilidad: NOTIFICATION_CLASSES[channel] instancia InAppNotification hoy y permite sumar EmailNotification sin tocar el negocio."
       }
     ];
 
@@ -744,23 +756,23 @@
         color: "#ff8904",
         deep: "#ea580c",
         endpoints: [
-          ["POST", "/users/register/student", "Alta StudentUser (201)"],
-          ["POST", "/users/register/business", "Alta BusinessUser (201)"],
-          ["POST", "/users/login", "Emite Bearer JWT (200)"],
-          ["GET", "/users/me", "Perfil autenticado (200)"]
+          ["POST", "/users/register/student", "Alta Student (201)"],
+          ["POST", "/users/register/business", "Alta Business (201)"],
+          ["POST", "/users/login", "Emite JWT (200)"],
+          ["GET", "/users/me", "Perfil actual (200)"]
         ]
       },
       {
         prefix: "/spaces",
-        tag: "espacios de estudio",
+        tag: "espacios & estados",
         color: "#7c3aed",
         deep: "#6d28d9",
         endpoints: [
-          ["GET", "/spaces/", "Filtros name, wifi, outlets, noise"],
-          ["POST", "/spaces/", "Alta por negocio (pending)"],
-          ["GET", "/spaces/mine", "Espacios propios del negocio"],
-          ["GET", "/spaces/pending", "Pendientes de revisión (Admin)"],
-          ["PATCH", "/spaces/{id}/approve", "Aprobación pública (Admin)"]
+          ["GET", "/spaces/", "Filtros públicos"],
+          ["POST/PUT", "/spaces/ · /{id}", "Alta / re-revisión"],
+          ["GET", "/spaces/mine", "Estado del negocio"],
+          ["GET", "/spaces/pending", "Pendientes (Admin)"],
+          ["PATCH", "/spaces/{id}/approve|reject", "Aprobar o rechazar"]
         ]
       },
       {
@@ -769,10 +781,10 @@
         color: "#e12afb",
         deep: "#c026d3",
         endpoints: [
-          ["GET", "/reviews/space/{id}", "Reseñas visibles públicas"],
-          ["POST", "/reviews/space/{id}", "Reseña 1–5 ★ + hasta 5 fotos"],
-          ["PUT", "/reviews/{id}", "Edición de reseña propia"],
-          ["PUT", "/reviews/{id}/vote", "Voto de utilidad entre pares"]
+          ["GET", "/reviews/space/{id}", "Reseñas visibles"],
+          ["POST", "/reviews/space/{id}", "Reseña + 5 fotos"],
+          ["PUT", "/reviews/{id}", "Editar propia"],
+          ["PUT", "/reviews/{id}/vote", "Voto de utilidad"]
         ]
       },
       {
@@ -781,35 +793,57 @@
         color: "#2dd4bf",
         deep: "#0d9488",
         endpoints: [
-          ["GET/POST", "/lists", "Listar o crear listas custom"],
-          ["POST/DEL", "/lists/{id}/spaces", "Agregar o quitar espacio"],
-          ["GET/POST", "/favorites", "Consultar o agregar favorito"],
-          ["DELETE", "/favorites/{space_id}", "Quitar de FavoritesList"]
+          ["GET/POST", "/lists", "Listas custom"],
+          ["POST/DEL", "/lists/{id}/spaces", "Agregar / quitar"],
+          ["GET/POST", "/favorites", "Favoritos (Observer)"],
+          ["DELETE", "/favorites/{space_id}", "Desuscribir"]
         ]
       },
       {
         prefix: "/posts",
-        tag: "módulo extra negocios",
+        tag: "novedades negocio",
         color: "#facc15",
         deep: "#ca8a04",
         endpoints: [
-          ["GET", "/posts/space/{id}", "Novedades activas del espacio"],
-          ["GET", "/posts/mine", "Anuncios del negocio logueado"],
-          ["POST", "/posts/space/{id}", "Crear anuncio en espacio propio"],
-          ["PUT/DEL", "/posts/{id}", "Editar o eliminar anuncio"]
+          ["GET", "/posts/space/{id}", "Activos del espacio"],
+          ["GET", "/posts/mine", "Propios del negocio"],
+          ["POST", "/posts/space/{id}", "Crear (notifica favs)"],
+          ["PUT/DEL", "/posts/{id}", "Editar o eliminar"]
         ]
       },
       {
-        prefix: "/reports & /health",
-        tag: "moderación & monitoreo",
+        prefix: "/reports",
+        tag: "moderación",
         color: "#fb7185",
         deep: "#e11d48",
         endpoints: [
-          ["POST", "/reports/{type}/{id}", "Reportar review/post/space/user"],
-          ["GET", "/reports", "Filtrar reportes (Admin)"],
-          ["PUT", "/reports/{id}/resolve", "Aplicar Template Method"],
-          ["PUT", "/reports/{id}/dismiss", "Descartar sin sanción"],
-          ["GET", "/health", 'Healthcheck {"status": "ok"}']
+          ["POST", "/reports/{type}/{id}", "Reportar entidad"],
+          ["GET", "/reports", "Filtrar (Admin)"],
+          ["PUT", "/reports/{id}/resolve", "Template Method"],
+          ["PUT", "/reports/{id}/dismiss", "Descartar reporte"]
+        ]
+      },
+      {
+        prefix: "/notifications",
+        tag: "bandeja in-app",
+        color: "#74d4ff",
+        deep: "#0284c7",
+        endpoints: [
+          ["GET", "/notifications", "Bandeja / unread"],
+          ["GET", "/notifications/unread-count", "Contador campana"],
+          ["GET/PUT", "/notifications/preferences", "Configurar eventos"],
+          ["PUT", "/notifications/read-all · /{id}/read", "Marcar leídas"]
+        ]
+      },
+      {
+        prefix: "/health & /docs",
+        tag: "monitoreo & openapi",
+        color: "#9592f5",
+        deep: "#4f46e5",
+        endpoints: [
+          ["GET", "/health", '{"status": "ok"}'],
+          ["GET", "/docs", "Swagger UI vivo"],
+          ["GET", "/redoc", "ReDoc API spec"]
         ]
       }
     ];
@@ -822,20 +856,20 @@
     }
 
     host.innerHTML = routers.map((r, idx) => `
-      <article class="card card-sm lift flex-col rv" style="--i:${idx + 2};padding:18px 20px;">
+      <article class="card card-sm lift flex-col rv" style="--i:${idx + 2};padding:15px 16px;">
         <span class="wash" style="--c:${r.color};--wash-h:42%"></span>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-          <h3 class="mono" style="font-size:20px;font-weight:600;letter-spacing:-0.03em;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">
+          <h3 class="mono" style="font-size:17px;font-weight:600;letter-spacing:-0.03em;white-space:nowrap;">
             ${escapeHtml(r.prefix)}<span class="dot" style="--c:${r.deep}"></span>
           </h3>
-          <span class="mono" style="font-size:10.5px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(11,11,18,0.48);">${escapeHtml(r.tag)}</span>
+          <span class="mono" style="font-size:9.5px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(11,11,18,0.48);white-space:nowrap;">${escapeHtml(r.tag)}</span>
         </div>
-        <ul style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+        <ul style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
           ${r.endpoints.map(([method, path, desc]) => `
-            <li style="display:flex;align-items:center;gap:8px;border-radius:10px;border:1px solid rgba(11,11,18,0.06);background:rgba(255,255,255,0.88);padding:6px 10px;">
-              <span class="mono" style="width:66px;flex-shrink:0;border-radius:6px;padding:2px 0;text-align:center;font-size:10px;font-weight:600;color:#fff;background:${methodColor(method)};">${escapeHtml(method)}</span>
-              <span class="mono" style="font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(path)}">${escapeHtml(path)}</span>
-              <span style="margin-left:auto;font-size:11px;color:rgba(11,11,18,0.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(desc)}">${escapeHtml(desc)}</span>
+            <li style="display:flex;align-items:center;gap:6px;border-radius:9px;border:1px solid rgba(11,11,18,0.06);background:rgba(255,255,255,0.9);padding:5px 8px;">
+              <span class="mono" style="width:58px;flex-shrink:0;border-radius:5px;padding:2px 0;text-align:center;font-size:9.5px;font-weight:600;color:#fff;background:${methodColor(method)};">${escapeHtml(method)}</span>
+              <span class="mono" style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(path)}">${escapeHtml(path)}</span>
+              <span style="margin-left:auto;font-size:10px;color:rgba(11,11,18,0.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(desc)}">${escapeHtml(desc)}</span>
             </li>
           `).join("")}
         </ul>
@@ -848,24 +882,25 @@
     const barsHost = document.getElementById("qa-bars-list");
     if (barsHost) {
       const suites = [
-        { file: "tests/test_reports.py", count: 35, color: "#ff8904", desc: "Reportes polimórficos (reseñas, posts, espacios, usuarios), unicidad, resolve y dismiss." },
-        { file: "tests/test_models.py", count: 32, color: "#e12afb", desc: "Clases abstractas User y Report, Single-Table Inheritance, cascade delete y métodos." },
-        { file: "tests/test_reviews.py", count: 31, color: "#7c3aed", desc: "CRUD de reseñas, límite de 5 imágenes, cálculo de promedio y votos de utilidad." },
-        { file: "tests/test_lists.py", count: 26, color: "#2dd4bf", desc: "Listas personalizadas, FavoritesList, duplicados y permisos por propietario." },
-        { file: "tests/test_posts.py", count: 23, color: "#74d4ff", desc: "CRUD de publicaciones de negocios, visibilidad y validación de propietario." },
-        { file: "tests/test_auth.py + spaces + health", count: 16, color: "#facc15", desc: "Registro estudiante/negocio, login JWT, filtros de espacios, aprobación admin y /health." }
+        { file: "tests/test_reports.py", count: 39, color: "#ff8904", desc: "Reportes polimórficos (reseñas, posts, espacios, usuarios), resolve, dismiss y alertas." },
+        { file: "tests/test_lists.py", count: 35, color: "#2dd4bf", desc: "Listas personalizadas, FavoritesList, duplicados y permisos por propietario." },
+        { file: "tests/test_notifications.py", count: 33, color: "#e12afb", desc: "Observer en StudySpace, bandeja /notifications, preferencias y Template Method." },
+        { file: "tests/test_reviews.py", count: 27, color: "#7c3aed", desc: "CRUD de reseñas, límite de 5 imágenes, promedio dinámico y votos de utilidad." },
+        { file: "tests/test_posts.py", count: 26, color: "#74d4ff", desc: "CRUD de publicaciones de negocios, visibilidad y notificación a favoritos." },
+        { file: "tests/test_auth.py", count: 26, color: "#fb7185", desc: "Registro estudiante/negocio, login JWT, guards de rol y desactivación." },
+        { file: "tests/test_study_spaces.py + models + health", count: 15, color: "#facc15", desc: "Filtros, aprobar/rechazar y re-pendiente al editar (7), STI/TypeError (6), /health (2)." }
       ];
 
       barsHost.innerHTML = suites.map((s, idx) => `
         <div>
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;">
             <span class="mono" style="font-weight:600;">${escapeHtml(s.file)}</span>
-            <span class="mono" style="font-size:12px;color:rgba(11,11,18,0.62);">${s.count} tests</span>
+            <span class="mono" style="font-size:11.5px;color:rgba(11,11,18,0.62);">${s.count} tests</span>
           </div>
-          <div style="margin-top:5px;height:12px;border-radius:999px;background:rgba(11,11,18,0.06);overflow:hidden;">
-            <span class="grow-bar" style="width:${(s.count / 35) * 100}%;background:${s.color};--delay:${220 + idx * 100}ms;"></span>
+          <div style="margin-top:4px;height:10px;border-radius:999px;background:rgba(11,11,18,0.06);overflow:hidden;">
+            <span class="grow-bar" style="width:${(s.count / 39) * 100}%;background:${s.color};--delay:${220 + idx * 90}ms;"></span>
           </div>
-          <p style="margin-top:4px !important;font-size:12px;color:rgba(11,11,18,0.56);">${escapeHtml(s.desc)}</p>
+          <p style="margin-top:3px !important;font-size:11.5px;color:rgba(11,11,18,0.56);">${escapeHtml(s.desc)}</p>
         </div>
       `).join("");
     }
@@ -873,10 +908,10 @@
     const deployHost = document.getElementById("qa-deploy-grid");
     if (deployHost) {
       const items = [
-        { title: "GitHub Actions CI", sub: ".github/workflows/tests.yml", color: "#ff8904", deep: "#ea580c", icon: "git", lines: ["Se ejecuta automáticamente en cada push y Pull Request.", "Instala dependencias y corre pytest + verificación ortográfica (typos)."] },
+        { title: "GitHub Actions CI", sub: ".github/workflows/tests.yml", color: "#ff8904", deep: "#ea580c", icon: "git", lines: ["Se ejecuta automáticamente en cada push y Pull Request.", "Instala dependencias y corre pytest -v sobre los 201 tests."] },
         { title: "Docker Auto-Inicializable", sub: "Dockerfile & docker-compose.yml", color: "#74d4ff", deep: "#0284c7", icon: "cpu", lines: ["Imagen Python 3.12-slim que ejecuta alembic upgrade head al iniciar.", "Corre crear_admin.py --auto y levanta Uvicorn en el puerto 8000."] },
-        { title: "PostgreSQL & SQLite", sub: "app/database/session.py", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["Normaliza automáticamente postgres:// a postgresql+psycopg://.", "Permite desarrollar con SQLite local y desplegar en PostgreSQL sin cambiar código."] },
-        { title: "Deploy en Render + Web", sub: "study-spaces-rest-api.onrender.com", color: "#2dd4bf", deep: "#0d9488", icon: "globe", lines: ["API productiva conectada a PostgreSQL gestionado en la nube.", "Integrada con las 10 pantallas del cliente web en frontend/."] }
+        { title: "PostgreSQL · Neon & SQLite", sub: "app/database/session.py", color: "#7c3aed", deep: "#6d28d9", icon: "db", lines: ["Normaliza automáticamente postgres:// a postgresql+psycopg://.", "Base productiva en Neon (PostgreSQL) y SQLite aislado en desarrollo/tests."] },
+        { title: "Deploy en Render + Web", sub: "study-spaces-rest-api.onrender.com", color: "#2dd4bf", deep: "#0d9488", icon: "globe", lines: ["API productiva conectada a PostgreSQL en Neon con 8 routers.", "Integrada con las 10 pantallas del cliente web en frontend/."] }
       ];
       deployHost.innerHTML = items.map((item, idx) => `
         <article class="card lift flex-col rv" style="--i:${idx + 2};padding:28px;">
@@ -903,42 +938,42 @@
     if (!host) return;
     const guides = [
       {
-        num: "01 · FLUJO ESTUDIANTE",
-        title: "Descubrir, Reseñar y Guardar",
+        num: "01 · FLUJO ESTUDIANTE & OBSERVER",
+        title: "Descubrir, Reseñar y Alertas",
         icon: "search",
         color: "#7c3aed",
         deep: "#6d28d9",
         pill: "StudentUser · index.html → detalle.html",
         steps: [
-          "Explorar el catálogo en frontend/index.html combinando filtros de WiFi, enchufes, nivel de ruido y nombre.",
-          "Ingresar en detalle.html, publicar una reseña (POST /reviews/space/{id}) y observar average_rating recalculado.",
-          "Guardar el espacio en favoritos (favoritos.html), crear una lista temática o reportar contenido inapropiado."
+          "Explorar frontend/index.html filtrando por WiFi, enchufes y ruido, y publicar una reseña en detalle.html.",
+          "Guardar el espacio en favoritos (se suscribe como Observer) y recibir notificaciones cuando el negocio publica un post.",
+          "Abrir la bandeja in-app (/notifications) para leer alertas, ver unread-count y ajustar preferencias."
         ]
       },
       {
-        num: "02 · FLUJO NEGOCIO",
-        title: "Publicar Espacio y Novedad",
+        num: "02 · FLUJO NEGOCIO & ESTADOS",
+        title: "Alta, Rechazo y Re-envío",
         icon: "layout",
         color: "#ff8904",
         deep: "#ea580c",
         pill: "BusinessUser · mis-espacios.html",
         steps: [
-          "Iniciar sesión comercial desde login.html o registrar un nuevo BusinessUser en registro.html.",
-          "Dar de alta un local desde mis-espacios.html (POST /spaces/), creado inicialmente con is_approved=False.",
-          "Verificar el estado pendiente en GET /spaces/mine y publicar una novedad con POST /posts/space/{id}."
+          "Crear un espacio en mis-espacios.html (POST /spaces/): figura como Pendiente y notifica a los admins.",
+          "Tras un rechazo del admin, verificar el badge ✕ Rechazado y la notificación in-app recibida.",
+          "Editar el espacio rechazado (PUT /spaces/{id}): vuelve automáticamente a Pendiente para nueva revisión."
         ]
       },
       {
         num: "03 · FLUJO ADMIN & SWAGGER",
-        title: "Aprobación y Moderación",
+        title: "Rechazar, Aprobar y Moderar",
         icon: "shield",
         color: "#2dd4bf",
         deep: "#0d9488",
         pill: "AdminUser · admin.html → Swagger /docs",
         steps: [
-          "Desde admin.html, inspeccionar la cola de pendientes (GET /spaces/pending) y aprobar con PATCH /spaces/{id}/approve.",
-          "Contrastarlo en Swagger UI / GET /spaces/: el espacio recién aprobado ya figura para los estudiantes.",
-          "Resolver un reporte pendiente con PUT /reports/{id}/resolve verificando en vivo el patrón Template Method."
+          "En admin.html, probar primero PATCH /spaces/{id}/reject y luego aprobar el espacio re-enviado (/approve).",
+          "Verificar en /docs que el local aparece en GET /spaces/ y dispara alertas de aprobación y Observer.",
+          "Resolver un reporte (PUT /reports/{id}/resolve) disparando Template Method y ModerationNotificationService."
         ]
       }
     ];
@@ -971,9 +1006,9 @@
     if (fanHost) {
       const items = [
         { title: "Arquitectura en Capas", text: "Separación estricta Router → Service → Repository → Model que desacopla las reglas de negocio de FastAPI y SQLAlchemy.", color: "#ff8904", deep: "#ea580c" },
-        { title: "POO y Polimorfismo Real", text: "Single-Table Inheritance en User, Report y StudySpacesList + Template Method en Report.resolve() y Report.dismiss().", color: "#e12afb", deep: "#c026d3" },
-        { title: "Calidad y Automatización", text: "163 tests automatizados en Pytest, 6 migraciones Alembic, pipeline CI en GitHub Actions y contenedor Docker.", color: "#7c3aed", deep: "#6d28d9" },
-        { title: "Evolución Post-MVP", text: "Excepciones de dominio (Fase 8), notificaciones con Observer + Factory Method, OwnershipRequest y campañas con MercadoPago.", color: "#2dd4bf", deep: "#0d9488" }
+        { title: "POO y Polimorfismo Real", text: "4 jerarquías Single-Table Inheritance (User, StudySpacesList, Report, Notification) + Template Method en Report y NotificationService.", color: "#e12afb", deep: "#c026d3" },
+        { title: "Calidad y Automatización", text: "201 tests automatizados en Pytest, 8 migraciones Alembic sobre PostgreSQL/Neon, CI en GitHub Actions y Docker.", color: "#7c3aed", deep: "#6d28d9" },
+        { title: "Notificaciones y Estados", text: "Observer y bandeja /notifications en producción, más ciclo completo Pendiente / Aprobado / Rechazado con re-envío.", color: "#2dd4bf", deep: "#0d9488" }
       ];
       const center = (items.length - 1) / 2;
       fanHost.innerHTML = items.map((t, idx) => {
@@ -1001,8 +1036,8 @@
         { title: "Swagger UI en Producción (Render)", url: "https://study-spaces-rest-api.onrender.com/docs", sub: "study-spaces-rest-api.onrender.com/docs" },
         { title: "Healthcheck Endpoint", url: "https://study-spaces-rest-api.onrender.com/health", sub: "study-spaces-rest-api.onrender.com/health" },
         { title: "Cliente Web Real en Local (CORS :5500)", url: "/frontend/index.html", sub: "http://127.0.0.1:5500/frontend/index.html" },
-        { title: "Paso 1 · Flujo Estudiante (en app aparte)", url: null, sub: "Filtrar espacios → ver detalle.html → publicar reseña ★ → favoritos" },
-        { title: "Paso 2 · Flujo Negocio & Admin (en app aparte)", url: null, sub: "Alta espacio (is_approved=False) → aprobar en admin.html → resolver reporte en /docs" },
+        { title: "Paso 1 · Flujo Estudiante & Alertas (en app aparte)", url: null, sub: "Filtrar espacios → detalle.html → reseña ★ → favoritos (Observer) → bandeja /notifications" },
+        { title: "Paso 2 · Flujo Negocio & Admin (en app aparte)", url: null, sub: "Alta espacio → rechazar en admin.html → editar (vuelve a Pendiente) → aprobar → reporte" },
         { title: "Repositorio GitHub · Study Spaces REST API", url: "https://github.com/titiBFG/study-spaces-rest-api", sub: "github.com/titiBFG/study-spaces-rest-api" }
       ];
       linksHost.innerHTML = links.map((l, idx) => {
