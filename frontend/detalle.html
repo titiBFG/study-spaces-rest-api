@@ -23,7 +23,30 @@
 
     <div class="detalle-contenedor">
         <a href="index.html" class="volver">← Volver a los espacios</a>
+
         <div id="detalleEspacio"></div>
+
+        <section class="detalle-tarjeta" style="margin-top:20px;">
+            <h3>Reportar información del espacio</h3>
+            <p>Si encontraste información incorrecta, podés avisar a los administradores.</p>
+
+            <form id="formReporteEspacio">
+                <label for="motivoEspacio">Motivo del reporte</label>
+
+                <textarea
+                    id="motivoEspacio"
+                    required
+                    maxlength="500"
+                    rows="3"
+                    style="display:block;width:100%;padding:12px;margin:10px 0 15px;border:1px solid #dfc9b5;border-radius:8px;"
+                    placeholder="Contanos qué información está incorrecta..."
+                ></textarea>
+
+                <button type="submit">Reportar espacio</button>
+            </form>
+
+            <p id="mensajeReporteEspacio"></p>
+        </section>
     </div>
 
     <footer>
@@ -32,6 +55,8 @@
 
     <script src="js/app.js"></script>
     <script src="js/detalle.js"></script>
+    <script src="js/reportes.js"></script>
     <script src="js/menu.js"></script>
+
 </body>
 </html>
