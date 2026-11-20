@@ -274,14 +274,18 @@ def test_approving_an_edited_space_notifies_observers_once(
     assert space.name in notifications[0]["message"]
 
 
-def test_approving_a_space_without_observers_works(client, session, admin, space):
+def test_approving_a_space_without_observers_works(client, session, admin, business, space):
     space.is_approved = False
     session.commit()
 
     response = client.patch(f"/spaces/{space.id}/approve", headers=auth(admin))
 
     assert response.status_code == 200
-    assert session.query(Notification).count() == 0
+    notifications = inbox(client, business)
+    assert len(notifications) == 1
+    assert notifications[0]["event_type"] == "space_approved"
+    assert space.name in notifications[0]["message"]
+    assert session.query(Notification).count() == 1
 
 
 # ---------------------------- Reportes ----------------------------

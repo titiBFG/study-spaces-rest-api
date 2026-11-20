@@ -33,6 +33,7 @@ class StudySpace(Base):
     opening_hours: Mapped[str | None] = mapped_column(String(255), nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    is_rejected: Mapped[bool] = mapped_column(Boolean, default=False)
     owner_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )

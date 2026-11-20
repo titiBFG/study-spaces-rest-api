@@ -30,7 +30,7 @@ async function mostrarResenas() {
 
         let suma = 0;
 
-        resenas.forEach(function(resena) {
+        resenas.forEach(function (resena) {
             suma += resena.rating;
 
             const tarjeta = document.createElement("div");
@@ -52,6 +52,41 @@ async function mostrarResenas() {
             tarjeta.appendChild(estrellas);
             tarjeta.appendChild(comentario);
 
+            if (resena.images && resena.images.length > 0) {
+                resena.images.forEach(function (url) {
+                    const imagen = document.createElement("img");
+                    imagen.src = url;
+                    imagen.alt = "Imagen de la reseña";
+                    imagen.className = "imagen-resena";
+                    imagen.loading = "lazy";
+
+                    tarjeta.appendChild(imagen);
+                });
+            }
+
+            const votos = document.createElement("div");
+            votos.className = "votos-resena";
+
+            const botonUtil = document.createElement("button");
+            botonUtil.type = "button";
+            botonUtil.textContent = "👍 Útil (" + (resena.useful_votes ?? 0) + ")";
+            botonUtil.addEventListener("click", function () {
+                votarResena(resena.id, true);
+            });
+
+            const botonNoUtil = document.createElement("button");
+            botonNoUtil.type = "button";
+            botonNoUtil.textContent =
+                "👎 No útil (" + (resena.not_useful_votes ?? 0) + ")";
+
+            botonNoUtil.addEventListener("click", function () {
+                votarResena(resena.id, false);
+            });
+
+            votos.appendChild(botonUtil);
+            votos.appendChild(botonNoUtil);
+
+            tarjeta.appendChild(votos);
             lista.appendChild(tarjeta);
         });
 
@@ -61,6 +96,41 @@ async function mostrarResenas() {
             " / 5 (" + resenas.length + " reseñas)";
     } catch (error) {
         lista.textContent = "No se pudieron cargar las reseñas.";
+    }
+}
+
+async function votarResena(idResena, esUtil) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Iniciar sesión para votar una reseña.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(
+            API_RESENAS + "/reviews/" + idResena + "/vote",
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    is_useful: esUtil
+                })
+            }
+        );
+
+        if (respuesta.ok) {
+            mostrarResenas();
+        } else {
+            const error = await respuesta.json();
+            alert(error.detail || "No se pudo registrar el voto.");
+        }
+    } catch (error) {
+        alert("No se pudo conectar con el servidor.");
     }
 }
 
@@ -81,6 +151,35 @@ async function guardarResena(evento) {
 
     const comentario = document.getElementById("comentario").value.trim();
 
+    const textoImagenes = document.getElementById("imagenesResena").value.trim();
+
+    const imagenes = textoImagenes
+        ? textoImagenes.split("\n").map(function (url) {
+            return url.trim();
+        }).filter(function (url) {
+            return url !== "";
+        })
+        : [];
+
+    if (imagenes.length > 5) {
+        alert("Podés agregar como máximo 5 imágenes.");
+        return;
+    }
+
+    for (const url of imagenes) {
+        try {
+            const direccion = new URL(url);
+
+            if (direccion.protocol !== "http:" &&
+                direccion.protocol !== "https:") {
+                throw new Error("URL inválida");
+            }
+        } catch (error) {
+            alert("Ingresá URLs válidas que comiencen con http:// o https://.");
+            return;
+        }
+    }
+
     if (!calificacion || !comentario) {
         alert("Completá todos los campos.");
         return;
@@ -97,7 +196,8 @@ async function guardarResena(evento) {
                 },
                 body: JSON.stringify({
                     rating: calificacion,
-                    comment: comentario
+                    comment: comentario,
+                    images: imagenes
                 })
             }
         );
@@ -121,7 +221,7 @@ async function guardarResena(evento) {
 }
 
 function mostrarDetalle() {
-    const espacio = espacios.find(function(item) {
+    const espacio = espacios.find(function (item) {
         return item.id === idEspacio;
     });
 
@@ -176,6 +276,10 @@ function mostrarDetalle() {
                     <textarea id="comentario" required maxlength="1000"
                         placeholder="Contanos cómo fue tu experiencia..."></textarea>
 
+                    <label for="imagenesResena">Imágenes (opcional)</label>
+                    <textarea id="imagenesResena"
+                        placeholder="Pegá hasta 5 URLs de imágenes, una por línea"></textarea>
+
                     <button type="submit">Publicar reseña</button>
                 </form>
             </div>
@@ -191,7 +295,7 @@ function mostrarDetalle() {
     imagen.src = espacio.image_url || imagenEjemplo;
     imagen.alt = "Foto de " + espacio.name;
 
-    imagen.onerror = function() {
+    imagen.onerror = function () {
         imagen.onerror = null;
         imagen.src = imagenEjemplo;
     };
@@ -210,7 +314,7 @@ function mostrarDetalle() {
         ? "♥ Quitar de favoritos"
         : "♡ Agregar a favoritos";
 
-    botonFavorito.addEventListener("click", function() {
+    botonFavorito.addEventListener("click", function () {
         cambiarFavorito(espacio.id);
     });
 

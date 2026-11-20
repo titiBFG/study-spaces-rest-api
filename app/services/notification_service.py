@@ -6,10 +6,12 @@ from app.models.enums import (
     NotificationChannel,
     NotificationEventType,
     ReportStatus,
+    UserRole,
 )
 from app.models.notification import InAppNotification, Notification
 from app.models.report import Report
 from app.models.review import Review
+from app.models.study_space import StudySpace
 from app.models.user import User
 from app.repositories.notification_repository import (
     get_preferences_by_user_id,
@@ -162,4 +164,50 @@ class ActivityNotificationService(NotificationService):
             review.author,
             NotificationEventType.REVIEW_VOTED,
             f"Alguien marcó como {verdict} tu reseña de {review.space.name}.",
+        )
+
+
+class SpaceApprovalNotificationService(NotificationService):
+    """Notificaciones del proceso de aprobación de espacios."""
+
+    event_types = frozenset(
+        {
+            NotificationEventType.SPACE_PENDING,
+            NotificationEventType.SPACE_APPROVED,
+            NotificationEventType.SPACE_REJECTED,
+        }
+    )
+
+    def notify_new_space(self, space: StudySpace) -> None:
+        """Avisa a los administradores que hay un espacio para revisar."""
+        admins = self.session.query(User).filter(
+            User.role == UserRole.ADMIN
+        ).all()
+
+        self.broadcast(
+            admins,
+            NotificationEventType.SPACE_PENDING,
+            f"El espacio {space.name} está pendiente de aprobación.",
+        )
+
+    def notify_space_approved(self, space: StudySpace) -> None:
+        """Avisa al dueño que su espacio fue aprobado."""
+        if space.owner is None:
+            return
+
+        self.send_notifications(
+            space.owner,
+            NotificationEventType.SPACE_APPROVED,
+            f"¡Tu espacio {space.name} fue aprobado!",
+        )
+
+    def notify_space_rejected(self, space: StudySpace) -> None:
+        """Avisa al dueño que su espacio fue rechazado."""
+        if space.owner is None:
+            return
+
+        self.send_notifications(
+            space.owner,
+            NotificationEventType.SPACE_REJECTED,
+            f"Tu espacio {space.name} fue rechazado.",
         )
