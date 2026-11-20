@@ -42,4 +42,5 @@ app.include_router(notifications_router)
 
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:
+    """Verifica que la API esté activa y respondiendo."""
     return {"status": "ok"}

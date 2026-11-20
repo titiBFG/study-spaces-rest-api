@@ -4,6 +4,8 @@ from app.models.enums import NoiseLevel
 
 
 class StudySpaceResponse(BaseModel):
+    """Datos públicos de un espacio de estudio, incluyendo su valoración."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -25,6 +27,8 @@ class StudySpaceResponse(BaseModel):
 
 
 class StudySpaceCreate(BaseModel):
+    """Datos requeridos para crear o actualizar un espacio de estudio."""
+
     name: str
     description: str
     address: str

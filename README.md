@@ -16,8 +16,8 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
    * Registro y autenticación de usuarios con roles diferenciados: `Estudiante`, `Negocio` y `Administrador`.
    * Encriptación de contraseñas y autorización basada en roles mediante tokens Bearer JWT.
 
-2. **RQ2 - Gestión de Espacios de Estudio (CRUD):**
-   * Creación, edición, consulta y baja de espacios de estudio con sus atributos y características.
+2. **RQ2 - Gestión de Espacios de Estudio:**
+   * Creación, edición, consulta de espacios propios (`/spaces/mine`) y flujo de moderación por administradores (pendientes, aprobación y rechazo).
 
 3. **RQ3 - Búsqueda y Filtrado de Espacios:**
    * Búsqueda por término/nombre y filtrado dinámico por disponibilidad de WiFi, enchufes y nivel de ruido.
@@ -31,6 +31,26 @@ API RESTful orientada a conectar estudiantes con espacios aptos para estudiar (c
 
 6. **RQ6 - Moderación de Contenido:**
    * Reporte de reseñas y moderación por parte de administradores (ocultar o dar de baja contenido inapropiado).
+
+### Funcionalidades Adicionales Implementadas
+* **Publicaciones de Negocios (`/posts`):** Creación, edición y baja de novedades e imágenes asociadas a un espacio de estudio.
+* **Notificaciones (`/notifications`):** Bandeja de notificaciones in-app y preferencias de notificación por usuario.
+
+---
+
+## Casos de Uso
+
+| Caso de Uso | Actor | Descripción y Endpoints asociados |
+| :--- | :--- | :--- |
+| **CU1 - Registro e inicio de sesión** | Estudiante / Negocio / Admin | Registro diferenciado (`POST /users/register/student`, `POST /users/register/business`), login con JWT (`POST /users/login`) y consulta de perfil (`GET /users/me`). |
+| **CU2 - Buscar y filtrar espacios** | Público / Estudiante | Listado de espacios aprobados con filtros por nombre, WiFi, enchufes y nivel de ruido (`GET /spaces/`). |
+| **CU3 - Publicar y gestionar espacios** | Negocio | Alta de un espacio en estado pendiente (`POST /spaces/`), consulta de espacios propios (`GET /spaces/mine`) y edición con reenvío a revisión (`PUT /spaces/{space_id}`). |
+| **CU4 - Aprobar o rechazar espacios** | Administrador | Revisión de espacios pendientes (`GET /spaces/pending`), aprobación (`PATCH /spaces/{space_id}/approve`) o rechazo (`PATCH /spaces/{space_id}/reject`). |
+| **CU5 - Reseñar y votar reseñas** | Estudiante | Publicación (`POST /reviews/space/{space_id}`), edición (`PUT /reviews/{review_id}`), baja (`DELETE /reviews/{review_id}`) y voto de utilidad (`PUT /reviews/{review_id}/vote`). |
+| **CU6 - Gestionar listas y favoritos** | Estudiante | Creación/gestión de listas personalizadas (`/lists`) y guardado en favoritos (`/favorites`), que suscribe al usuario a novedades del espacio. |
+| **CU7 - Publicar novedades** | Negocio | Creación, edición y eliminación de publicaciones en espacios propios (`/posts/space/{space_id}`, `/posts/{post_id}`). |
+| **CU8 - Reportar y moderar contenido** | Usuario / Administrador | Reporte de reseñas, posts, espacios o usuarios (`POST /reports/...`) y resolución o descarte por administradores (`PUT /reports/{report_id}/resolve`, `PUT /reports/{report_id}/dismiss`). |
+| **CU9 - Consultar notificaciones** | Usuario autenticado | Consulta de bandeja (`GET /notifications`), contador de no leídas (`GET /notifications/unread-count`), marcado como leída y configuración de preferencias (`PUT /notifications/preferences`). |
 
 ---
 
@@ -368,26 +388,56 @@ classDiagram
 
 El proyecto implementa una arquitectura en capas desacopladas aplicando el **Patrón Repositorio (Repository Pattern)** junto con una **Capa de Servicios (Service Layer)**:
 
-* **Routers (Controladores):** Manejan las peticiones HTTP, validación de entrada/salida mediante schemas de Pydantic y códigos de respuesta HTTP.
-* **Services:** Contienen la lógica del negocio (reglas de cálculo de calificaciones, validaciones cruzadas, restricciones por rol).
-* **Repositories:** Encapsulan y abstraen las operaciones sobre la base de datos mediante SQLAlchemy, permitiendo testear la lógica de negocio de manera aislada (mediante *mocks*) sin acoplarse al motor de persistencia.
+* **Routers (Controladores):** Manejan las peticiones HTTP, validación de entrada/salida mediante schemas de Pydantic y códigos de respuesta HTTP (`app/routers/`).
+* **Services:** Contienen la lógica del negocio (reglas de cálculo de calificaciones, validaciones cruzadas, restricciones por rol) (`app/services/`).
+* **Repositories:** Encapsulan y abstraen las operaciones sobre la base de datos mediante SQLAlchemy, desacoplando la lógica de negocio del motor de persistencia (`app/repositories/`).
 
-El proyecto también implementa el **Patrón Observer** y el **Patrón Factory Method** para gestionar la arquitectura del servicio de notificaciones:
+Además, el dominio y el sistema de notificaciones aplican los siguientes patrones de diseño:
 
-* **Observer:** Permite reaccionar ante eventos y cambio de estados (como una promoción en una StudySpace o la resolución de un Report) sin acoplar directamente al objeto observado con todos los componentes que deben recibir la alerta. El objeto emisor del evento simplemente notifica a sus obesrvadores registrados (User).
-* **Factory Method:** Permite delegar la creación de las notificaciones (NotificationService) a subclases especializadas (como ModerationNotificationService). De esta forma, cada servicio decide dinámicamente qué canales instanciar (EmailNotification, InAppNotification o ambas), según el tipo de evento y las preferencias configuradas por el usuario, sin que el objeto que dispara el evento necesite conocer las clases concretas que se terminan creando.
+* **Template Method:**
+  * En `Report` (`app/models/report.py`), `resolve()` y `dismiss()` fijan el flujo común de cierre (aplicar medida, actualizar estado, registrar `resolved_at` y notificar) delegando `_apply_resolution()` y `_notify_observers()` a cada subclase (`ReviewReport`, `PostReport`, `StudySpaceReport`, `UserReport`).
+  * En `NotificationService` (`app/services/notification_service.py`), `send_notifications()` y `broadcast()` orquestan el flujo común (crear según preferencias, entregar vía `send()`, persistir) con `create_notifications()` como punto de extensión.
+* **Observer:** `StudySpace` (`app/models/study_space.py`) expone `observers` (estudiantes que guardaron el espacio en `FavoritesList`) y `notify_observers()`, que notifica automáticamente ante novedades (`/posts`) o actualizaciones aprobadas del espacio.
+* **Polimorfismo / Single-Table Inheritance (STI) y Registro de Canales:** `User`, `StudySpacesList`, `Report` y `Notification` se mapean en SQLAlchemy mediante herencia de tabla única. `NOTIFICATION_CLASSES` permite registrar nuevos canales (por ejemplo `EmailNotification`) sin modificar los servicios de negocio.
+
+> **Nota sobre el diagrama UML:** Las clases `User` (`StudentUser`, `BusinessUser`, `AdminUser`), `StudySpace`, `Review`, `ReviewVote`, `Post`, `StudySpacesList`, `FavoritesList`, `Report` (y sus 4 subclases), `Notification` (`InAppNotification`), `NotificationPreference` y `NotificationService` (`ModerationNotificationService`, `PromotionNotificationService`) están implementadas en el código actual. Las clases `OwnershipRequest`, `AdvertisingPlan`, `Campaign`, `Payment`, `MercadoPagoService` y `EmailNotification` representan extensiones planificadas del modelo de dominio (post-MVP).
 
 ---
 
-## Instalación y Puesta en Marcha
+## Librerías Utilizadas
+
+Las dependencias del proyecto están definidas en [`requirements.txt`](requirements.txt):
+
+| Librería | Uso principal |
+| :--- | :--- |
+| `fastapi` | Framework web para la API RESTful y documentación OpenAPI automática. |
+| `uvicorn[standard]` | Servidor ASGI para ejecutar la aplicación FastAPI. |
+| `sqlalchemy` | ORM para modelado de entidades, herencia STI y consultas a base de datos. |
+| `alembic` | Gestión de migraciones versionadas de esquema de base de datos. |
+| `pydantic` / `pydantic-settings` | Validación de esquemas de entrada/salida y carga de configuración desde `.env`. |
+| `email-validator` | Validación de direcciones de correo electrónico en schemas Pydantic. |
+| `pyjwt[crypto]` | Generación y verificación de tokens JWT Bearer (`HS256`). |
+| `bcrypt` | Hashing seguro de contraseñas con salt. |
+| `python-multipart` | Soporte de formularios multipart en FastAPI. |
+| `psycopg[binary]` | Driver PostgreSQL para el entorno productivo (Neon / Render). |
+| `pytest` / `httpx` / `pytest-cov` | Ejecución de pruebas automatizadas con `TestClient` y medición de cobertura. |
+
+---
+
+## Instalación, Despliegue y Puesta en Marcha
 
 ### Prerrequisitos
-* Python 3.11+
+* Python 3.11+ (la imagen Docker utiliza Python 3.12)
 * Git
+* Docker y Docker Compose *(opcional, para ejecución en contenedor)*
 
-### 1. Clonar el repositorio y crear entorno virtual
+---
+
+### Opción 1: Ejecución local con Python
+
+#### 1. Clonar el repositorio y crear entorno virtual
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/titiBFG/study-spaces-rest-api.git
 cd study-spaces-rest-api
 
 # Crear entorno virtual
@@ -400,29 +450,97 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-### 2. Instalar dependencias
+#### 2. Instalar dependencias
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Ejecutar la API en modo desarrollo
+#### 3. Configurar variables de entorno y base de datos
+```bash
+# Copiar el archivo de ejemplo y definir SECRET_KEY (recomendado >= 32 caracteres) y DATABASE_URL
+cp .env.example .env
+
+# Aplicar migraciones de la base de datos
+alembic upgrade head
+
+# (Opcional) Crear un usuario administrador de forma interactiva
+python crear_admin.py
+```
+
+#### 4. Ejecutar la API en modo desarrollo
 ```bash
 uvicorn app.main:app --reload
 ```
 
-La documentación interactiva OpenAPI (Swagger) estará disponible en:
-* [http://localhost:8000/docs](http://localhost:8000/docs)
-* [http://localhost:8000/redoc](http://localhost:8000/redoc)
+---
+
+### Opción 2: Despliegue local con Docker
+
+```bash
+# Asegurarse de tener .env configurado (por ejemplo a partir de .env.example)
+docker compose up --build
+```
+
+El contenedor ejecuta automáticamente `alembic upgrade head`, `python crear_admin.py --auto` (si se definen `ADMIN_NAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD` en `.env`) y levanta `uvicorn` en el puerto `8000`, persistiendo la base SQLite en el volumen `studyspaces_data`.
 
 ---
 
-## Ejecución de Pruebas (Testing)
+### Opción 3: Despliegue en Producción (Render + PostgreSQL)
+
+La API se encuentra desplegada en **Render** conectada a una base **PostgreSQL**:
+* URL base: [https://study-spaces-rest-api.onrender.com](https://study-spaces-rest-api.onrender.com)
+* Health check: [https://study-spaces-rest-api.onrender.com/health](https://study-spaces-rest-api.onrender.com/health)
+* Swagger UI: [https://study-spaces-rest-api.onrender.com/docs](https://study-spaces-rest-api.onrender.com/docs)
+
+Para desplegar una nueva instancia en Render (o plataforma equivalente con Docker / Python):
+1. Configurar las variables de entorno `SECRET_KEY`, `DATABASE_URL` (cadena de conexión PostgreSQL con dialecto `postgresql+psycopg://`) y opcionalmente `ADMIN_NAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`.
+2. Utilizar el `Dockerfile` incluido o el comando de arranque:
+   ```bash
+   alembic upgrade head && python crear_admin.py --auto && uvicorn app.main:app --host 0.0.0.0 --port 8000
+   ```
+
+---
+
+### Documentación Interactiva y Endpoints
+* Swagger UI (local): [http://localhost:8000/docs](http://localhost:8000/docs)
+* ReDoc (local): [http://localhost:8000/redoc](http://localhost:8000/redoc)
+* Health check (local): [http://localhost:8000/health](http://localhost:8000/health)
+
+---
+
+### Frontend Web y Presentación
+
+* **Frontend (`frontend/`):** Cliente web en HTML/CSS/JS. La configuración CORS de `app/main.py` habilita `http://localhost:5500` y `http://127.0.0.1:5500`. Podés servirlo con Live Server o ejecutando:
+  ```bash
+  python -m http.server 5500 --directory frontend
+  ```
+  > **Nota:** Los scripts en `frontend/js/` apuntan por defecto a `https://study-spaces-rest-api.onrender.com`. Para probar contra tu API local, reemplazá esa URL por `http://localhost:8000`.
+* **Presentación (`presentation/`):** Presentación en Reveal.js. Podés abrirla junto con el frontend en el mismo origen ejecutando:
+  ```bash
+  python presentation/servidor.py
+  ```
+  Esto sirve la presentación en `http://127.0.0.1:5500/` y el frontend en `http://127.0.0.1:5500/frontend/`.
+
+---
+
+## Cómo Probar la API (Testing)
+
+Los tests utilizan una base de datos SQLite en memoria aislada por test (`tests/conftest.py`) y cubren los endpoints, reglas de negocio, autenticación, modelos polimórficos y notificaciones (**201 tests**).
+
+Asegurate de tener `SECRET_KEY` definida (en `.env` o en la terminal) y ejecutá:
 
 ```bash
-pytest -v
+# Linux / macOS
+SECRET_KEY="clave-solo-para-tests-de-al-menos-32-bytes" pytest -v
+
+# Windows (PowerShell)
+$env:SECRET_KEY="clave-solo-para-tests-de-al-menos-32-bytes"; pytest -v
 ```
+
+También podés probar la API manualmente desde **Swagger UI** (`/docs`) usando el botón **Authorize** con el token JWT devuelto por `POST /users/login`, o navegando el cliente web en `frontend/`.
 
 ---
 
 ## Integrantes y Docentes
+* **Integrantes:** Julieta Elhalem, Aldana Mota, Valentina Di Iorio, Santino Enzo Semec
 * **Docentes evaluadores:** `matuk`, `santiagoblaslaguzza`
