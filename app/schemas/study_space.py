@@ -19,6 +19,7 @@ class StudySpaceResponse(BaseModel):
     opening_hours: str | None
     image_url: str | None = None
     is_approved: bool
+    is_rejected: bool = False
     average_rating: float = 0.0
     reviews_count: int = 0
 
