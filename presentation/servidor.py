@@ -1,16 +1,45 @@
-"""Servidor HTTP local para abrir la presentación de Reveal.js."""
+"""Servidor HTTP local para abrir la presentación de Reveal.js y el frontend del proyecto."""
 
-from functools import partial
+import argparse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import posixpath
 import socket
+from urllib.parse import unquote
 
 PRESENTATION_DIR = Path(__file__).resolve().parent
-DEFAULT_PORT = 8080
+REPO_ROOT = PRESENTATION_DIR.parent
+FRONTEND_DIR = REPO_ROOT / "frontend"
+DEFAULT_PORT = 5500
 
 
-class QuietHandler(SimpleHTTPRequestHandler):
-    """Handler HTTP que omite logs por cada archivo estático."""
+class PresentationHandler(SimpleHTTPRequestHandler):
+    """Sirve presentation/ en / y frontend/ en /frontend/ bajo el mismo origen."""
+
+    def translate_path(self, path: str) -> str:
+        clean = path.split("?", 1)[0].split("#", 1)[0]
+        clean = unquote(clean)
+        normalized = posixpath.normpath(clean)
+        parts = [p for p in normalized.split("/") if p and p not in (".", "..")]
+
+        if parts and parts[0] == "frontend":
+            base_dir = FRONTEND_DIR.resolve()
+            rel_parts = parts[1:]
+        else:
+            base_dir = PRESENTATION_DIR.resolve()
+            rel_parts = parts
+
+        target = base_dir.joinpath(*rel_parts).resolve()
+        try:
+            target.relative_to(base_dir)
+        except ValueError:
+            return str(base_dir / "__forbidden__")
+
+        return str(target)
+
+    def end_headers(self) -> None:
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002
         return
@@ -30,18 +59,24 @@ def find_free_port(start_port: int = DEFAULT_PORT) -> int:
 
 def main() -> None:
     """Inicia el servidor local e imprime el enlace para abrir la presentación."""
-    port = find_free_port(DEFAULT_PORT)
-    handler = partial(QuietHandler, directory=str(PRESENTATION_DIR))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", type=int, default=None, help="Puerto TCP local")
+    args = parser.parse_args()
 
-    with ThreadingHTTPServer(("127.0.0.1", port), handler) as server:
+    port = args.port if args.port is not None else find_free_port(DEFAULT_PORT)
+
+    with ThreadingHTTPServer(("127.0.0.1", port), PresentationHandler) as server:
         url = f"http://127.0.0.1:{port}/"
-        print("=" * 60)
-        print("  Presentación Study Spaces REST API (UNSAM)")
-        print("=" * 60)
-        print(f"  Abrí este enlace en tu navegador: {url}")
-        print("  Atajos: [S] Notas del orador | [F] Pantalla completa | [O] Vista general")
+        print("=" * 64)
+        print("  Presentación Study Spaces REST API (UNSAM - Reveal.js 6.0.2)")
+        print("=" * 64)
+        print(f"  Presentación : {url}")
+        print(f"  Frontend App : {url}frontend/index.html")
+        if args.port is None and port != DEFAULT_PORT:
+            print(f"  [Aviso CORS] Puerto {DEFAULT_PORT} ocupado; la API en Render habilita CORS en el puerto {DEFAULT_PORT}.")
+        print("  Atajos       : [Flechas/Espacio] Navegar | [O/I] Índice | [F] Fullscreen")
         print("  Presioná Ctrl+C para detener el servidor.")
-        print("=" * 60, flush=True)
+        print("=" * 64, flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

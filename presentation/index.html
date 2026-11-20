@@ -1,576 +1,726 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Spaces REST API — Presentación Programación 2 (UNSAM)</title>
-
-    <!-- Reveal.js 5.x CSS & Tema base -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
-
-    <!-- Highlight.js (Monokai / Atom One Dark para bloques de código) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
-
-    <!-- Estilos institucionales UNSAM -->
-    <link rel="stylesheet" href="css/custom.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Spaces REST API — Programación 2 (UNSAM)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmY4OTA0Ii8+PHN0b3Agb2Zmc2V0PSIuMzUiIHN0b3AtY29sb3I9IiNlMTJhZmIiLz48c3RvcCBvZmZzZXQ9Ii42IiBzdG9wLWNvbG9yPSIjN2MzYWVkIi8+PHN0b3Agb2Zmc2V0PSIuODIiIHN0b3AtY29sb3I9IiM3NGQ0ZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyZGQ0YmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxMiIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPgo=">
+  <link rel="stylesheet" href="vendor/reveal/reveal.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script defer src="vendor/reveal/reveal.js"></script>
+  <script defer src="js/deck.js"></script>
 </head>
 <body>
-    <div class="reveal">
-        <div class="slides">
+  <!-- Full-Viewport Animated Mesh Backdrop (never clipped by 1600x900 stage) -->
+  <div class="deck-backdrop grain" id="deck-backdrop" data-bg="brand" aria-hidden="true">
+    <div class="backdrop-layer backdrop-brand">
+      <span class="mesh-blob" style="--c:#86c9f0;--x:18%;--y:22%;--size:46%;--o:0.75;--dur:24s"></span>
+      <span class="mesh-blob" style="--c:#9592f5;--x:74%;--y:18%;--size:44%;--o:0.7;--dur:28s;--delay:-6s"></span>
+      <span class="mesh-blob" style="--c:#f28fd0;--x:82%;--y:78%;--size:42%;--o:0.65;--dur:26s;--delay:-12s"></span>
+      <span class="mesh-blob" style="--c:#f6b98c;--x:30%;--y:84%;--size:40%;--o:0.7;--dur:30s;--delay:-3s"></span>
+      <span class="mesh-blob" style="--c:#f9e795;--x:52%;--y:52%;--size:30%;--o:0.55;--dur:22s;--delay:-9s"></span>
+    </div>
+    <div class="backdrop-layer backdrop-mvp">
+      <span class="mesh-blob" style="--c:#ff8904;--x:86%;--y:82%;--size:52%;--o:0.55;--dur:26s"></span>
+      <span class="mesh-blob" style="--c:#ff8904;--x:96%;--y:12%;--size:34%;--o:0.3;--dur:30s;--delay:-8s"></span>
+      <span class="mesh-blob" style="--c:#ffffff;--x:30%;--y:40%;--size:60%;--o:1;--dur:40s"></span>
+    </div>
+    <div class="backdrop-layer backdrop-domain">
+      <span class="mesh-blob" style="--c:#e12afb;--x:86%;--y:82%;--size:52%;--o:0.5;--dur:26s"></span>
+      <span class="mesh-blob" style="--c:#e12afb;--x:96%;--y:12%;--size:34%;--o:0.28;--dur:30s;--delay:-8s"></span>
+      <span class="mesh-blob" style="--c:#ffffff;--x:30%;--y:40%;--size:60%;--o:1;--dur:40s"></span>
+    </div>
+    <div class="backdrop-layer backdrop-demo">
+      <span class="mesh-blob" style="--c:#fb7185;--x:88%;--y:82%;--size:48%;--o:0.42;--dur:26s"></span>
+      <span class="mesh-blob" style="--c:#7c3aed;--x:14%;--y:20%;--size:40%;--o:0.24;--dur:30s;--delay:-6s"></span>
+      <span class="mesh-blob" style="--c:#ffffff;--x:45%;--y:48%;--size:58%;--o:0.95;--dur:40s"></span>
+    </div>
+  </div>
 
-            <!-- 1. PORTADA -->
-            <section class="unsam-cover" data-background-gradient="linear-gradient(135deg, #00264D 0%, #003A70 55%, #0077B6 100%)">
-                <span class="cover-badge">Universidad Nacional de San Martín · Programación 2</span>
-                <h1>Study Spaces REST API</h1>
-                <p class="subtitle">
-                    Plataforma RESTful y cliente web para conectar estudiantes con espacios aptos para estudiar,
-                    gestionar reseñas, listas personalizadas y moderación de contenido.
-                </p>
+  <!-- Fixed Presentation Chrome -->
+  <header class="deck-header" aria-label="Encabezado de presentación">
+    <p class="deck-breadcrumb">
+      <span class="brand-name">Study Spaces REST API · UNSAM Programación 2</span>
+      <span class="sep" id="chrome-sep" hidden>/</span>
+      <span class="chapter-pill" id="chrome-chapter" hidden>
+        <span class="chapter-dot" id="chrome-chapter-dot"></span>
+        <span id="chrome-chapter-label"></span>
+      </span>
+    </p>
+    <p class="deck-counter" id="chrome-counter" aria-live="polite">01 / 22</p>
+  </header>
 
-                <div class="cover-meta">
-                    <div class="cover-box">
-                        <div class="cover-box-title">Integrantes</div>
-                        <ul>
-                            <li>Julieta Elhalem</li>
-                            <li>Aldana Mota</li>
-                            <li>Valentina Di Iorio</li>
-                            <li>Santino Enzo Semec</li>
-                        </ul>
-                    </div>
-                    <div class="cover-box">
-                        <div class="cover-box-title">Docentes Evaluadores</div>
-                        <ul>
-                            <li>Rosana Matuk (<code>@matuk</code>)</li>
-                            <li>Santiago Blas (<code>@santiagoblaslaguzza</code>)</li>
-                        </ul>
-                        <p style="margin-top: 10px; color: #BAE6FD;">
-                            <strong>API en producción:</strong> <code>study-spaces-rest-api.onrender.com</code>
-                        </p>
-                    </div>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 · PORTADA -->
+      <section id="cover" data-chapter="intro" data-title="Portada" data-bg="brand">
+        <div class="slide-body" style="justify-content:center;">
+          <p class="label rv" style="--i:0;color:rgba(11,11,18,0.58);">Universidad Nacional de San Martín · Programación 2</p>
+          <h1 class="display cover-title">
+            <span class="word" style="--w:0;--d:120ms">Study</span>
+            <span class="word" style="--w:1;--d:120ms">Spaces</span><br>
+            <span class="word" style="--w:2;--d:120ms">REST</span>
+            <span class="word" style="--w:3;--d:120ms">API</span><span class="word" style="--w:4;--d:120ms"><span class="dot dot-brand" aria-hidden="true"></span></span>
+          </h1>
+          <p class="cover-sub rv" style="--i:3">
+            Plataforma RESTful en capas, modelo de dominio polimórfico y cliente web para descubrir, reseñar y moderar espacios de estudio.
+          </p>
+          <div class="cover-meta-grid">
+            <div class="cover-meta-item rv" style="--i:4">
+              <p class="label" style="font-size:11px;">Equipo de Desarrollo</p>
+              <p>Julieta Elhalem · Aldana Mota · Valentina Di Iorio · Santino Enzo Semec</p>
+            </div>
+            <div class="cover-meta-item rv" style="--i:5">
+              <p class="label" style="font-size:11px;">Docentes Evaluadores</p>
+              <p>Rosana Matuk (<code>@matuk</code>) · Santiago Blas (<code>@santiagoblaslaguzza</code>)</p>
+            </div>
+            <div class="cover-meta-item rv" style="--i:6">
+              <p class="label" style="font-size:11px;">Producción &amp; QA</p>
+              <p>163 tests Pytest · 6 migraciones Alembic · study-spaces-rest-api.onrender.com</p>
+            </div>
+          </div>
+          <div class="cover-hint rv" style="--i:7">
+            <kbd class="kbd">→</kbd> para avanzar · <kbd class="kbd">O</kbd> índice · <kbd class="kbd">F</kbd> pantalla completa
+          </div>
+        </div>
+        <aside class="notes">Presentación del trabajo práctico final Study Spaces REST API para Programación 2 en UNSAM.</aside>
+      </section>
+
+      <!-- 02 · AGENDA (FAN CARDS) -->
+      <section id="agenda" data-chapter="intro" data-title="Agenda" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">00 — Recorrido de la presentación</p>
+              <h2 class="display slide-h2 xl">
+                <span class="word" style="--w:0;--d:80ms">Agenda</span><span class="word" style="--w:1;--d:80ms"><span class="dot dot-brand" aria-hidden="true"></span></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:400px;padding-bottom:10px;text-align:right;font-size:17px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Siete bloques técnicos conectados con el código real del repositorio. Tocá cualquier tarjeta para saltar al capítulo.
+            </p>
+          </div>
+          <div class="mt-auto">
+            <ul class="fan" id="agenda-fan" style="--w:215px;--h:260px;--drop:130px;--pivot:520%;"></ul>
+          </div>
+        </div>
+        <aside class="notes">Repasar los 7 bloques técnicos del recorrido. Cada tarjeta navega vía Reveal.slide().</aside>
+      </section>
+
+      <!-- 03 · PROPUESTA DEL PRODUCTO -->
+      <section id="product-overview" data-chapter="intro" data-title="Propuesta" data-bg="clean">
+        <div class="slide-body">
+          <div class="split-left-narrow" style="align-items:center;">
+            <div>
+              <p class="label rv" style="--i:0">00 — Propuesta de producto</p>
+              <h2 class="display slide-h2 lg">
+                <span class="word" style="--w:0">Un</span>
+                <span class="word" style="--w:1">lugar</span>
+                <span class="word" style="--w:2">para</span>
+                <span class="word" style="--w:3">concentrarse</span><span class="word" style="--w:4"><span class="dot dot-brand"></span></span>
+              </h2>
+              <p class="slide-lead rv" style="--i:3">
+                Los estudiantes necesitan saber dónde hay WiFi estable, enchufes disponibles y silencio real. Construimos una API RESTful en FastAPI integrada con nuestro cliente web de 10 pantallas en <code>frontend/</code>.
+              </p>
+              <div class="rv" style="--i:4;margin-top:26px;display:flex;flex-wrap:wrap;gap:8px;">
+                <span class="chip mono" style="font-size:12.5px;">GET /spaces/</span>
+                <span class="chip mono" style="font-size:12.5px;">POST /reviews/space/{id}</span>
+                <span class="chip mono" style="font-size:12.5px;">POST /favorites</span>
+                <span class="chip mono" style="font-size:12.5px;">POST /posts/space/{id}</span>
+                <span class="chip mono" style="font-size:12.5px;">PUT /reports/{id}/resolve</span>
+              </div>
+              <p class="rv" style="--i:5;margin-top:26px !important;font-size:14.5px;color:rgba(11,11,18,0.52);">
+                Al final de la presentación mostraremos el flujo completo corriendo directamente sobre la aplicación real.
+              </p>
+            </div>
+            <div class="grid-2 grid-rows-2 gap-5" style="height:620px;" id="product-overview-grid"></div>
+          </div>
+        </div>
+        <aside class="notes">Presentar la propuesta funcional de Study Spaces: búsqueda, reseñas, listas/favoritos y moderación.</aside>
+      </section>
+
+      <!-- 04 · EL PROBLEMA Y LOS 3 ROLES -->
+      <section id="mvp-roles" data-chapter="mvp" data-title="Problema y Roles" data-bg="mvp">
+        <div class="slide-body">
+          <div class="split-cover">
+            <div>
+              <p class="label rv" style="--i:0">Capítulo 01</p>
+              <h2 class="display rv" style="--i:1;margin-top:20px !important;font-size:88px;line-height:1.04;">
+                El Problema y los 3 Roles<span class="dot" style="--c:#ff8904"></span>
+              </h2>
+              <p class="rv" style="--i:2;margin-top:22px !important;font-size:24px;font-weight:500;letter-spacing:-0.02em;color:rgba(11,11,18,0.7);">
+                De la información dispersa a una plataforma centralizada
+              </p>
+              <div class="concept-box rv" style="--i:3">
+                <p>La información sobre cafeterías, bibliotecas y coworkings suele estar fragmentada: sin datos técnicos de conectividad, enchufes ni nivel de ruido.</p>
+                <p>Diseñamos un MVP con <strong>3 actores polimórficos</strong> que colaboran sobre un mismo modelo de dominio validado y moderado.</p>
+              </div>
+            </div>
+            <div class="flex-col gap-4" id="roles-cards-list"></div>
+          </div>
+        </div>
+        <aside class="notes">Mostrar los tres actores visibles en paralelo: StudentUser, BusinessUser y AdminUser.</aside>
+      </section>
+
+      <!-- 05 · REQUERIMIENTOS RQ1 - RQ6 + POSTS -->
+      <section id="mvp-grid" data-chapter="mvp" data-title="RQ1 a RQ6" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">01 — Alcance 100% implementado</p>
+              <h2 class="display slide-h2">
+                Requerimientos RQ1 a RQ6 + Posts<span class="dot" style="--c:#ff8904"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:410px;padding-bottom:6px;text-align:right;font-size:16px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Los 6 requerimientos del MVP más el módulo extra de publicaciones (<code>/posts</code>) están operativos y verificados con Pytest.
+            </p>
+          </div>
+          <div class="grid-3 grid-rows-2 gap-5 flex-1" style="margin-top:28px;" id="mvp-req-grid"></div>
+        </div>
+        <aside class="notes">Recorrer RQ1 a RQ6 y destacar que /posts se agregó como extra del UML.</aside>
+      </section>
+
+      <!-- 06 · CLIENTE WEB REAL EN FRONTEND/ -->
+      <section id="mvp-frontend" data-chapter="mvp" data-title="Cliente Web" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">01 — Integración con la API en producción</p>
+              <h2 class="display slide-h2">
+                Cliente Web Real (<code>frontend/</code>)<span class="dot" style="--c:#ff8904"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:430px;padding-bottom:6px;text-align:right;font-size:16px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              10 pantallas HTML/CSS/JS vanilla que consumen la API desplegada en Render mediante JWT Bearer y manejo explícito de estados.
+            </p>
+          </div>
+          <div class="grid-2 grid-rows-2 gap-5 flex-1" style="margin-top:28px;" id="mvp-frontend-grid"></div>
+        </div>
+        <aside class="notes">Describir las 10 pantallas reales del cliente web en frontend/ y su conexión con la API.</aside>
+      </section>
+
+      <!-- 07 · ARQUITECTURA EN 4 CAPAS (ISOMÉTRICA 3D) -->
+      <section id="arch-layers" data-chapter="architecture" data-title="4 Capas" data-bg="clean">
+        <div class="slide-body">
+          <div class="split-arch">
+            <div class="rv" style="--i:1;position:relative;">
+              <div class="iso" id="arch-iso-host"></div>
+            </div>
+            <div class="flex-col">
+              <p class="label rv" style="--i:0">02 — Separación de responsabilidades</p>
+              <h2 class="display slide-h2" style="font-size:52px;">
+                Arquitectura en 4 Capas<span class="dot" style="--c:#7c3aed"></span>
+              </h2>
+              <div class="mt-auto rv" style="--i:3">
+                <div class="card" id="arch-layer-card" style="padding:32px;">
+                  <span class="wash" id="arch-layer-wash" style="--c:#ff8904;--wash-h:60%"></span>
+                  <span class="num-badge" id="arch-layer-num">CAPA 01</span>
+                  <h3 id="arch-layer-title" style="margin-top:8px !important;font-size:32px;font-weight:600;letter-spacing:-0.04em;line-height:1.1;"></h3>
+                  <ul id="arch-layer-lines" style="margin-top:16px;display:flex;flex-direction:column;gap:8px;font-size:16px;line-height:1.5;color:rgba(11,11,18,0.72);"></ul>
+                  <p class="label" style="margin-top:26px !important;font-size:10.5px;">Módulos reales en el repositorio</p>
+                  <div id="arch-layer-modules" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;"></div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Pasar por las 4 capas: Routers, Services, Repositories y Models & Database.</aside>
+      </section>
 
-                <aside class="notes">
-                    Bienvenidos. Hoy presentamos Study Spaces REST API, nuestro trabajo práctico para Programación 2 en UNSAM.
-                    Presionando la tecla S pueden ver estas notas del orador, y con F pasan a pantalla completa.
-                </aside>
-            </section>
+      <!-- 08 · STACK TECNOLÓGICO -->
+      <section id="arch-stack" data-chapter="architecture" data-title="Stack" data-bg="clean">
+        <div class="slide-body">
+          <p class="label rv" style="--i:0">02 — Herramientas de ingeniería</p>
+          <h2 class="display slide-h2">
+            Stack Tecnológico<span class="dot" style="--c:#7c3aed"></span>
+          </h2>
+          <div class="grid-4 gap-5 flex-1" style="margin-top:34px;" id="arch-stack-grid"></div>
+        </div>
+        <aside class="notes">Destacar FastAPI, Pydantic v2, SQLAlchemy 2.0 + Alembic y PyJWT + Bcrypt + Pytest.</aside>
+      </section>
 
-            <!-- 2. PROBLEMA Y SOLUCIÓN -->
-            <section>
-                <div class="slide-header">
-                    <h2>El Problema y la Solución</h2>
-                    <span class="slide-tag">Contexto</span>
+      <!-- 09 · RECORRIDO DE UNA REQUEST EN CAPAS -->
+      <section id="arch-lifecycle" data-chapter="architecture" data-title="Ciclo Request" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">02 — Trazabilidad de punta a punta</p>
+              <h2 class="display slide-h2">
+                Recorrido de una Request en Capas<span class="dot" style="--c:#7c3aed"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:400px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Ejemplo real: cómo viaja <code>POST /reviews/space/1</code> desde HTTP hasta el commit en base de datos.
+            </p>
+          </div>
+          <div class="grid-5 gap-3" style="margin-top:26px;" id="req-steps-row"></div>
+          <div class="rv flex-1" style="--i:5;margin-top:24px;display:grid;grid-template-columns:1.15fr 1fr;gap:24px;">
+            <div class="card card-dark flex-col" style="justify-content:center;padding:28px;">
+              <p class="label" style="font-size:10.5px;color:rgba(255,255,255,0.52);">Contrato HTTP · POST /reviews/space/1</p>
+              <pre class="mono" style="margin-top:14px !important;font-size:13.5px;line-height:1.62;color:rgba(255,255,255,0.92);white-space:pre;">Authorization: Bearer &lt;jwt_student&gt;
+Payload: {"rating": 5, "comment": "Excelente WiFi y silencio", "images": []}
+
+→ 201 Created · ReviewResponse
+→ StudySpace.average_rating actualizado automáticamente</pre>
+            </div>
+            <div class="card flex-col" style="justify-content:space-between;padding:30px;">
+              <p class="label" style="font-size:10.5px;">Regla de arquitectura</p>
+              <p style="font-size:21px;line-height:1.45;font-weight:500;color:rgba(11,11,18,0.82);">
+                Cada capa conoce únicamente a la capa inmediata inferior:
+                <span class="mono" style="color:#ea580c;">Router</span> →
+                <span class="mono" style="color:#c026d3;">Service</span> →
+                <span class="mono" style="color:#7c3aed;">Repository</span> →
+                <span class="mono" style="color:#0d9488;">Model</span>.
+              </p>
+              <p style="font-size:14.5px;color:rgba(11,11,18,0.56);">
+                Esto evita acoplar las reglas del negocio a FastAPI o a consultas SQL crudas, facilitando pruebas aisladas.
+              </p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Trazar paso a paso una petición POST /reviews/space/1 a través de las 4 capas.</aside>
+      </section>
+
+      <!-- 10 · DOMINIO Y POLIMORFISMO -->
+      <section id="domain-cover" data-chapter="domain" data-title="POO & Clases Base" data-bg="domain">
+        <div class="slide-body">
+          <div class="split-cover">
+            <div>
+              <p class="label rv" style="--i:0">Capítulo 03</p>
+              <h2 class="display rv" style="--i:1;margin-top:20px !important;font-size:88px;line-height:1.04;">
+                Dominio y Polimorfismo<span class="dot" style="--c:#e12afb"></span>
+              </h2>
+              <p class="rv" style="--i:2;margin-top:22px !important;font-size:24px;font-weight:500;letter-spacing:-0.02em;color:rgba(11,11,18,0.7);">
+                Single-Table Inheritance en SQLAlchemy 2.0
+              </p>
+              <div class="concept-box rv" style="--i:3">
+                <p>En lugar de condicionales dispersos por rol o tipo, modelamos el dominio con <strong>jerarquías polimórficas reales</strong>.</p>
+                <p>Las clases base <code>User</code> y <code>Report</code> prohíben la instanciación directa en <code>__init__</code> lanzando <code>TypeError</code>, y SQLAlchemy instancia la subclase concreta según la columna discriminadora.</p>
+              </div>
+            </div>
+            <div class="rv" style="--i:2">
+              <div class="card flex-col gap-4" style="padding:28px;">
+                <p class="label" style="font-size:10.5px;">Protección de clase base abstracta (app/models/user.py)</p>
+                <pre class="code-panel">class User(Base):
+    __tablename__ = "users"
+    __mapper_args__ = {"polymorphic_on": "role"}
+
+    def __init__(self, **kwargs):
+        if type(self) is User:
+            raise TypeError(
+                "User es abstracta: usar StudentUser, "
+                "BusinessUser o AdminUser"
+            )
+        super().__init__(**kwargs)</pre>
+                <div style="display:flex;align-items:center;gap:10px;border-radius:12px;background:rgba(45,212,191,0.16);padding:12px 16px;font-size:13.5px;font-weight:500;color:#0d9488;">
+                  ✓ Verificado en <code>tests/test_models.py</code>: instanciar <code>User()</code> o <code>Report()</code> lanza <code>TypeError</code>.
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Explicar cómo reforzamos el diseño de clases base abstractas junto con Single-Table Inheritance.</aside>
+      </section>
 
-                <div class="grid-2">
-                    <div class="card navy">
-                        <h3>El Problema</h3>
-                        <ul>
-                            <li>Los estudiantes buscan lugares tranquilos para estudiar (cafeterías, bibliotecas, coworkings).</li>
-                            <li>La información relevante suele estar dispersa: <strong>¿tiene WiFi estable? ¿hay enchufes? ¿qué nivel de ruido tiene?</strong></li>
-                            <li>Falta un espacio centralizado con reseñas confiables de otros estudiantes y datos actualizados por los propios negocios.</li>
-                        </ul>
-                    </div>
+      <!-- 11 · 3 JERARQUÍAS STI -->
+      <section id="domain-inheritance" data-chapter="domain" data-title="3 Jerarquías STI" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">03 — Single-Table Inheritance en SQLAlchemy</p>
+              <h2 class="display slide-h2">
+                3 Jerarquías en el Modelo de Datos<span class="dot" style="--c:#e12afb"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Al hidratar filas desde la base, SQLAlchemy instancia automáticamente la subclase concreta según su columna discriminadora.
+            </p>
+          </div>
+          <div class="grid-3 gap-5 flex-1" style="margin-top:28px;" id="domain-sti-grid"></div>
+        </div>
+        <aside class="notes">Presentar en paralelo las tres jerarquías STI reales: User (role), StudySpacesList (list_type) y Report (type).</aside>
+      </section>
 
-                    <div class="card">
-                        <h3>Nuestra Solución</h3>
-                        <ul>
-                            <li><strong>API RESTful modular</strong> construida con FastAPI + cliente web en <code>frontend/</code>.</li>
-                            <li><strong>3 roles diferenciados:</strong>
-                                <ul>
-                                    <li><strong>Estudiante:</strong> busca, filtra, reseña, vota utilidad, guarda en listas/favoritos y reporta.</li>
-                                    <li><strong>Negocio:</strong> registra y edita sus espacios y publica novedades (<code>/posts</code>).</li>
-                                    <li><strong>Administrador:</strong> aprueba espacios pendientes y modera reportes.</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+      <!-- 12 · ENCAPSULAMIENTO & CÁLCULO DINÁMICO -->
+      <section id="domain-rating" data-chapter="domain" data-title="Encapsulamiento" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">03 — Comportamiento encapsulado en StudySpace &amp; Review</p>
+              <h2 class="display slide-h2">
+                Cálculo Dinámico y Moderación<span class="dot" style="--c:#e12afb"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Sin columnas redundantes ni desincronización: el promedio se deriva en tiempo real filtrando reseñas visibles.
+            </p>
+          </div>
+          <div class="flex-1" style="margin-top:28px;display:grid;grid-template-columns:1.05fr 1fr;gap:28px;">
+            <div class="card card-dark flex-col rv" style="--i:2;justify-content:space-between;padding:28px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="mono" style="font-size:12px;color:rgba(255,255,255,0.58);">app/models/study_space.py &amp; review.py</span>
+                <span class="mono" style="border-radius:999px;background:rgba(225,42,251,0.2);padding:3px 12px;font-size:11px;color:#f5a3ff;">Invariantes de dominio</span>
+              </div>
+              <pre class="mono" style="margin:auto 0;font-size:13px;line-height:1.6;color:rgba(255,255,255,0.92);white-space:pre;">class StudySpace(Base):
+    def calculate_average_rating(self) -> float:
+        visible_ratings = [
+            review.rating for review in self.reviews
+            if getattr(review, "is_visible", True)
+        ]
+        if not visible_ratings:
+            return 0.0
+        return round(sum(visible_ratings) / len(visible_ratings), 2)
 
-                <div class="callout">
-                    <strong>Objetivo del MVP:</strong> Construir una arquitectura orientada a objetos limpia, desacoplada, testeada y desplegada en la nube.
-                </div>
+    @property
+    def average_rating(self) -> float:
+        return self.calculate_average_rating()
 
-                <aside class="notes">
-                    Explicar brevemente la motivación del proyecto y los tres actores principales del sistema: Estudiante, Negocio y Administrador.
-                </aside>
-            </section>
+class Review(Base):
+    def hide(self) -> None:    self.is_visible = False
+    def restore(self) -> None: self.is_visible = True</pre>
+              <p style="font-size:13px;color:rgba(255,255,255,0.6);">
+                <code>CheckConstraint("rating BETWEEN 1 AND 5")</code> y <code>UniqueConstraint("user_id", "space_id")</code> garantizan integridad a nivel SQL.
+              </p>
+            </div>
+            <div class="flex-col gap-4" id="domain-rating-cards"></div>
+          </div>
+        </div>
+        <aside class="notes">Explicar cómo calculate_average_rating() y Review.hide() mantienen el promedio siempre consistente sin duplicar datos.</aside>
+      </section>
 
-            <!-- 3. ALCANCE DEL MVP (RQ1 - RQ6 + EXTRAS) -->
-            <section>
-                <div class="slide-header">
-                    <h2>Alcance del MVP Implementado</h2>
-                    <span class="slide-tag">Requerimientos RQ1 – RQ6</span>
-                </div>
-
-                <div class="grid-3">
-                    <div class="mini-card navy">
-                        <div class="title">RQ1 · Usuarios y JWT</div>
-                        <p class="desc">Registro diferenciado (Estudiante / Negocio), hashing con Bcrypt, tokens Bearer JWT y RBAC polimórfico.</p>
-                    </div>
-                    <div class="mini-card">
-                        <div class="title">RQ2 · Gestión de Espacios</div>
-                        <p class="desc">Alta, edición y consulta de espacios por negocios, con flujo de aprobación por administradores.</p>
-                    </div>
-                    <div class="mini-card navy">
-                        <div class="title">RQ3 · Búsqueda y Filtros</div>
-                        <p class="desc">Filtrado dinámico por nombre/término, disponibilidad de WiFi, enchufes y nivel de ruido.</p>
-                    </div>
-                    <div class="mini-card">
-                        <div class="title">RQ4 · Reseñas y Votos</div>
-                        <p class="desc">Calificaciones (1–5), comentarios, hasta 5 imágenes, cálculo automático de promedio y votos de utilidad.</p>
-                    </div>
-                    <div class="mini-card navy">
-                        <div class="title">RQ5 · Listas y Favoritos</div>
-                        <p class="desc">Herencia <code>StudySpacesList</code> / <code>FavoritesList</code> para organizar espacios guardados y favoritos.</p>
-                    </div>
-                    <div class="mini-card">
-                        <div class="title">RQ6 · Moderación y Posts</div>
-                        <p class="desc">Reportes polimórficos (reseñas, posts, espacios, usuarios) con resolución/descarte + CRUD de publicaciones.</p>
-                    </div>
-                </div>
-
-                <div class="callout">
-                    <strong>Estado actual:</strong> Los 6 requerimientos del MVP + el módulo extra de <code>/posts</code> están 100% implementados y testeados.
-                </div>
-
-                <aside class="notes">
-                    Recorrer rápidamente los 6 requerimientos del MVP definidos en el README y mencionar que además se sumó el CRUD de publicaciones (/posts) para negocios.
-                </aside>
-            </section>
-
-            <!-- 4. STACK TECNOLÓGICO -->
-            <section>
-                <div class="slide-header">
-                    <h2>Stack Tecnológico</h2>
-                    <span class="slide-tag">Herramientas</span>
-                </div>
-
-                <div class="grid-2">
-                    <div class="card">
-                        <h3>Backend &amp; Datos</h3>
-                        <ul>
-                            <li><strong>Python 3.12+ &amp; FastAPI:</strong> API REST asíncrona con documentación OpenAPI automática (<code>/docs</code>).</li>
-                            <li><strong>Pydantic v2:</strong> Validación estricta de entrada/salida y configuración (<code>pydantic-settings</code>).</li>
-                            <li><strong>SQLAlchemy 2.0:</strong> ORM con mapeo polimórfico (<em>Single-Table Inheritance</em>).</li>
-                            <li><strong>Alembic:</strong> 6 migraciones versionadas sobre <strong>PostgreSQL</strong> (producción) y <strong>SQLite</strong> (dev/test).</li>
-                        </ul>
-                    </div>
-
-                    <div class="card navy">
-                        <h3>Seguridad, QA &amp; Deploy</h3>
-                        <ul>
-                            <li><strong>PyJWT + Bcrypt:</strong> Autenticación stateless con tokens Bearer y contraseñas hasheadas.</li>
-                            <li><strong>Pytest + HTTPX:</strong> Suite de <strong>163 tests</strong> automatizados.</li>
-                            <li><strong>Docker &amp; GitHub Actions:</strong> Contenedor auto-inicializable (migraciones + <code>crear_admin.py --auto</code>) y CI en cada push/PR.</li>
-                            <li><strong>Render + Frontend Web:</strong> API desplegada en la nube integrada con cliente HTML/CSS/JS.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="pill-row">
-                    <span class="pill cyan">FastAPI</span>
-                    <span class="pill">SQLAlchemy 2.0</span>
-                    <span class="pill cyan">Alembic</span>
-                    <span class="pill">Pydantic v2</span>
-                    <span class="pill cyan">PyJWT &amp; Bcrypt</span>
-                    <span class="pill">PostgreSQL / SQLite</span>
-                    <span class="pill cyan">Pytest</span>
-                    <span class="pill">Docker &amp; GitHub Actions</span>
-                    <span class="pill cyan">Render</span>
-                </div>
-
-                <aside class="notes">
-                    Destacar por qué elegimos FastAPI (tipado fuerte, validación automática, OpenAPI), SQLAlchemy 2.0 para herencia polimórfica y Alembic para evolucionar el esquema sin perder datos.
-                </aside>
-            </section>
-
-            <!-- 5. ARQUITECTURA EN CAPAS -->
-            <section>
-                <div class="slide-header">
-                    <h2>Arquitectura en Capas</h2>
-                    <span class="slide-tag">Diseño del Sistema</span>
-                </div>
-
-                <div class="layer-stack">
-                    <div class="layer-box cyan">
-                        <span class="layer-name">1. Routers (<code>app/routers/</code>)</span>
-                        <span class="layer-desc">Endpoints HTTP, validación de schemas Pydantic, dependencias de autenticación/rol y códigos de estado.</span>
-                    </div>
-                    <div class="layer-arrow">▼</div>
-                    <div class="layer-box">
-                        <span class="layer-name">2. Services (<code>app/services/</code>)</span>
-                        <span class="layer-desc">Lógica de negocio pura: reglas de permisos, cálculo de promedios, validaciones cruzadas y coordinación.</span>
-                    </div>
-                    <div class="layer-arrow">▼</div>
-                    <div class="layer-box cyan">
-                        <span class="layer-name">3. Repositories (<code>app/repositories/</code>)</span>
-                        <span class="layer-desc">Abstracción de consultas SQLAlchemy; permite aislar y testear servicios sin acoplarse al motor de BD.</span>
-                    </div>
-                    <div class="layer-arrow">▼</div>
-                    <div class="layer-box">
-                        <span class="layer-name">4. Models &amp; DB (<code>app/models/</code>)</span>
-                        <span class="layer-desc">Entidades de dominio con herencia polimórfica, relaciones e invariantes, persistidas en PostgreSQL / SQLite.</span>
-                    </div>
-                </div>
-
-                <div class="callout">
-                    <strong>Beneficio clave:</strong> Separación de responsabilidades clara; cada capa conoce solo a la capa inmediatamente inferior.
-                </div>
-
-                <aside class="notes">
-                    Explicar cómo una petición HTTP entra por el Router, valida el token y el schema, delega reglas de negocio al Service, y este persiste a través del Repository.
-                </aside>
-            </section>
-
-            <!-- 6. MODELO DE DOMINIO Y POO -->
-            <section>
-                <div class="slide-header">
-                    <h2>Modelo de Dominio y Polimorfismo</h2>
-                    <span class="slide-tag">Programación Orientada a Objetos</span>
-                </div>
-
-                <p style="font-size: 0.65em; color: var(--unsam-muted); margin-top: 0;">
-                    Aplicamos <strong>Single-Table Inheritance</strong> en SQLAlchemy para modelar jerarquías con comportamiento propio y prohibir instanciar clases base abstractas:
-                </p>
-
-                <div class="grid-3">
-                    <div class="card navy">
-                        <h3>Jerarquía <code>User</code></h3>
-                        <p>Discriminador: <code>role</code></p>
-                        <ul>
-                            <li><code>StudentUser</code> (reseñas, listas, votos)</li>
-                            <li><code>BusinessUser</code> (espacios propios, posts)</li>
-                            <li><code>AdminUser</code> (aprobación, moderación)</li>
-                        </ul>
-                    </div>
-
-                    <div class="card">
-                        <h3>Jerarquía <code>StudySpacesList</code></h3>
-                        <p>Especialización de listas</p>
-                        <ul>
-                            <li><code>StudySpacesList</code> (listas personalizadas por el estudiante)</li>
-                            <li><code>FavoritesList</code> (lista única de favoritos con acceso directo en <code>/favorites</code>)</li>
-                        </ul>
-                    </div>
-
-                    <div class="card navy">
-                        <h3>Jerarquía <code>Report</code></h3>
-                        <p>Discriminador: <code>type</code></p>
-                        <ul>
-                            <li><code>ReviewReport</code> (oculta reseña)</li>
-                            <li><code>PostReport</code> (oculta publicación)</li>
-                            <li><code>StudySpaceReport</code></li>
-                            <li><code>UserReport</code> (desactiva usuario)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="callout">
-                    Al consultar la base de datos, SQLAlchemy instancia automáticamente la subclase concreta según la columna discriminadora.
-                </div>
-
-                <aside class="notes">
-                    Resaltar que las clases base User y Report validan en __init__ que no se instancien directamente, reforzando el diseño abstracto en Python.
-                </aside>
-            </section>
-
-            <!-- 7. PATRONES DE DISEÑO (CON SUB-SLIDE DE CÓDIGO) -->
-            <section>
-                <section>
-                    <div class="slide-header">
-                        <h2>Patrones de Diseño Aplicados</h2>
-                        <span class="slide-tag">Arquitectura &amp; POO</span>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="card">
-                            <h3>Implementados en el Código</h3>
-                            <ul>
-                                <li><strong>Repository Pattern + Service Layer:</strong> Desacopla la lógica de negocio de SQLAlchemy.</li>
-                                <li><strong>Template Method (<code>Report</code>):</strong> <code>resolve()</code> y <code>dismiss()</code> definen el esqueleto fijo (aplicar medida → cerrar reporte → notificar) y cada subclase sobrescribe <code>_apply_resolution()</code>.</li>
-                            </ul>
-                        </div>
-
-                        <div class="card navy">
-                            <h3>Proyectados en el UML (Extensión)</h3>
-                            <ul>
-                                <li><strong>Observer:</strong> Suscripción de <code>StudentUser</code> a eventos de <code>StudySpace</code> y resolución de <code>Report</code>.</li>
-                                <li><strong>Factory Method (<code>NotificationService</code>):</strong> Subclases especializadas deciden dinámicamente qué canal instanciar (<code>EmailNotification</code> o <code>InAppNotification</code>).</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="callout">
-                        Presioná <strong>▼ (flecha abajo)</strong> para ver el código real del patrón <em>Template Method</em> en <code>app/models/report.py</code>.
-                    </div>
-
-                    <aside class="notes">
-                        Diferenciar claramente qué patrones ya corren en producción (Repository, Service Layer, Template Method en Report) y cuáles están modelados en el UML para la siguiente iteración (Observer y Factory Method).
-                    </aside>
-                </section>
-
-                <!-- SUB-SLIDE VERTICAL: CÓDIGO REAL -->
-                <section>
-                    <div class="slide-header">
-                        <h2>Template Method en <code>app/models/report.py</code></h2>
-                        <span class="slide-tag">Código Real</span>
-                    </div>
-
-                    <pre><code class="language-python" data-trim data-noescape>
-class Report(Base):
+      <!-- 13 · TEMPLATE METHOD EN REPORT.RESOLVE() -->
+      <section id="patterns-template" data-chapter="patterns" data-title="Template Method" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">04 — Patrón implementado en producción</p>
+              <h2 class="display slide-h2">
+                Template Method en Report.resolve()<span class="dot" style="--c:#2dd4bf"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              La superclase define el algoritmo fijo de cierre y delega en cada subclase la medida concreta sobre lo reportado.
+            </p>
+          </div>
+          <div class="flex-1" style="margin-top:28px;display:grid;grid-template-columns:1.05fr 1fr;gap:28px;">
+            <div class="card card-dark flex-col rv" style="--i:3;justify-content:space-between;padding:28px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="mono" style="font-size:12px;color:rgba(255,255,255,0.58);">app/models/report.py — Esqueleto en clase abstracta Report</span>
+                <span class="mono" style="border-radius:999px;background:rgba(45,212,191,0.2);padding:3px 12px;font-size:11px;color:#2dd4bf;">Lines 101–115</span>
+              </div>
+              <pre class="mono" style="margin:auto 0;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.92);white-space:pre;">class Report(Base):
     def resolve(self) -> None:
-        """Da por válido el reporte: aplica la medida y lo cierra."""
-        self._apply_resolution()
-        self._close(ReportStatus.RESOLVED)
+        """Template Method: flujo fijo de resolución."""
+        self._apply_resolution()           # 1. Paso polimórfico
+        self._close(ReportStatus.RESOLVED) # 2. Paso común
 
     def dismiss(self) -> None:
-        """Descarta el reporte sin tomar medidas sobre lo reportado."""
         self._close(ReportStatus.DISMISSED)
 
     def _close(self, new_status: ReportStatus) -> None:
         self.status = new_status
         self.resolved_at = datetime.now(UTC)
-        self._notify_observers(new_status)
-
-class ReviewReport(Report):
-    __mapper_args__ = {"polymorphic_identity": ReportType.REVIEW}
-
-    def _apply_resolution(self) -> None:
-        """Oculta la reseña reportada."""
-        self.review.hide()
-                    </code></pre>
-
-                    <aside class="notes">
-                        Mostrar cómo resolve() orquesta el flujo común sin duplicar lógica de cierre o timestamps en ReviewReport, PostReport, StudySpaceReport y UserReport.
-                    </aside>
-                </section>
-            </section>
-
-            <!-- 8. SEGURIDAD Y RBAC -->
-            <section>
-                <div class="slide-header">
-                    <h2>Seguridad, Autenticación y RBAC</h2>
-                    <span class="slide-tag">RQ1 · Acceso por Roles</span>
-                </div>
-
-                <div class="grid-2">
-                    <div class="card navy">
-                        <h3>Autenticación Stateless</h3>
-                        <ul>
-                            <li>Registro separado por tipo de cuenta: <code>/users/register/student</code> y <code>/users/register/business</code>.</li>
-                            <li>Contraseñas hasheadas con <strong>Bcrypt</strong> (nunca en texto plano).</li>
-                            <li>Login en <code>/users/login</code> devuelve un token <strong>JWT Bearer</strong> firmado con <code>SECRET_KEY</code>.</li>
-                            <li>Administrador inicial creado automáticamente en arranque vía <code>crear_admin.py --auto</code>.</li>
-                        </ul>
-                    </div>
-
-                    <div class="card">
-                        <h3>Autorización Basada en Roles</h3>
-                        <ul>
-                            <li>Dependencias de FastAPI verifican la instancia polimórfica del usuario autenticado:</li>
-                            <li><strong>Estudiante:</strong> crear reseñas, votar, gestionar listas/favoritos.</li>
-                            <li><strong>Negocio:</strong> crear/editar sus propios espacios y publicar posts.</li>
-                            <li><strong>Admin:</strong> aprobar espacios pendientes y resolver/descartar reportes.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <aside class="notes">
-                    Explicar que el control de acceso no solo valida que el usuario esté logueado, sino que verifica su rol y, cuando corresponde, que sea dueño del recurso (por ejemplo, editar solo sus propios espacios o reseñas).
-                </aside>
-            </section>
-
-            <!-- 9. ENDPOINTS PRINCIPALES -->
-            <section>
-                <div class="slide-header">
-                    <h2>Endpoints Principales de la API</h2>
-                    <span class="slide-tag">Routers FastAPI</span>
-                </div>
-
-                <table class="endpoint-table">
-                    <thead>
-                        <tr>
-                            <th>Módulo / Router</th>
-                            <th>Prefijo</th>
-                            <th>Funcionalidad Principal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Usuarios</strong></td>
-                            <td><code>/users</code></td>
-                            <td>Registro diferenciado, login JWT y perfil actual (<code>/users/me</code>).</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Espacios</strong></td>
-                            <td><code>/spaces</code></td>
-                            <td>Búsqueda y filtros (WiFi, enchufes, ruido), CRUD de negocio y aprobación admin.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Reseñas</strong></td>
-                            <td><code>/reviews</code></td>
-                            <td>CRUD de reseñas con hasta 5 imágenes, promedio automático y votos de utilidad.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Listas &amp; Favoritos</strong></td>
-                            <td><code>/lists</code> · <code>/favorites</code></td>
-                            <td>Creación de listas personalizadas y gestión rápida de espacios favoritos.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Publicaciones</strong></td>
-                            <td><code>/posts</code></td>
-                            <td>Novedades e imágenes publicadas por los negocios en sus espacios.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Reportes</strong></td>
-                            <td><code>/reports</code></td>
-                            <td>Emisión de reportes polimórficos y resolución/descarte por administradores.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Salud</strong></td>
-                            <td><code>/health</code></td>
-                            <td>Endpoint de monitoreo (<code>{"status": "ok"}</code>) + Swagger en <code>/docs</code>.</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <aside class="notes">
-                    Mostrar la organización limpia en 7 routers registrados en app/main.py, además del healthcheck y la documentación interactiva en /docs.
-                </aside>
-            </section>
-
-            <!-- 10. TESTING, CI/CD Y DESPLIEGUE -->
-            <section>
-                <div class="slide-header">
-                    <h2>Calidad, Testing e Infraestructura</h2>
-                    <span class="slide-tag">QA &amp; DevOps</span>
-                </div>
-
-                <div class="grid-3" style="margin-bottom: 18px;">
-                    <div class="stat-card">
-                        <div class="stat-num">163</div>
-                        <div class="stat-label">Tests automatizados con Pytest</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-num">6</div>
-                        <div class="stat-label">Migraciones Alembic versionadas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-num">CI/CD</div>
-                        <div class="stat-label">GitHub Actions + Docker + Render</div>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="mini-card navy">
-                        <div class="title">Testing Automatizado (<code>tests/</code>)</div>
-                        <p class="desc">Cobertura sobre autenticación, modelos polimórficos, espacios, reseñas, listas, posts, reportes y healthcheck con SQLite aislado.</p>
-                    </div>
-                    <div class="mini-card">
-                        <div class="title">Contenedor y Despliegue en la Nube</div>
-                        <p class="desc"><code>Dockerfile</code> ejecuta migraciones Alembic y <code>crear_admin.py --auto</code> al iniciar; desplegado en Render conectado a PostgreSQL.</p>
-                    </div>
-                </div>
-
-                <aside class="notes">
-                    Recalcar que los 163 tests superan ampliamente el mínimo de 10 requeridos y que GitHub Actions (.github/workflows/tests.yml) corre la suite completa en cada push y pull request.
-                </aside>
-            </section>
-
-            <!-- 11. DEMO EN VIVO -->
-            <section>
-                <div class="slide-header">
-                    <h2>Guion de Demo en Vivo</h2>
-                    <span class="slide-tag">API + Frontend Web</span>
-                </div>
-
-                <div class="grid-2">
-                    <div class="card">
-                        <h3>1. Flujo Estudiante (<code>frontend/</code>)</h3>
-                        <ul>
-                            <li>Ingresar a <code>index.html</code> y filtrar espacios por WiFi, enchufes y nivel de ruido.</li>
-                            <li>Iniciar sesión y abrir <code>detalle.html</code> de un espacio.</li>
-                            <li>Publicar una reseña y verificar la actualización del promedio (<code>average_rating</code>).</li>
-                            <li>Guardar en favoritos (<code>favoritos.html</code>) o en una lista personalizada (<code>mis-listas.html</code>).</li>
-                        </ul>
-                    </div>
-
-                    <div class="card navy">
-                        <h3>2. Flujo Negocio, Admin y Swagger</h3>
-                        <ul>
-                            <li>Desde <code>mis-espacios.html</code>, dar de alta un nuevo espacio (queda pendiente).</li>
-                            <li>Desde <code>admin.html</code>, aprobar el espacio pendiente.</li>
-                            <li>Mostrar en <strong>Swagger (<code>/docs</code>)</strong> la creación y resolución polimórfica de un reporte en <code>/reports</code>.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="callout">
-                    <strong>Endpoints listos para probar:</strong> Local (<code>http://localhost:8000/docs</code>) o Producción (<code>https://study-spaces-rest-api.onrender.com/docs</code>).
-                </div>
-
-                <aside class="notes">
-                    Este es el orden sugerido para la demo en vivo, combinando la interfaz web amigable para el usuario final con Swagger para los endpoints de moderación.
-                </aside>
-            </section>
-
-            <!-- 12. TRABAJO FUTURO Y CIERRE -->
-            <section>
-                <div class="slide-header">
-                    <h2>Trabajo Futuro y Conclusiones</h2>
-                    <span class="slide-tag">Roadmap Post-MVP</span>
-                </div>
-
-                <div class="grid-2">
-                    <div class="card navy">
-                        <h3>Mejoras Técnicas (<code>ROADMAP.md</code>)</h3>
-                        <ul>
-                            <li><strong>Fase 8:</strong> Excepciones de dominio personalizadas y handlers globales en <code>app/main.py</code>.</li>
-                            <li><strong>Refactor de capas:</strong> Unificar consultas residuales de <code>study_spaces.py</code> en su repositorio/servicio.</li>
-                            <li><strong>Frontend:</strong> Integrar vistas de <code>/reports</code> y <code>/posts</code> en el cliente web.</li>
-                        </ul>
-                    </div>
-
-                    <div class="card">
-                        <h3>Extensiones del UML</h3>
-                        <ul>
-                            <li><strong>Notificaciones:</strong> Implementar <em>Observer</em> + <em>Factory Method</em> (Email / In-App).</li>
-                            <li><strong>Titularidad:</strong> Solicitudes de reclamo de espacios (<code>OwnershipRequest</code>).</li>
-                            <li><strong>Monetización:</strong> Campañas publicitarias integradas con <code>MercadoPagoService</code>.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="callout" style="text-align: center; font-size: 0.72em;">
-                    <strong>¡Muchas gracias!</strong> ¿Preguntas o comentarios?
-                </div>
-
-                <aside class="notes">
-                    Cerrar destacando lo aprendido en diseño orientado a objetos, arquitectura en capas, testing y despliegue real en producción, y abrir espacio para preguntas de los docentes.
-                </aside>
-            </section>
-
+        self._notify_observers(new_status)</pre>
+              <p style="font-size:13px;color:rgba(255,255,255,0.6);">
+                Las subclases nunca duplican el cambio de estado ni el timestamp <code>resolved_at</code>: solo sobrescriben <code>_apply_resolution()</code>.
+              </p>
+            </div>
+            <div class="grid-2 grid-rows-2 gap-4" id="tpl-subclasses-grid"></div>
+          </div>
         </div>
+        <aside class="notes">Mostrar el código real de Report.resolve() y las cuatro implementaciones concretas de _apply_resolution().</aside>
+      </section>
+
+      <!-- 14 · PATRONES IMPLEMENTADOS VS UML -->
+      <section id="patterns-overview" data-chapter="patterns" data-title="Repository & UML" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">04 — Implementados vs. Proyectados en UML</p>
+              <h2 class="display slide-h2">
+                Patrones de Diseño en Study Spaces<span class="dot" style="--c:#2dd4bf"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:420px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.56);">
+              Diferenciación clara entre los patrones activos en el código del MVP y las extensiones proyectadas en el diagrama UML.
+            </p>
+          </div>
+          <div class="grid-2 grid-rows-2 gap-6 flex-1" style="margin-top:28px;" id="patterns-cards-grid"></div>
+        </div>
+        <aside class="notes">Diferenciar con honestidad técnica los patrones que corren en producción (Repository, Service Layer, Template Method) y los modelados en UML (Observer, Factory Method).</aside>
+      </section>
+
+      <!-- 15 · SEGURIDAD: BCRYPT, JWT Y RBAC POLIMÓRFICO -->
+      <section id="api-security" data-chapter="api" data-title="Bcrypt & JWT" data-bg="clean">
+        <div class="slide-body">
+          <p class="label rv" style="--i:0">05 — RQ1 · Autenticación Stateless &amp; Autorización</p>
+          <h2 class="display slide-h2" style="font-size:54px;">
+            Seguridad: Bcrypt, JWT y RBAC Polimórfico<span class="dot" style="--c:#74d4ff"></span>
+          </h2>
+          <div class="flex-1" style="margin-top:28px;display:grid;grid-template-columns:1fr 1.15fr;gap:28px;">
+            <div class="flex-col gap-4 rv" style="--i:2">
+              <div class="card flex-1" style="padding:28px;">
+                <span class="wash" style="--c:#74d4ff;--wash-h:52%"></span>
+                <span class="num-badge">01 · AUTENTICACIÓN STATELESS</span>
+                <h3 style="margin-top:8px !important;font-size:26px;font-weight:600;letter-spacing:-0.03em;">Bcrypt + PyJWT (HS256)</h3>
+                <ul style="margin-top:16px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.5;color:rgba(11,11,18,0.76);">
+                  <li>✓ Contraseñas hasheadas con salt mediante <code>bcrypt.hashpw</code> (nunca en texto plano).</li>
+                  <li>✓ <code>POST /users/login</code> emite un token Bearer con <code>sub=str(user.id)</code> y expiración de 8 horas.</li>
+                  <li>✓ <code>get_current_user</code> valida firma, expiración y que <code>user.is_active</code> sea <code>True</code>.</li>
+                </ul>
+              </div>
+              <div class="card" style="padding:24px;">
+                <span class="num-badge">02 · BOOTSTRAP AUTOMÁTICO DE ADMIN</span>
+                <p style="margin-top:8px !important;font-size:14.5px;line-height:1.5;color:rgba(11,11,18,0.72);">
+                  Al iniciar el contenedor Docker, <code>crear_admin.py --auto</code> lee <code>ADMIN_EMAIL</code> y <code>ADMIN_PASSWORD</code> desde variables de entorno e inicializa el <code>AdminUser</code> de forma idempotente.
+                </p>
+              </div>
+            </div>
+            <div class="card card-dark flex-col rv" style="--i:3;justify-content:space-between;padding:28px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="mono" style="font-size:12px;color:rgba(255,255,255,0.58);">app/services/auth_service.py — Dependencias polimórficas</span>
+                <span class="mono" style="border-radius:999px;background:rgba(116,212,255,0.2);padding:3px 12px;font-size:11px;color:#74d4ff;">FastAPI Depends()</span>
+              </div>
+              <pre class="mono" style="margin:auto 0;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.92);white-space:pre;">def _require(user_class: type[User], detail: str):
+    """Exige un usuario autenticado de cierta subclase."""
+    def dependency(user: User = Depends(get_current_user)):
+        if not isinstance(user, user_class):
+            raise HTTPException(status_code=403, detail=detail)
+        return user
+    return dependency
+
+require_student  = _require(StudentUser,  "Solo para estudiantes")
+require_business = _require(BusinessUser, "Solo para negocios")
+require_admin    = _require(AdminUser,    "Solo para administradores")</pre>
+              <p style="font-size:13px;color:rgba(255,255,255,0.6);">
+                Gracias al mapeo polimórfico de SQLAlchemy, <code>isinstance(user, StudentUser)</code> verifica el rol directamente con el sistema de tipos de Python.
+              </p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Resaltar la elegancia del factory _require(user_class) aprovechando las subclases polimórficas de SQLAlchemy.</aside>
+      </section>
+
+      <!-- 16 · CATÁLOGO DE LOS 7 ROUTERS -->
+      <section id="api-endpoints" data-chapter="api" data-title="Endpoints REST" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">05 — 7 Routers registrados en app/main.py</p>
+              <h2 class="display slide-h2">
+                Endpoints de la API REST<span class="dot" style="--c:#74d4ff"></span>
+              </h2>
+            </div>
+            <span class="mono rv" style="--i:2;border-radius:999px;background:rgba(11,11,18,0.05);padding:7px 16px;font-size:12.5px;color:rgba(11,11,18,0.72);">
+              OpenAPI / Swagger → /docs y /redoc
+            </span>
+          </div>
+          <div class="grid-3 grid-rows-2 gap-4 flex-1" style="margin-top:26px;" id="routers-cards-grid"></div>
+        </div>
+        <aside class="notes">Vista panorámica de los 7 routers reales registrados en app/main.py y el endpoint /health.</aside>
+      </section>
+
+      <!-- 17 · 163 TESTS AUTOMATIZADOS -->
+      <section id="qa-pytest" data-chapter="quality" data-title="163 Tests Pytest" data-bg="clean">
+        <div class="slide-body">
+          <div class="split-left-narrow" style="align-items:center;">
+            <div class="flex-col">
+              <p class="label rv" style="--i:0">06 — Calidad verificada con Pytest</p>
+              <h2 class="display slide-h2">
+                163 Tests Automatizados<span class="dot" style="--c:#facc15"></span>
+              </h2>
+              <p class="slide-lead rv" style="--i:2">
+                Superamos ampliamente el mínimo de 10 pruebas requerido por la cátedra: cada endpoint, regla de negocio y jerarquía polimórfica se testea con <strong>SQLite aislado por test</strong> en <code>tests/conftest.py</code>.
+              </p>
+              <div class="grid-2 gap-4 rv" style="--i:3;margin-top:30px;">
+                <div class="card" style="padding:20px;">
+                  <span class="wash" style="--c:#2dd4bf;--wash-h:55%"></span>
+                  <p class="mono" style="font-size:11px;text-transform:uppercase;color:rgba(11,11,18,0.5);">Suite Pytest</p>
+                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">163</p>
+                  <p style="margin-top:4px !important;font-size:13px;color:rgba(11,11,18,0.66);">Verificados con pytest</p>
+                </div>
+                <div class="card" style="padding:20px;">
+                  <span class="wash" style="--c:#7c3aed;--wash-h:55%"></span>
+                  <p class="mono" style="font-size:11px;text-transform:uppercase;color:rgba(11,11,18,0.5);">Alembic</p>
+                  <p style="margin-top:4px !important;font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.05em;">6</p>
+                  <p style="margin-top:4px !important;font-size:13px;color:rgba(11,11,18,0.66);">Migraciones versionadas</p>
+                </div>
+              </div>
+            </div>
+            <div class="card flex-col gap-4 rv" style="--i:2;padding:32px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;">
+                <p class="label" style="font-size:10.5px;">Distribución real de la suite (tests/)</p>
+                <span class="mono" style="font-size:12.5px;font-weight:600;color:#0d9488;">163 collected &amp; passing</span>
+              </div>
+              <div id="qa-bars-list" style="margin-top:6px;display:flex;flex-direction:column;gap:14px;"></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Mostrar la cobertura real distribuida en test_reports, test_models, test_reviews, test_lists, test_posts, test_auth, test_study_spaces y test_health.</aside>
+      </section>
+
+      <!-- 18 · DOCKER, CI/CD Y DEPLOY EN RENDER -->
+      <section id="qa-deploy" data-chapter="quality" data-title="Docker & Render" data-bg="clean">
+        <div class="slide-body">
+          <p class="label rv" style="--i:0">06 — DevOps &amp; Producción</p>
+          <h2 class="display slide-h2">
+            Docker, CI/CD y Despliegue en Render<span class="dot" style="--c:#facc15"></span>
+          </h2>
+          <div class="grid-4 gap-5 flex-1" style="margin-top:34px;" id="qa-deploy-grid"></div>
+        </div>
+        <aside class="notes">Explicar GitHub Actions, Docker con alembic upgrade head + crear_admin.py --auto, y el deploy en Render con PostgreSQL.</aside>
+      </section>
+
+      <!-- 19 · GUION DE DEMO EN VIVO (APP APARTE) -->
+      <section id="demo-guide" data-chapter="takeaways" data-title="Guion de Demo" data-bg="demo">
+        <div class="slide-body">
+          <div class="flex-between">
+            <div>
+              <p class="label rv" style="--i:0">07 — Demostración Práctica (Aplicación aparte)</p>
+              <h2 class="display slide-h2" style="line-height:1.05;">
+                Guion de Demo en Vivo<span class="dot" style="--c:#fb7185"></span>
+              </h2>
+            </div>
+            <p class="rv" style="--i:2;max-width:430px;padding-bottom:6px;text-align:right;font-size:15.5px;line-height:1.5;color:rgba(11,11,18,0.58);">
+              Recorrido en vivo sobre <code>frontend/</code> y Swagger UI conectados a la API en producción (<code>127.0.0.1:5500</code>).
+            </p>
+          </div>
+
+          <div class="grid-3 gap-5 flex-1" style="margin-top:26px;" id="demo-guide-cards"></div>
+
+          <div class="card rv" style="--i:6;margin-top:20px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;">
+            <div>
+              <p class="label" style="font-size:10.5px;">Accesos directos para la demo (abren en pestaña aparte)</p>
+              <p style="margin-top:4px !important;font-size:14px;color:rgba(11,11,18,0.68);">
+                El servidor local expone el cliente web real en <code>/frontend/index.html</code> habilitado por CORS en producción.
+              </p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <a class="btn" href="/frontend/index.html" target="_blank" rel="noreferrer">Abrir Frontend App ↗</a>
+              <a class="btn btn-ghost" href="https://study-spaces-rest-api.onrender.com/docs" target="_blank" rel="noreferrer">Swagger /docs ↗</a>
+              <a class="btn btn-ghost" href="https://study-spaces-rest-api.onrender.com/health" target="_blank" rel="noreferrer">/health ↗</a>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Abrir /frontend/index.html y Swagger /docs en otra pestaña para demostrar el flujo Estudiante, Negocio y Administrador en vivo.</aside>
+      </section>
+
+      <!-- 20 · CONCLUSIONES & ROADMAP (FAN CARDS) -->
+      <section id="takeaways" data-chapter="takeaways" data-title="Conclusiones" data-bg="clean">
+        <div class="slide-body">
+          <div style="text-align:center;">
+            <p class="label rv" style="--i:0">07 — Conclusiones y Roadmap Post-MVP</p>
+            <h2 class="display" style="margin-top:14px !important;font-size:80px;line-height:1.06;">
+              <span class="word" style="--w:0">Del</span>
+              <span class="word" style="--w:1">Diseño</span>
+              <span class="word" style="--w:2">UML</span>
+              <span class="word" style="--w:3">a</span>
+              <span class="word" style="--w:4">Producción</span><span class="word" style="--w:5"><span class="dot dot-brand"></span></span>
+            </h2>
+          </div>
+          <div class="mt-auto">
+            <ul class="fan" id="takeaways-fan" style="--w:290px;--h:320px;--drop:110px;--pivot:548%;"></ul>
+          </div>
+        </div>
+        <aside class="notes">Sintetizar los cuatro pilares técnicos logrados y los siguientes pasos del Roadmap.</aside>
+      </section>
+
+      <!-- 21 · MENSAJE FINAL -->
+      <section id="final" data-chapter="takeaways" data-title="Mensaje Final" data-bg="brand">
+        <div class="slide-body" style="justify-content:center;">
+          <p class="label rv" style="--i:0;color:rgba(11,11,18,0.58);">Mensaje final · Programación 2 (UNSAM)</p>
+          <p class="display" style="margin-top:34px !important;max-width:1320px;font-size:66px;line-height:1.12;letter-spacing:-0.045em;">
+            <span class="word" style="--w:0;--d:160ms">Un</span>
+            <span class="word" style="--w:1;--d:160ms">buen</span>
+            <span class="word" style="--w:2;--d:160ms">diseño</span>
+            <span class="word" style="--w:3;--d:160ms">orientado</span>
+            <span class="word" style="--w:4;--d:160ms">a</span>
+            <span class="word" style="--w:5;--d:160ms">objetos</span>
+            <span class="word" style="--w:6;--d:160ms">no</span>
+            <span class="word" style="--w:7;--d:160ms">queda</span>
+            <span class="word" style="--w:8;--d:160ms">solo</span>
+            <span class="word" style="--w:9;--d:160ms">en</span>
+            <span class="word" style="--w:10;--d:160ms">el</span>
+            <span class="word" style="--w:11;--d:160ms">diagrama</span>
+            <span class="word" style="--w:12;--d:160ms">UML:</span>
+            <span class="word" style="--w:13;--d:160ms">se</span>
+            <span class="word" style="--w:14;--d:160ms">refleja</span>
+            <span class="word" style="--w:15;--d:160ms">en</span>
+            <span class="word" style="--w:16;--d:160ms">una</span>
+            <span class="word" style="--w:17;--d:160ms">arquitectura</span>
+            <span class="word" style="--w:18;--d:160ms;color:#ea580c;">desacoplada,</span>
+            <span class="word" style="--w:19;--d:160ms;color:#c026d3;">polimórfica,</span>
+            <span class="word" style="--w:20;--d:160ms;color:#6d28d9;">testeada</span>
+            <span class="word" style="--w:21;--d:160ms">y</span>
+            <span class="word" style="--w:22;--d:160ms;color:#0d9488;">en</span>
+            <span class="word" style="--w:23;--d:160ms;color:#0d9488;">producción</span><span class="word" style="--w:24;--d:160ms"><span class="dot dot-brand"></span></span>
+          </p>
+        </div>
+        <aside class="notes">Frase de cierre antes de pasar a preguntas.</aside>
+      </section>
+
+      <!-- 22 · CIERRE Y REFERENCIAS -->
+      <section id="closing" data-chapter="takeaways" data-title="Demo & Cierre" data-bg="clean">
+        <div class="slide-body">
+          <div class="split-closing">
+            <div class="flex-col" style="justify-content:space-between;">
+              <div>
+                <p class="label rv" style="--i:0">Defensa Oral &amp; Recursos</p>
+                <h2 class="display" style="margin-top:20px !important;font-size:132px;line-height:1.02;">
+                  <span class="word" style="--w:0">Gracias</span><span class="word" style="--w:1"><span class="dot dot-brand"></span></span>
+                </h2>
+                <p class="rv" style="--i:2;margin-top:26px !important;font-size:30px;font-weight:500;letter-spacing:-0.03em;color:rgba(11,11,18,0.7);">
+                  ¿Preguntas o comentarios?
+                </p>
+              </div>
+              <div class="rv" style="--i:3;font-size:15px;line-height:1.55;color:rgba(11,11,18,0.62);">
+                <p style="font-weight:600;color:var(--color-ink);">Julieta Elhalem · Aldana Mota · Valentina Di Iorio · Santino Enzo Semec</p>
+                <p>Programación 2 — Universidad Nacional de San Martín (UNSAM)</p>
+              </div>
+            </div>
+            <div class="flex-col" style="justify-content:center;gap:10px;" id="closing-links-list"></div>
+          </div>
+        </div>
+        <aside class="notes">Abrir espacio para preguntas de los docentes con enlaces directos a Swagger, Healthcheck y repositorio.</aside>
+      </section>
+
     </div>
+  </div>
 
-    <!-- Reveal.js & Plugins -->
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+  <!-- Fixed Footer Chrome: Chapter Progress Bars + Index + Fullscreen + Prev/Next -->
+  <nav class="deck-footer" aria-label="Navegación de la presentación">
+    <div class="chapter-bars" id="chrome-chapter-bars"></div>
+    <div class="deck-controls">
+      <button type="button" class="nav-btn" id="btn-index" aria-label="Índice (O / I)" title="Índice (O / I)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      </button>
+      <button type="button" class="nav-btn" id="btn-fullscreen" aria-label="Pantalla completa (F)" title="Pantalla completa (F)" aria-pressed="false">
+        <svg class="icon-fs-max" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        <svg class="icon-fs-min" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+      </button>
+      <span class="divider" aria-hidden="true"></span>
+      <button type="button" class="nav-btn" id="btn-prev" aria-label="Anterior (←)" title="Anterior (←)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <button type="button" class="nav-btn nav-btn-solid" id="btn-next" aria-label="Siguiente (→)" title="Siguiente (→)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+  </nav>
 
-    <script>
-        Reveal.initialize({
-            hash: true,
-            slideNumber: 'c/t',
-            width: 1280,
-            height: 720,
-            margin: 0.04,
-            transition: 'slide',
-            plugins: [RevealHighlight, RevealNotes]
-        });
-    </script>
+  <!-- Index Overview Overlay -->
+  <div class="overview" id="index-modal" role="dialog" aria-modal="true" aria-labelledby="index-title" hidden>
+    <div class="overview-head">
+      <h2 class="display" id="index-title" style="font-size:68px;">Índice<span class="dot dot-brand"></span></h2>
+      <button type="button" class="nav-btn" id="btn-close-index" aria-label="Cerrar índice (Esc)" title="Cerrar índice (Esc)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="overview-grid" id="index-grid"></div>
+  </div>
+
+  <p id="a11y-status" class="sr-only" role="status" aria-live="polite"></p>
 </body>
 </html>
