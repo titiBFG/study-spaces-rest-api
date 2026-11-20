@@ -6,6 +6,8 @@ from app.models.enums import ReportStatus, ReportType
 
 
 class ReportCreate(BaseModel):
+    """Motivo enviado por el usuario para crear un reporte."""
+
     reason: str = Field(min_length=1, max_length=500)
 
 

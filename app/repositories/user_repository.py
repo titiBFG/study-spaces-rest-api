@@ -4,6 +4,7 @@ from app.models.user import User
 
 
 def get_user_by_email(session: Session, email: str):
+    """Devuelve el usuario registrado con ese correo, o None si no existe."""
     return session.query(User).filter(User.email == email).first()
 
 

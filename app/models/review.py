@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
 
 class Review(Base):
+    """Reseña y calificación (1 a 5) de un estudiante sobre un espacio de estudio."""
+
     __tablename__ = "reviews"
     __table_args__ = (
         CheckConstraint("rating BETWEEN 1 AND 5", name="ck_reviews_rating_range"),

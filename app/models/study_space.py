@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 
 class StudySpace(Base):
+    """Espacio de estudio (cafetería, biblioteca o coworking) publicado en la plataforma."""
+
     __tablename__ = "study_spaces"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -60,6 +62,7 @@ class StudySpace(Base):
     )
 
     def calculate_average_rating(self) -> float:
+        """Calcula el promedio de calificaciones considerando solo reseñas visibles."""
         visible_ratings = [
             review.rating
             for review in self.reviews
@@ -70,6 +73,7 @@ class StudySpace(Base):
         return round(sum(visible_ratings) / len(visible_ratings), 2)
 
     def count_reviews(self) -> int:
+        """Cuenta la cantidad de reseñas visibles asociadas al espacio."""
         return sum(
             1 for review in self.reviews if getattr(review, "is_visible", True)
         )

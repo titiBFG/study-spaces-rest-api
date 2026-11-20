@@ -7,6 +7,8 @@ ImageUrl = Annotated[str, Field(min_length=1, max_length=1000)]
 
 
 class ReviewCreate(BaseModel):
+    """Datos requeridos para publicar una reseña."""
+
     rating: int = Field(ge=1, le=5)
     comment: str = Field(min_length=1, max_length=1000)
     images: list[ImageUrl] = Field(default_factory=list, max_length=5)
@@ -21,6 +23,7 @@ class ReviewUpdate(BaseModel):
 
     @model_validator(mode="after")
     def at_least_one_field(self):
+        """Valida que se envíe al menos un campo no nulo para actualizar."""
         if not self.model_fields_set:
             raise ValueError("Hay que enviar al menos un campo para editar")
         for field in self.model_fields_set:
@@ -30,10 +33,14 @@ class ReviewUpdate(BaseModel):
 
 
 class ReviewVoteCreate(BaseModel):
+    """Voto de utilidad sobre una reseña."""
+
     is_useful: bool
 
 
 class ReviewResponse(BaseModel):
+    """Datos públicos de una reseña, incluyendo autor y conteo de votos."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int

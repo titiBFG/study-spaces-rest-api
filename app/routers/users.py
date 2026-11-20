@@ -15,6 +15,7 @@ def register_as_student(
     data: UserCreate,
     session: Session = Depends(get_session),  # noqa: B008
 ):
+    """Registra una nueva cuenta con rol de estudiante."""
     return register_student(session, data)
 
 
@@ -23,6 +24,7 @@ def register_as_business(
     data: UserCreate,
     session: Session = Depends(get_session),  # noqa: B008
 ):
+    """Registra una nueva cuenta con rol de negocio."""
     return register_business(session, data)
 
 
@@ -31,6 +33,7 @@ def login(
     data: UserLogin,
     session: Session = Depends(get_session),  # noqa: B008
 ):
+    """Autentica al usuario y devuelve un token Bearer JWT."""
     user = login_user(session, data)
 
     return {
@@ -42,4 +45,5 @@ def login(
 
 @router.get("/me", response_model=UserResponse)
 def my_account(user: User = Depends(get_current_user)):  # noqa: B008
+    """Devuelve los datos del usuario autenticado."""
     return user

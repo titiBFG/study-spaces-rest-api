@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class ListItem(Base):
+    """Relación entre una lista de espacios y un espacio de estudio guardado."""
+
     __tablename__ = "list_items"
 
     __table_args__ = (

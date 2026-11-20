@@ -15,6 +15,7 @@ settings = get_settings()
 
 
 def create_token(user: User):
+    """Genera un token JWT HS256 con el id del usuario y expiración de 8 horas."""
     expiration = datetime.now(UTC) + timedelta(hours=8)
 
     return jwt.encode(
@@ -28,6 +29,7 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),  # noqa: B008
     session: Session = Depends(get_session),  # noqa: B008
 ):
+    """Decodifica el token Bearer y devuelve el usuario activo correspondiente."""
     try:
         data = jwt.decode(
             credentials.credentials,
@@ -56,6 +58,7 @@ def _require(user_class: type[User], detail: str):
     """Crea una dependencia de FastAPI que exige un usuario de cierta subclase."""
 
     def dependency(user: User = Depends(get_current_user)):  # noqa: B008
+        """Verifica que el usuario autenticado pertenezca a la subclase requerida."""
         if not isinstance(user, user_class):
             raise HTTPException(status_code=403, detail=detail)
         return user

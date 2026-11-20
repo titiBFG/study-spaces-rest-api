@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class StudySpacesList(Base):
+    """Lista personalizada de espacios de estudio creada por un estudiante."""
+
     __tablename__ = "study_spaces_lists"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -40,6 +42,7 @@ class StudySpacesList(Base):
     }
 
 class FavoritesList(StudySpacesList):
+    """Lista única de favoritos de un estudiante (suscribe al patrón Observer)."""
 
     __mapper_args__ = {  # noqa: RUF012
         "polymorphic_identity": "favorites"

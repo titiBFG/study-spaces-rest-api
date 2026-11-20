@@ -43,14 +43,17 @@ def register_user(
 
 
 def register_student(session: Session, data: UserCreate):
+    """Registra un usuario con rol de estudiante."""
     return register_user(session, data, StudentUser)
 
 
 def register_business(session: Session, data: UserCreate):
+    """Registra un usuario con rol de negocio."""
     return register_user(session, data, BusinessUser)
 
 
 def login_user(session: Session, data: UserLogin):
+    """Valida credenciales y estado activo del usuario para iniciar sesión."""
     user = get_user_by_email(session, data.email.lower())
 
     if user is None or not user.verify_password(data.password):
