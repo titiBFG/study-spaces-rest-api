@@ -47,7 +47,10 @@
         <span id="chrome-chapter-label"></span>
       </span>
     </p>
-    <p class="deck-counter" id="chrome-counter" aria-live="polite">01 / 22</p>
+    <div class="deck-header-right">
+      <p class="deck-counter" id="chrome-counter" aria-live="polite">01 / 23</p>
+      <img class="deck-mosca" src="assets/unsam-logo.png" alt="Universidad Nacional de San Martín (UNSAM)">
+    </div>
   </header>
 
   <div class="reveal">
@@ -324,7 +327,46 @@ Payload: {"rating": 5, "comment": "Excelente WiFi y silencio", "images": []}
         <aside class="notes">Explicar cómo reforzamos el diseño de clases base abstractas junto con Single-Table Inheritance.</aside>
       </section>
 
-      <!-- 11 · 4 JERARQUÍAS STI -->
+      <!-- 11 · DIAGRAMA DE CLASES UML INTERACTIVO (SVG + ZOOM/PAN) -->
+      <section id="domain-uml" data-chapter="domain" data-title="Diagrama UML" data-bg="clean">
+        <div class="slide-body">
+          <div class="flex-between" style="align-items:center;">
+            <div>
+              <p class="label rv" style="--i:0">03 — Modelo de Dominio Completo (Vectorial Offline)</p>
+              <h2 class="display slide-h2" style="font-size:46px;">
+                Diagrama de Clases UML<span class="dot" style="--c:#e12afb"></span>
+              </h2>
+            </div>
+            <div class="uml-toolbar rv" style="--i:1" role="toolbar" aria-label="Controles del diagrama UML">
+              <div class="uml-presets">
+                <button type="button" class="uml-btn is-active" data-uml-preset="fit">Vista general</button>
+                <button type="button" class="uml-btn" data-uml-preset="users">Users &amp; Roles</button>
+                <button type="button" class="uml-btn" data-uml-preset="space">StudySpace &amp; Listas</button>
+                <button type="button" class="uml-btn" data-uml-preset="reports">Reportes</button>
+                <button type="button" class="uml-btn" data-uml-preset="notifications">Notificaciones</button>
+              </div>
+              <div class="uml-zoom-controls">
+                <button type="button" class="uml-btn uml-icon-btn" id="uml-zoom-out" aria-label="Alejar" title="Alejar">−</button>
+                <span class="mono uml-zoom-readout" id="uml-zoom-label">100%</span>
+                <button type="button" class="uml-btn uml-icon-btn" id="uml-zoom-in" aria-label="Acercar" title="Acercar">+</button>
+                <button type="button" class="uml-btn" id="uml-zoom-reset" title="Restablecer vista">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card uml-stage-card flex-1 rv" style="--i:2;margin-top:18px;" id="uml-viewport">
+            <div class="uml-canvas" id="uml-canvas">
+              <img class="uml-img" id="uml-img" src="assets/uml.svg" alt="Diagrama de Clases UML de Study Spaces REST API" draggable="false">
+            </div>
+            <div class="uml-hint mono">
+              Arrastrá con el mouse para mover · Rueda o doble click para hacer zoom · Botones arriba para enfocar subsistemas
+            </div>
+          </div>
+        </div>
+        <aside class="notes">Explorar el diagrama UML vectorial con zoom, arrastre y presets para enfocar Users, StudySpace, Reportes y Notificaciones.</aside>
+      </section>
+
+      <!-- 12 · 4 JERARQUÍAS STI -->
       <section id="domain-inheritance" data-chapter="domain" data-title="4 Jerarquías STI" data-bg="clean">
         <div class="slide-body">
           <div class="flex-between">
@@ -408,7 +450,7 @@ class Review(Base):
             <div class="card card-dark flex-col rv" style="--i:3;justify-content:space-between;padding:28px;">
               <div style="display:flex;align-items:center;justify-content:space-between;">
                 <span class="mono" style="font-size:12px;color:rgba(255,255,255,0.58);">app/models/report.py — Esqueleto en clase abstracta Report</span>
-                <span class="mono" style="border-radius:999px;background:rgba(45,212,191,0.2);padding:3px 12px;font-size:11px;color:#2dd4bf;">Lines 101–115</span>
+                <span class="mono" style="border-radius:999px;background:rgba(45,212,191,0.2);padding:3px 12px;font-size:11px;color:#2dd4bf;">Lines 102–115</span>
               </div>
               <pre class="mono" style="margin:auto 0;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.92);white-space:pre;">class Report(Base):
     def resolve(self) -> None:

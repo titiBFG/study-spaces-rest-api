@@ -230,7 +230,7 @@ body.is-hidden .mesh-blob {
    ========================================================================== */
 .deck-header {
   position: fixed;
-  top: 20px;
+  top: 16px;
   left: clamp(24px, 5vw, 96px);
   right: clamp(24px, 5vw, 96px);
   z-index: 25;
@@ -279,6 +279,22 @@ body.is-hidden .mesh-blob {
   letter-spacing: 0.18em;
   color: rgba(11, 11, 18, 0.5);
   font-variant-numeric: tabular-nums;
+}
+
+.deck-header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.deck-mosca {
+  height: 48px;
+  width: auto;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  user-select: none;
+  pointer-events: none;
 }
 
 .deck-footer {
@@ -972,6 +988,123 @@ body.is-hidden .mesh-blob {
   line-height: 1.62;
   overflow-x: auto;
   white-space: pre;
+}
+
+/* Interactive Vector UML Viewer (Slide #domain-uml) */
+.uml-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.uml-presets,
+.uml-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(11, 11, 18, 0.045);
+  border: 1px solid rgba(11, 11, 18, 0.08);
+}
+
+.uml-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(11, 11, 18, 0.72);
+  background: transparent;
+  transition: background-color 180ms, color 180ms, transform 160ms;
+  white-space: nowrap;
+}
+
+.uml-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-ink);
+}
+
+.uml-btn.is-active {
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+.uml-icon-btn {
+  width: 30px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.uml-zoom-readout {
+  min-width: 48px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(11, 11, 18, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+.uml-stage-card {
+  position: relative;
+  padding: 12px;
+  background: #ffffff;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.uml-stage-card:hover,
+.uml-stage-card:focus-visible {
+  translate: 0 0 !important;
+  border-color: rgba(11, 11, 18, 0.12);
+}
+
+.uml-stage-card::after {
+  display: none;
+}
+
+.uml-stage-card.is-dragging {
+  cursor: grabbing;
+}
+
+.uml-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.uml-canvas > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+}
+
+.uml-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.uml-hint {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  z-index: 3;
+  pointer-events: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(11, 11, 18, 0.09);
+  font-size: 11px;
+  color: rgba(11, 11, 18, 0.62);
 }
 
 /* ==========================================================================
